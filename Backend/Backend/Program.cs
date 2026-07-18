@@ -14,14 +14,33 @@ builder.Services.AddHostedService<BusLocationTrackingService>();
 
 builder.Services.AddControllers();
 
+if(builder.Environment.IsDevelopment())
+{
+    // allows connection from other devices under the same network
+    builder.WebHost
+        .UseUrls("http://0.0.0.0:5000")
+        .UseKestrel();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    });
+}
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
+// https://stackoverflow.com/questions/75718271/failed-to-determine-the-https-port-for-redirect
+// app.UseHttpsRedirection();
 
-app.UseAuthorization();
+if (builder.Environment.IsDevelopment())
+{
+    app.UseCors();
+}
+
 
 app.MapControllers();
+
 
 await app.RunAsync();

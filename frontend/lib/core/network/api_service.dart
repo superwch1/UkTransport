@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/core/network/enum/http_method.dart';
 import 'package:frontend/core/network/enum/status_code.dart';
-import 'package:frontend/core/network/models/api_response.dart';
+import 'package:frontend/core/network/response/api_response.dart';
 
 class ApiService {
   final Dio dio = Dio(

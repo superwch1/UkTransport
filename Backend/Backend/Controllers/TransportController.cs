@@ -21,7 +21,7 @@ namespace Backend.Controllers
             if (busLocations.Count > 100)
                 return Success(StatusCodes.Status204NoContent, message: "Zoom in to show bus real time location");
 
-            return Success(StatusCodes.Status204NoContent, response: busLocations.ToBusLocationsResponse());
+            return Success(StatusCodes.Status200OK, response: busLocations.ToBusLocationsResponse());
         }
     }
 }
