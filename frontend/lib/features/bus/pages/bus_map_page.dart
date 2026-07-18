@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/features/bus/view_models/bus_map_view_model.dart';
-import 'package:frontend/features/bus/widgets/bus_location_symbols.dart';
 import 'package:frontend/main.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
@@ -19,8 +18,13 @@ class BusMapPage extends ConsumerWidget {
 
         MapLibreMap(
           onMapCreated: (controller) async => await viewModel.onMapCreated(controller, context),
-          onCameraIdle: () async => await viewModel.onCameraIdle(context),
-          onCameraMove: (cameraPosition) async => viewModel.onCameraMove(cameraPosition),
+          onStyleLoadedCallback: () async => await viewModel.onStyleLoaded(),
+          onCameraIdle: () async => await viewModel.onCameraIdle(),
+
+           initialCameraPosition: const CameraPosition(
+              target: LatLng(53.4808, -2.2426), // Manchester city centre
+              zoom: 12,
+            ),
           
           attributionButtonPosition: AttributionButtonPosition.bottomLeft, 
           styleString: Constants.mapStyleUrl,
@@ -30,12 +34,6 @@ class BusMapPage extends ConsumerWidget {
           tiltGesturesEnabled: false,
           trackCameraPosition: true,          
         ),
-
-        BusLocationSymbols(
-          symbolsNotifier: viewModel.busSymbolsNotifier, 
-          symbolSize: viewModel.symbolSize,
-          onSymbolTap: (symbol) => null,
-        )
       ],
     );
   }
