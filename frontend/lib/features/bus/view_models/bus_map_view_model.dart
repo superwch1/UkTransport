@@ -7,7 +7,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 class BusMapViewModel {
 
-  final ValueNotifier<List<BusLocationSymbol>> symbolsNotifier = ValueNotifier([]);
+  final ValueNotifier<List<BusLocationSymbol>> busSymbolsNotifier = ValueNotifier([]);
   final double symbolSize = 45;
 
   final TransportApiService transportApiService;
@@ -17,19 +17,15 @@ class BusMapViewModel {
 
   Future onMapCreated(MapLibreMapController controller, BuildContext context) async {
     _mapController = controller;
-    _mapController?.addListener(() => onCameraMove());
 
     if (context.mounted) {
       await showBusLocations(context);
     }
   }
 
-  void onCameraMove() {
-    symbolsNotifier.value = [];
-
-    final cameraPosition = _mapController?.cameraPosition;
-    if (cameraPosition == null) {
-      return;
+  void onCameraMove(CameraPosition cameraPosition) {
+    if (busSymbolsNotifier.value.isNotEmpty) {
+      busSymbolsNotifier.value = [];
     }
   }
 
@@ -77,7 +73,10 @@ class BusMapViewModel {
           isHighlighted: false
         ));
       }
-      symbolsNotifier.value = busLocations;
+      
+      if (context.mounted) {
+        busSymbolsNotifier.value = busLocations;
+      }
 
     } else {
       // Handle error

@@ -12,7 +12,7 @@ class BusMapPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
+    print("Build");
     final BusMapViewModel viewModel = BusMapViewModel(ref.read(transportApiServiceProvider));
     return Stack(
       children: [
@@ -20,6 +20,7 @@ class BusMapPage extends ConsumerWidget {
         MapLibreMap(
           onMapCreated: (controller) async => await viewModel.onMapCreated(controller, context),
           onCameraIdle: () async => await viewModel.onCameraIdle(context),
+          onCameraMove: (cameraPosition) async => viewModel.onCameraMove(cameraPosition),
           
           attributionButtonPosition: AttributionButtonPosition.bottomLeft, 
           styleString: Constants.mapStyleUrl,
@@ -31,7 +32,7 @@ class BusMapPage extends ConsumerWidget {
         ),
 
         BusLocationSymbols(
-          symbolsNotifier: viewModel.symbolsNotifier, 
+          symbolsNotifier: viewModel.busSymbolsNotifier, 
           symbolSize: viewModel.symbolSize,
           onSymbolTap: (symbol) => null,
         )
