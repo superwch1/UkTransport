@@ -53,6 +53,8 @@ class ApiService {
         return ApiResponse<T>(statusCode, response.data["message"], parsedData as T);
       }
 
+      return ApiResponse<T>(statusCode, response.data["message"], null);
+
     } catch (exception) { // catch all expcetion including type conversion exception
       final response = exception is DioException ? exception.response : null;
       if (response != null) {
@@ -63,8 +65,8 @@ class ApiService {
         final statusCode = StatusCode.fromInt(response.statusCode ?? 0);
         return ApiResponse<T>(statusCode, message, null);
       }
+
+      return ApiResponse<T>(StatusCode.undocumented, "", null);
     }
-    
-    return ApiResponse<T>(StatusCode.undocumented, "", null);
   }
 }

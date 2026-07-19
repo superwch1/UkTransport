@@ -17,7 +17,7 @@ class BusMapPage extends ConsumerWidget {
       children: [
 
         MapLibreMap(
-          onMapCreated: (controller) async => await viewModel.onMapCreated(controller, context),
+          onMapCreated: (controller) async => await viewModel.onMapCreated(controller),
           onStyleLoadedCallback: () async => await viewModel.onStyleLoaded(),
           onCameraIdle: () async => await viewModel.onCameraIdle(),
 

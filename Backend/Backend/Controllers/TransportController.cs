@@ -1,4 +1,5 @@
 ﻿using Backend.Extensions;
+using Backend.Models;
 using Backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,7 @@ namespace Backend.Controllers
         {
             var busLocations = _busRepository.GetBusLocations(north, south, east, west);
             if (busLocations.Count > 100)
-                return Success(StatusCodes.Status204NoContent, message: "Zoom in to show bus real time location");
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusLocation>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
 
             return Success(StatusCodes.Status200OK, response: busLocations.ToBusLocationsResponse());
         }

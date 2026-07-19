@@ -1,59 +1,64 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/enum/status_code.dart';
+import 'package:frontend/core/network/response/bus_location_item_response.dart';
 import 'package:frontend/core/network/transport_api_service.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 class BusMapViewModel {
-  BusMapViewModel(this.transportApiService);
-
+  
   final TransportApiService transportApiService;
 
-  static const _sourceId = 'buses-source';
-  static const _layerId = 'buses-layer';
-
   MapLibreMapController? _mapController;
-  bool _layerReady = false;
 
-  final Set<String> _registeredImages = {};
   final ValueNotifier<String?> selectedBusIdNotifier = ValueNotifier(null);
 
-  List<dynamic> _lastBuses = [];
+  List<BusLocationItemResponse> _busSymbols = [];
+  bool _layerReady = false;
 
-  Future<void> onMapCreated(MapLibreMapController controller, BuildContext context) async {
+  // ---- style ids ----
+  static const _busSourceId = 'bus-source';
+  static const _busLayerId = 'bus-labels';
+  static const _bgImage = 'bus-bg';
+
+  // bus location symbol geometry
+  static const _textColor = '#000000';
+  static const _boxColor = Colors.white;
+  static const _borderWidth = 1.0;
+  static const _fontSize = 14.0;
+  static const _textPaddingX = 6.0;
+  static const _textPaddingY = 2.0;
+  static const _pointerWidth = 7.0; 
+  static const _pointerHeight = 5.0; 
+  static const _textFont = ['noto_sans_regular']; // https://tiles.versatiles.org/assets/glyphs/index.json
+
+
+  static const Map<String, dynamic> _emptyCollection = {
+    'type': 'FeatureCollection',
+    'features': <dynamic>[],
+  };
+
+  BusMapViewModel(this.transportApiService);
+
+  Future<void> onMapCreated(MapLibreMapController controller) async {
     _mapController = controller;
   }
 
   Future<void> onStyleLoaded() async {
-    final controller = _mapController!;
+    final controller = _mapController;
+    if (controller == null) {
+      return;
+    }
 
-    await controller.addGeoJsonSource(_sourceId, {'type': 'FeatureCollection', 'features': <dynamic>[]});
+    await controller.addGeoJsonSource(_busSourceId, _emptyCollection);
 
-    await controller.addSymbolLayer(
-      _sourceId,
-      _layerId,
-      SymbolLayerProperties(
-        iconImage: [Expressions.get, 'image'],
-        iconRotate: ['to-number', [Expressions.get, 'bearing']],
-
-        // collision fully off, baked into the layer definition:
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconRotationAlignment: 'map',
-        
-        // when boxes stack, selected bus draws on top:
-        symbolSortKey: [
-          'case', ['==', [Expressions.get, 'selected'], true], 2.0, 1.0,
-        ],
-      ),
-    );
+    // generate the bus location symbol image and add layer into the map
+    final busSymbolData = await _generateBusLocationSymbol();
+    await controller.addImage(_bgImage, busSymbolData);
+    await _addBusLocationLayer(controller);
 
     _layerReady = true;
-
-    _mapController!.onFeatureTapped.add(_onFeatureTapped);
     await _refreshBuses();
   }
 
@@ -72,99 +77,127 @@ class BusMapViewModel {
       bounds.northeast.longitude,
       bounds.southwest.longitude,
     );
-    if (response.statusCode != StatusCode.ok) return;
 
-    _lastBuses = response.data?.busLocations ?? [];
-
-    // images must exist before the source references them
-    for (final bus in _lastBuses) {
-      await _ensureBusImage(bus.publishedLineName);
+    if (response.statusCode != StatusCode.ok) {
+      return;
     }
 
-    await _emitSource();
+    _busSymbols = response.data?.busLocations ?? [];
+    await controller.setGeoJsonSource(_busSourceId, _buildFeatureCollection());
   }
 
-  Future<void> _emitSource() async {
+  Map<String, dynamic> _buildFeatureCollection() {
     final selectedId = selectedBusIdNotifier.value;
-
-    final features = _lastBuses
-      .map<Map<String, dynamic>>((bus) => {
-          'type': 'Feature',
-          'id': bus.id,
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [bus.longitude, bus.latitude],
-          },
-          'properties': {
-            'busId': bus.id,
-            'image': 'bus-${bus.publishedLineName}',
-            'bearing': (bus.bearing ?? 0).toDouble(),
-            'selected': bus.id == selectedId,
-          },
-        })
-      .toList();
-
-    await _mapController!.setGeoJsonSource(_sourceId, {
+    return {
       'type': 'FeatureCollection',
-      'features': features,
-    });
+      'features': [
+        for (final bus in _busSymbols)
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [bus.longitude, bus.latitude],
+            },
+            'properties': {
+              'busId': bus.id,
+              'lineName': bus.publishedLineName,
+              'bearing': bus.bearing,
+              'selected': bus.id == selectedId,
+            },
+          },
+      ],
+    };
+  }
+
+  Future<void> _addBusLocationLayer(MapLibreMapController controller) async {
+    await controller.addSymbolLayer(
+      _busSourceId,
+      _busLayerId,
+      SymbolLayerProperties(
+        iconImage: _bgImage,
+        iconSize: 1.0,
+        iconRotate: ['+', ['get', 'bearing'], 90],
+        iconRotationAlignment: 'map',
+
+        // [top, right, bottom, left] — left reserves room for the pointer
+        iconTextFitPadding: [
+          _textPaddingY,
+          _textPaddingX,
+          _textPaddingY,
+          _pointerHeight + _textPaddingX,
+        ],
+
+        // map-rendered text
+        textField: ['get', 'lineName'],
+        textFont: _textFont,
+        textSize: _fontSize,
+        textColor: _textColor,
+        textRotate: ['+', ['get', 'bearing'], 90],
+        textRotationAlignment: 'map',
+
+        iconAllowOverlap: true,
+        textAllowOverlap: true,
+
+        // selected bus drawn on top (higher key = on top when overlap is on)
+        symbolSortKey: ['case', ['get', 'selected'], 1, 0],
+      ),
+    );
   }
 
 
-  void _onFeatureTapped(Point<double> point, LatLng coordinates, String id, String layerId, Annotation? annotation,) {
-    if (layerId != _layerId) return;
-    final busId = id.toString();
-    print(layerId);
-    print(busId);
-
-    selectedBusIdNotifier.value = selectedBusIdNotifier.value == busId ? null : busId;
-    _emitSource();
-  }
-
-  Future<void> _ensureBusImage(String lineName) async {
-    final imageName = 'bus-$lineName';
-    if (_registeredImages.contains(imageName)) return;
-    final bytes = await _renderBusBox(lineName);
-    await _mapController!.addImage(imageName, bytes);
-    _registeredImages.add(imageName);
-  }
-
-  Future<Uint8List> _renderBusBox(String label) async {
-    const fontSize = 20.0, paddingX = 12.0, paddingY = 8.0, radius = 8.0;
-
-    final tp = TextPainter(
-      text: TextSpan(
-        text: label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: FontWeight.w700,
-        ),
+  static Future<Uint8List> _generateBusLocationSymbol() async {
+    final nominal = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: const TextSpan(
+        text: '000',
+        style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.w600),
       ),
     )..layout();
 
-    final boxW = tp.width + paddingX * 2;
-    final boxH = tp.height + paddingY * 2;
+    final boxWidth = nominal.width + _textPaddingX * 2;
+    final boxHeight = nominal.height + _textPaddingY * 2;
+
+    // reserve room for the border so it isn't clipped at the image edges
+    final imageWidth = boxWidth + _pointerHeight + _borderWidth;
+    final imageHeight = boxHeight + _borderWidth;
+    final left = _pointerHeight + _borderWidth / 2; // box starts after the triangle
+    final top = _borderWidth / 2;
+
+    final boxPath = Path()..addRect(Rect.fromLTWH(left, top, boxWidth, boxHeight));
+
+    final cy = top + boxHeight / 2;
+    final triPath = Path()
+      ..moveTo(left + 1, cy - _pointerWidth / 2)
+      ..lineTo(left - _pointerHeight, cy)
+      ..lineTo(left + 1, cy + _pointerWidth / 2)
+      ..close();
+
+    final shape = Path.combine(PathOperation.union, boxPath, triPath);
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, boxW, boxH),
-        const Radius.circular(radius),
-      ),
-      Paint()..color = const Color(0xFF1565C0),
-    );
-    tp.paint(canvas, const Offset(paddingX, paddingY));
+    // 1. whole shape black -> colours the pointer
+    canvas.drawPath(shape, Paint()..color = Colors.black);
 
-    final image = await recorder.endRecording().toImage((boxW).ceil(), (boxH).ceil());
+    // 2. box fill on top, leaving the pointer black
+    canvas.drawPath(boxPath, Paint()..color = _boxColor);
+
+    // 3. border — stroke the OUTER shape so the pointer + box share one outline
+    canvas.drawPath(shape,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _borderWidth
+        ..strokeJoin = StrokeJoin.round,
+    );
+
+    final image = await recorder.endRecording().toImage(imageWidth.ceil(), imageHeight.ceil());
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     return data!.buffer.asUint8List();
   }
 
   void dispose() {
-    _mapController?.onFeatureTapped.remove(_onFeatureTapped);
     selectedBusIdNotifier.dispose();
   }
 }

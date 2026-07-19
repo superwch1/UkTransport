@@ -5,7 +5,7 @@ namespace Backend.Controllers
 {
     public abstract class ApiControllerBase: ControllerBase
     {
-        protected IActionResult Success(int statusCode, IResponse? response = null, string message = "Success")
+        protected IActionResult Success(int statusCode, IResponse? response = null, string message = "")
         {
             return StatusCode(
                 statusCode,
