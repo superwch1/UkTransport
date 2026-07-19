@@ -15,7 +15,7 @@ namespace Backend.Controllers
             _busRepository = busRepository;
         }
 
-        [HttpGet("[controller]/[action]")]
+        [HttpGet("[controller]/bus/locations")]
         public IActionResult BusLocations([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {
             var busLocations = _busRepository.GetBusLocations(north, south, east, west);
@@ -23,6 +23,17 @@ namespace Backend.Controllers
                 return Success(StatusCodes.Status200OK, response: Array.Empty<BusLocation>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
 
             return Success(StatusCodes.Status200OK, response: busLocations.ToBusLocationsResponse());
+        }
+
+
+        [HttpGet("[controller]/bus/{id}/location/")]
+        public IActionResult BusLocation(string id)
+        {
+            var busLocation = _busRepository.GetBusLocationById(id);
+            if (busLocation == null)
+                return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
+
+            return Success(StatusCodes.Status200OK, response: busLocation.ToBusLocationItemResponse());
         }
     }
 }

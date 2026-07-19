@@ -11,6 +11,12 @@ namespace Backend.Repositories
             _transportDataStore = transportDataStore;
         }
 
+        public BusLocation? GetBusLocationById(string id)
+        {
+            return _transportDataStore.GetBusLocations()
+                .FirstOrDefault(bus => bus.Id == id);
+        }
+
 
         public IReadOnlyList<BusLocation> GetBusLocations(decimal north, decimal south, decimal east, decimal west)
         {
