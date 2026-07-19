@@ -34,5 +34,22 @@ namespace Backend.Extensions
             }
             return new BusLocationsResponse() { BusLocations = busLocationItems };
         }
+
+        public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<BusStop> busStops)
+        {
+            List<BusStopItemResponse> busStopItems = new List<BusStopItemResponse>();
+            foreach (BusStop busStop in busStops)
+            {
+                busStopItems.Add(new BusStopItemResponse()
+                {
+                    Id = busStop.Id,
+                    CommonName = busStop.CommonName,
+                    Bearing = busStop.Bearing,
+                    Latitude = busStop.Latitude,
+                    Longitude = busStop.Longitude,
+                });
+            }
+            return new BusStopsResponse() { BusStops = busStopItems };
+        }
     }
 }

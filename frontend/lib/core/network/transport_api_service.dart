@@ -3,6 +3,7 @@ import 'package:frontend/core/network/enum/http_method.dart';
 import 'package:frontend/core/network/response/api_response.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
 import 'package:frontend/core/network/response/bus_locations_response.dart';
+import 'package:frontend/core/network/response/bus_stops_response.dart';
 
 class TransportApiService extends ApiService {
 
@@ -19,5 +20,14 @@ class TransportApiService extends ApiService {
     return await super.sendRequest(
       HttpMethod.get, "transport/bus/$id/location", 
       fromJson: BusLocationItemResponse.fromJson);
+  }
+
+  Future<ApiResponse<BusStopsResponse>> getBusStops(double north, double south, double east, double west) async { 
+    return await super.sendRequest(
+      HttpMethod.get, "transport/bus/stops", 
+      queryParameters: {
+        "north": north, "south": south, "east": east, "west": west,
+      },
+      fromJson: BusStopsResponse.fromJson);
   }
 }

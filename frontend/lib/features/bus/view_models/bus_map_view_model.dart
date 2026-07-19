@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/enum/status_code.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
+import 'package:frontend/core/network/response/bus_stop_item_response.dart';
 import 'package:frontend/core/network/transport_api_service.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
@@ -12,15 +13,30 @@ class BusMapViewModel {
   MapLibreMapController? _mapController;
 
   final TransportApiService transportApiService;
-  final ValueNotifier<BusLocationItemResponse?> selectedBusIdNotifier = ValueNotifier<BusLocationItemResponse?>(null);
+  final ValueNotifier<BusLocationItemResponse?> selectedBusLocationNotifier = ValueNotifier<BusLocationItemResponse?>(null);
 
-  List<BusLocationItemResponse> _busSymbols = [];
+  List<BusLocationItemResponse> _busLocations = [];
+  List<BusStopItemResponse> _busStops = [];
+
   bool _layerReady = false;
 
   // ---- style ids ----
-  static const _busSourceId = 'bus-source';
-  static const _busLayerId = 'bus-labels';
-  static const _bgImage = 'bus-bg';
+  static const _busLocationSourceId = 'bus-location-source';
+  static const _busLocationLayerId = 'bus-location-layer';
+  static const _busLocationSymbolBackground = 'bus-location-symbol-background';
+
+  static const _busStopSourceId = 'bus-stop-source';
+  static const _busStopLayerId = 'bus-stop-layer';
+  static const _busStopSymbolBackground = 'bus-stop-symbol-background';
+
+
+  // bus stop symbol geometry
+  static const _stopRadius = 7.0;
+  static const _stopBorderWidth = 1.5;
+  static const _stopPointerWidth = 8.0;   // base width of the direction wedge
+  static const _stopPointerHeight = 6.0;  // how far it sticks out past the circle
+  static const _stopFillColor = Colors.grey; // blue; change as you like
+  
 
   // bus location symbol geometry
   static const _textColor = '#000000';
@@ -51,28 +67,39 @@ class BusMapViewModel {
     String layerId, String featureId, Annotation? annotation) async {
     final features = await _mapController!.queryRenderedFeaturesInRect(
       Rect.fromCenter(center: Offset(point.x, point.y), width: 44, height: 44),
-      [_busLayerId],
+      [_busLocationLayerId, _busStopLayerId],
       null,
     );
+
     if (features.isEmpty) {
       return;
     }
-
-    String? busId;
+    
     Map<String, dynamic>? map = features.first.cast<String, dynamic>();
     final props = map?['properties'];
-    if (props is Map) {
-      busId = props['id'] as String?;
-    }
-
-    final busSymbol = _busSymbols.where((bus) => bus.id == busId).firstOrNull;
-    if (busSymbol == null) {
+    if (props is! Map) {
       return;
     }
 
-    _busSymbols = _busSymbols.where((bus) => bus.id == busId).toList();
-    selectedBusIdNotifier.value = busSymbol;
-    await _mapController!.setGeoJsonSource(_busSourceId, _buildBusFeature());
+    String? id = props['id'] as String?;
+    final source = map?['source'];   
+    if (source == _busLocationSourceId) {
+      final busLocation = _busLocations.where((bus) => bus.id == id).firstOrNull;
+      if (busLocation == null) {
+        return;
+      }
+
+      _busLocations = _busLocations.where((bus) => bus.id == id).toList();
+      selectedBusLocationNotifier.value = busLocation;
+      _busStops = [];
+    }
+    else if (source == _busStopSourceId){
+      print(id);
+    }
+
+    
+    await _mapController!.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
+    await _mapController!.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
   }
 
 
@@ -82,69 +109,108 @@ class BusMapViewModel {
       return;
     }
 
-    await controller.addGeoJsonSource(_busSourceId, _emptyCollection);
+    await controller.addGeoJsonSource(_busLocationSourceId, _emptyCollection);
+    await controller.addGeoJsonSource(_busStopSourceId, _emptyCollection);
 
     // generate the bus location symbol image and add layer into the map
-    final busSymbolData = await _generateBusLocationSymbol();
-    await controller.addImage(_bgImage, busSymbolData);
+    final busLocationSymbolData = await _generateBusLocationSymbol();
+    await controller.addImage(_busLocationSymbolBackground, busLocationSymbolData);
+
+    final busStopSymbolData = await _generateBusStopSymbol();
+    await controller.addImage(_busStopSymbolBackground, busStopSymbolData);
+
     await _addBusLocationLayer(controller);
+    await _addBusStopLayer(controller);
 
     _layerReady = true;
-    await refreshBuses();
+    await refreshMapSymbols();
   }
 
 
-  Future<void> refreshBuses() async {
+  Future<void> refreshMapSymbols() async {
     final controller = _mapController;
     if (controller == null || !_layerReady) {
       return;
     }
 
     // If a bus is selected, refresh only that bus's location
-    final selectedBus = selectedBusIdNotifier.value;
+    final selectedBus = selectedBusLocationNotifier.value;
     if (selectedBus != null) {
       final response = await transportApiService.getBusLocation(selectedBus.id);
       if (response.statusCode == StatusCode.ok && response.data != null) {
-        _busSymbols = [ response.data! ];
-        selectedBusIdNotifier.value = response.data!;
+        _busLocations = [ response.data! ];
+        selectedBusLocationNotifier.value = response.data!;
       } else {
-        _busSymbols = [];
+        _busLocations = [];
       }
     } 
     
     // If no bus is selected, refresh all buses in the current map bounds
     else {   
       final bounds = await controller.getVisibleRegion();
-      final response = await transportApiService.getBusLocations(
+      final busLocationsResponse = await transportApiService.getBusLocations(
         bounds.northeast.latitude,
         bounds.southwest.latitude,
         bounds.northeast.longitude,
         bounds.southwest.longitude,
       );
-      if (response.statusCode == StatusCode.ok && response.data != null) {
-        _busSymbols = response.data!.busLocations;
+      if (busLocationsResponse.statusCode == StatusCode.ok && busLocationsResponse.data != null) {
+        _busLocations = busLocationsResponse.data!.busLocations;
       } else {
-        _busSymbols = [];
+        _busLocations = [];
       }
+
+      final busStopsResponse = await transportApiService.getBusStops(
+        bounds.northeast.latitude,
+        bounds.southwest.latitude,
+        bounds.northeast.longitude,
+        bounds.southwest.longitude,
+      );
+      if (busStopsResponse.statusCode == StatusCode.ok && busStopsResponse.data != null) {
+        _busStops = busStopsResponse.data!.busStops;
+      } else {
+        _busStops = [];
+      } 
     }
 
-    await controller.setGeoJsonSource(_busSourceId, _buildBusFeature());
+    await controller.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
+    await controller.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
   }
 
-  Map<String, dynamic> _buildBusFeature() {
+  Map<String, dynamic> _buildBusLocationFeature() {
     return {
       'type': 'FeatureCollection',
       'features': [
-        for (final bus in _busSymbols) {
+        for (final busLocation in _busLocations) {
           'type': 'Feature',
           'geometry': {
             'type': 'Point',
-            'coordinates': [bus.longitude, bus.latitude],
+            'coordinates': [busLocation.longitude, busLocation.latitude],
           },
           'properties': {
-            'id': bus.id,
-            'lineName': bus.publishedLineName,
-            'bearing': bus.bearing
+            'id': busLocation.id,
+            'lineName': busLocation.publishedLineName,
+            'bearing': busLocation.bearing
+          },
+        },
+      ],
+    };
+  }
+
+
+  Map<String, dynamic> _buildBusStopFeature() {
+    return {
+      'type': 'FeatureCollection',
+      'features': [
+        for (final busStop in _busStops) {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [busStop.longitude, busStop.latitude],
+          },
+          'properties': {
+            'id': busStop.id,
+            'bearing': busStop.bearing
           },
         },
       ],
@@ -154,10 +220,10 @@ class BusMapViewModel {
 
   Future<void> _addBusLocationLayer(MapLibreMapController controller) async {
     await controller.addSymbolLayer(
-      _busSourceId,
-      _busLayerId,
+      _busLocationSourceId,
+      _busLocationLayerId,
       SymbolLayerProperties(
-        iconImage: _bgImage,
+        iconImage: _busLocationSymbolBackground,
         iconSize: 1.0,
         iconRotate: ['+', ['get', 'bearing'], 90],
         iconRotationAlignment: 'map',
@@ -177,6 +243,23 @@ class BusMapViewModel {
         textColor: _textColor,
         textRotate: ['+', ['get', 'bearing'], 90],
         textRotationAlignment: 'map',
+
+        iconAllowOverlap: true,
+        textAllowOverlap: true,
+      ),
+    );
+  }
+
+
+  Future<void> _addBusStopLayer(MapLibreMapController controller) async {
+    await controller.addSymbolLayer(
+      _busStopSourceId,
+      _busStopLayerId,
+      SymbolLayerProperties(
+        iconImage: _busStopSymbolBackground,
+        iconSize: 1.0,
+        iconRotate: ['get', 'bearing'],
+        iconRotationAlignment: 'map',
 
         iconAllowOverlap: true,
         textAllowOverlap: true,
@@ -233,6 +316,50 @@ class BusMapViewModel {
     );
 
     final image = await recorder.endRecording().toImage(imageWidth.ceil(), imageHeight.ceil());
+    final data = await image.toByteData(format: ImageByteFormat.png);
+    return data!.buffer.asUint8List();
+  }
+
+
+  static Future<Uint8List> _generateBusStopSymbol() async {
+    // Pad every side by the pointer length + border so the circle lands
+    // dead-centre — MapLibre anchors the icon at the image centre, so the
+    // circle stays on the coordinate while rotation spins the pointer.
+    final pad = _stopPointerHeight + _stopBorderWidth;
+    final size = _stopRadius * 2 + pad * 2;
+    final center = Offset(size / 2, size / 2);
+
+    final circlePath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: _stopRadius));
+
+    // Pointer at the top (north) so iconRotate: ['get','bearing'] aims it correctly.
+    final tipY = center.dy - _stopRadius - _stopPointerHeight;
+    final baseY = center.dy - _stopRadius + 0.5; // overlap slightly into the circle
+    final pointerPath = Path()
+      ..moveTo(center.dx - _stopPointerWidth / 2, baseY)
+      ..lineTo(center.dx, tipY)
+      ..lineTo(center.dx + _stopPointerWidth / 2, baseY)
+      ..close();
+
+    final shape = Path.combine(PathOperation.union, circlePath, pointerPath);
+
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    // fill (circle + pointer as one shape)
+    canvas.drawPath(shape, Paint()..color = _stopFillColor);
+
+    // shared outline around the whole shape
+    canvas.drawPath(
+      shape,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _stopBorderWidth
+        ..strokeJoin = StrokeJoin.round,
+    );
+
+    final image = await recorder.endRecording().toImage(size.ceil(), size.ceil());
     final data = await image.toByteData(format: ImageByteFormat.png);
     return data!.buffer.asUint8List();
   }

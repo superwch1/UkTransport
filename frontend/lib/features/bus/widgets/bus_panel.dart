@@ -30,8 +30,7 @@ class BusPanel extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Line ${bus.publishedLineName}',
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 IconButton(

@@ -25,28 +25,28 @@ namespace Backend.Services
             _logger = logger;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, BulkArchiveUrl);
 
                     HttpClient client = _httpClientFactory.CreateClient();
-                    using HttpResponseMessage response = await client.SendAsync(request, stoppingToken);
+                    using HttpResponseMessage response = await client.SendAsync(request, cancellationToken);
 
                     response.EnsureSuccessStatusCode();
 
                     using MemoryStream archiveStream = new MemoryStream();
-                    using Stream responseStream = await response.Content.ReadAsStreamAsync(stoppingToken);
-                    await responseStream.CopyToAsync(archiveStream, stoppingToken);
+                    using Stream responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                    await responseStream.CopyToAsync(archiveStream, cancellationToken);
 
                     archiveStream.Position = 0;
 
                     using ZipArchive zipArchive = new ZipArchive(archiveStream, ZipArchiveMode.Read);
 
-                    IReadOnlyList<BusLocation> busLocations = await ImportBusLocations(zipArchive, stoppingToken);
+                    IReadOnlyList<BusLocation> busLocations = await ImportBusLocations(zipArchive, cancellationToken);
                     _transportDataStore.RefreshBusLocations(busLocations);
                 }
                 catch (Exception ex)
@@ -55,27 +55,27 @@ namespace Backend.Services
                 }
                 finally
                 {
-                    await Task.Delay(10000, stoppingToken);
+                    await Task.Delay(10000, cancellationToken);
                 }
             }
         }
 
-        private async Task<IReadOnlyList<BusLocation>> ImportBusLocations(ZipArchive zipArchive, CancellationToken stoppingToken)
+        private async Task<IReadOnlyList<BusLocation>> ImportBusLocations(ZipArchive zipArchive, CancellationToken cancellationToken)
         {
             List<BusLocation> busLocations = [];
 
             foreach (ZipArchiveEntry entry in zipArchive.Entries)
             {
-                stoppingToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                await using Stream entryStream = await entry.OpenAsync(stoppingToken);
-                XDocument document = await XDocument.LoadAsync(entryStream, LoadOptions.None, stoppingToken);
+                using Stream entryStream = await entry.OpenAsync(cancellationToken);
+                XDocument document = await XDocument.LoadAsync(entryStream, LoadOptions.None, cancellationToken);
 
 
                 IEnumerable<XElement> activities = document.Descendants(SiriNamespace + "VehicleActivity");
                 foreach (XElement activity in activities)
                 {
-                    stoppingToken.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     try
                     {

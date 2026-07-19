@@ -15,6 +15,18 @@ namespace Backend.Controllers
             _busRepository = busRepository;
         }
 
+
+        [HttpGet("[controller]/bus/stops")]
+        public IActionResult BusStops([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
+        {
+            var busStops = _busRepository.GetBusStops(north, south, east, west);
+            if (busStops.Count > 100)
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusStop>().ToBusStopsResponse(), message: "Zoom in to show bus stops");
+
+            return Success(StatusCodes.Status200OK, response: busStops.ToBusStopsResponse());
+        }
+
+
         [HttpGet("[controller]/bus/locations")]
         public IActionResult BusLocations([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {

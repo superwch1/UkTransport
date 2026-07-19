@@ -36,7 +36,7 @@ class _BusMapPageState extends ConsumerState<BusMapPage> {
         MapLibreMap(
           onMapCreated: (controller) async => await viewModel.onMapCreated(controller),
           onStyleLoadedCallback: () async => await viewModel.onStyleLoaded(),
-          onCameraIdle: () async => await viewModel.refreshBuses(),
+          onCameraIdle: () async => await viewModel.refreshMapSymbols(),
 
           initialCameraPosition: const CameraPosition(
             target: LatLng(53.4808, -2.2426), // Manchester city centre
@@ -57,7 +57,7 @@ class _BusMapPageState extends ConsumerState<BusMapPage> {
           right: 0,
           bottom: 0,
           child: ValueListenableBuilder<BusLocationItemResponse?>(
-            valueListenable: viewModel.selectedBusIdNotifier,
+            valueListenable: viewModel.selectedBusLocationNotifier,
             builder: (context, busLocation, _) {
               if (busLocation == null) {
                 return const SizedBox.shrink();
@@ -65,8 +65,8 @@ class _BusMapPageState extends ConsumerState<BusMapPage> {
               return BusPanel(
                 bus: busLocation,
                 onClose: () {
-                  viewModel.selectedBusIdNotifier.value = null;
-                  viewModel.refreshBuses();
+                  viewModel.selectedBusLocationNotifier.value = null;
+                  viewModel.refreshMapSymbols();
                 },
               );
             },

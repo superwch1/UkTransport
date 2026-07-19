@@ -11,17 +11,26 @@ namespace Backend.Repositories
             _transportDataStore = transportDataStore;
         }
 
+
         public BusLocation? GetBusLocationById(string id)
         {
             return _transportDataStore.GetBusLocations()
-                .FirstOrDefault(bus => bus.Id == id);
+                .FirstOrDefault(busLocation => busLocation.Id == id);
         }
 
 
         public IReadOnlyList<BusLocation> GetBusLocations(decimal north, decimal south, decimal east, decimal west)
         {
             return _transportDataStore.GetBusLocations()
-                .Where(bus => bus.Latitude <= north && bus.Latitude >= south && bus.Longitude <= east && bus.Longitude >= west)
+                .Where(busLocation => busLocation.Latitude <= north && busLocation.Latitude >= south && busLocation.Longitude <= east && busLocation.Longitude >= west)
+                .ToList();
+        }
+
+
+        public IReadOnlyList<BusStop> GetBusStops(decimal north, decimal south, decimal east, decimal west)
+        {
+            return _transportDataStore.GetBusStops()
+                .Where(busStop => busStop.Latitude <= north && busStop.Latitude >= south && busStop.Longitude <= east && busStop.Longitude >= west)
                 .ToList();
         }
     }
