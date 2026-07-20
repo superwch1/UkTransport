@@ -11,8 +11,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<BusRepository>();
 builder.Services.AddSingleton<TransportDataStore>();
 
-builder.Services.AddHostedService<BusStopImportService>();
-builder.Services.AddHostedService<BusLocationTrackingService>();
+//builder.Services.AddHostedService<BusStopImportService>();
+//builder.Services.AddHostedService<BusLocationTrackingService>();
+builder.Services.AddHostedService<BusTimetableImportService>();
 
 builder.Services.AddControllers();
 

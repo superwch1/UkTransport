@@ -1,5 +1,5 @@
 ﻿using Backend.Models;
-using System.Globalization;
+using Backend.Extensions;
 using System.IO.Compression;
 using System.Xml.Linq;
 
@@ -82,32 +82,35 @@ namespace Backend.Services
                         XElement? journey = activity.Element(SiriNamespace + "MonitoredVehicleJourney");
                         XElement? location = journey?.Element(SiriNamespace + "VehicleLocation");
 
-                        string? itemIdentifier = Value(activity, "ItemIdentifier");
-                        DateTime? recordedAtTime = ParseUkDateTime(Value(activity, "RecordedAtTime"));
+                        string? itemIdentifier = activity.Value(SiriNamespace, "ItemIdentifier");
+                        DateTime? recordedAtTime = activity.Value(SiriNamespace, "RecordedAtTime").ParseUkDateTime(_ukTimeZone);
                         if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(5) > recordedAtTime.Value)
                             continue;
 
-                        string? operatorRef = Value(journey, "OperatorRef");
-                        string? publishedLineName = Value(journey, "PublishedLineName");
+                        string? operatorRef = journey.Value(SiriNamespace, "OperatorRef");
+                        string? publishedLineName = journey.Value(SiriNamespace, "PublishedLineName");
 
-                        string originName = Value(journey, "OriginName") ?? UnknownValue;
-                        string originRef = Value(journey, "OriginRef") ?? UnknownValue;
-                        string destinationName = Value(journey, "DestinationName") ?? UnknownValue;
-                        string destinationRef = Value(journey, "DestinationRef") ?? UnknownValue;
+                        string originName = journey.Value(SiriNamespace, "OriginName") ?? UnknownValue;
+                        string originRef = journey.Value(SiriNamespace, "OriginRef") ?? UnknownValue;
+                        string destinationName = journey.Value(SiriNamespace, "DestinationName") ?? UnknownValue;
+                        string destinationRef = journey.Value(SiriNamespace, "DestinationRef") ?? UnknownValue;
 
-                        TimeOnly? originAimedDepartureTime = ParseUkTimeOnly(Value(journey, "OriginAimedDepartureTime"));
-                        TimeOnly? destinationAimedArrivalTime = ParseUkTimeOnly(Value(journey, "DestinationAimedArrivalTime"));
+                        TimeOnly? originAimedDepartureTime = journey.Value(SiriNamespace, "OriginAimedDepartureTime").ParseUkTimeOnly(_ukTimeZone);
+                        TimeOnly? destinationAimedArrivalTime = journey.Value(SiriNamespace, "DestinationAimedArrivalTime").ParseUkTimeOnly(_ukTimeZone);
 
-                        TimeOnly? departureTimeFromJourneyRef = ParseTimeOnly(Value(journey?.Element(SiriNamespace + "FramedVehicleJourneyRef"), "DatedVehicleJourneyRef"));
+                        TimeOnly? departureTimeFromJourneyRef = journey?
+                            .Element(SiriNamespace + "FramedVehicleJourneyRef")
+                            .Value(SiriNamespace, "DatedVehicleJourneyRef")
+                            .ParseTimeOnly(format: ["HHmm", "HH:mm:ss"]);
 
-                        string? rawJourneyCode = ExtensionValue(activity, "JourneyCode");
-                        TimeOnly? departureTimeFromJourneyCode = rawJourneyCode == "0000" ? null : ParseTimeOnly(rawJourneyCode); // journey code. "0000" is that machine's null sentinel 
+                        string? rawJourneyCode = activity.ExtensionValue(SiriNamespace, "JourneyCode");
+                        TimeOnly? departureTimeFromJourneyCode = rawJourneyCode == "0000" ? null : rawJourneyCode.ParseTimeOnly(format: ["HHmm", "HH:mm:ss"]); // "0000" is that machine's null sentinel
 
-                        string? vehicleRef = Value(journey, "VehicleRef");
+                        string? vehicleRef = journey.Value(SiriNamespace, "VehicleRef");
 
-                        decimal? latitude = ParseDecimal(Value(location, "Latitude"));
-                        decimal? longitude = ParseDecimal(Value(location, "Longitude"));
-                        decimal bearing = ParseDecimal(Value(journey, "Bearing")) ?? 0;
+                        decimal? latitude = location.Value(SiriNamespace, "Latitude").ParseDecimal();
+                        decimal? longitude = location.Value(SiriNamespace, "Longitude").ParseDecimal();
+                        decimal bearing = journey.Value(SiriNamespace, "Bearing").ParseDecimal() ?? 0;
 
                         if (itemIdentifier is null || recordedAtTime is null || operatorRef is null || publishedLineName is null || vehicleRef is null || latitude is null || longitude is null)
                             continue;
@@ -143,60 +146,6 @@ namespace Backend.Services
             }
 
             return busLocations;
-        }
-
-        private static string? ExtensionValue(XElement activity, string localName)
-        {
-            XElement? extensions =
-                activity.Element(SiriNamespace + "Extensions") ??
-                activity.Element("Extensions");
-
-            string? value = extensions?
-                .Descendants()
-                .FirstOrDefault(e => e.Name.LocalName == localName)?
-                .Value
-                .Trim();
-
-            return string.IsNullOrEmpty(value) ? null : value;
-        }
-
-        private static string? Value(XElement? parent, string elementName)
-        {
-            string? value = parent?.Element(SiriNamespace + elementName)?.Value;
-            return string.IsNullOrWhiteSpace(value)
-                ? null
-                : value.Trim();
-        }
-
-        private static DateTime? ParseUkDateTime(string? value)
-        {
-            return DateTimeOffset.TryParse(
-                value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset result)
-                    ? TimeZoneInfo.ConvertTime(result, _ukTimeZone).DateTime
-                    : null;
-        }
-
-        private static TimeOnly? ParseUkTimeOnly(string? value)
-        {
-            return DateTimeOffset.TryParse(
-                value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset result)
-                    ? TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(result, _ukTimeZone).DateTime)
-                    : null;
-        }
-
-        private static TimeOnly? ParseTimeOnly(string? value)
-        {
-            return TimeOnly.TryParseExact(
-                value, ["HHmm", "HH:mm:ss"], CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeOnly result)
-                    ? result
-                    : null;
-        }
-
-        private static decimal? ParseDecimal(string? value)
-        {
-            return decimal.TryParse(value, out decimal result)
-                ? result
-                : null;
         }
     }
 }

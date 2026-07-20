@@ -1,6 +1,6 @@
 ﻿namespace Backend.Models
 {
-    public class BusLocationItemResponse : IResponse
+    public record BusLocationItemResponse : IResponse
     {
         public required string Id { get; init; }
         public required DateTime RecordedAtTime { get; init; }
