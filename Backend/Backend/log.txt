@@ -1,0 +1,1939 @@
+[2026-07-20 18:08:09] https://data.bus-data.dft.gov.uk/timetable/dataset/464/download/
+[2026-07-20 18:08:09] Total timetables 1733
+[2026-07-20 18:08:10] https://data.bus-data.dft.gov.uk/timetable/dataset/465/download/
+[2026-07-20 18:08:12] Total timetables 10069
+[2026-07-20 18:08:13] https://data.bus-data.dft.gov.uk/timetable/dataset/831/download/
+[2026-07-20 18:08:14] Total timetables 2
+[2026-07-20 18:08:15] https://data.bus-data.dft.gov.uk/timetable/dataset/1738/download/
+[2026-07-20 18:08:15] Total timetables 98
+[2026-07-20 18:08:16] https://data.bus-data.dft.gov.uk/timetable/dataset/1778/download/
+[2026-07-20 18:08:16] Total timetables 71
+[2026-07-20 18:08:17] https://data.bus-data.dft.gov.uk/timetable/dataset/1790/download/
+[2026-07-20 18:08:17] Total timetables 292
+[2026-07-20 18:08:18] https://data.bus-data.dft.gov.uk/timetable/dataset/2089/download/
+[2026-07-20 18:08:19] Total timetables 7248
+[2026-07-20 18:08:20] https://data.bus-data.dft.gov.uk/timetable/dataset/2096/download/
+[2026-07-20 18:08:22] Total timetables 4092
+[2026-07-20 18:08:23] https://data.bus-data.dft.gov.uk/timetable/dataset/2100/download/
+[2026-07-20 18:08:26] Total timetables 12822
+[2026-07-20 18:08:27] https://data.bus-data.dft.gov.uk/timetable/dataset/2137/download/
+[2026-07-20 18:08:29] Total timetables 7090
+[2026-07-20 18:08:31] https://data.bus-data.dft.gov.uk/timetable/dataset/2139/download/
+[2026-07-20 18:08:32] Total timetables 9600
+[2026-07-20 18:08:33] https://data.bus-data.dft.gov.uk/timetable/dataset/2145/download/
+[2026-07-20 18:08:36] Total timetables 9333
+[2026-07-20 18:08:37] https://data.bus-data.dft.gov.uk/timetable/dataset/2146/download/
+[2026-07-20 18:08:39] Total timetables 6909
+[2026-07-20 18:08:40] https://data.bus-data.dft.gov.uk/timetable/dataset/2151/download/
+[2026-07-20 18:08:43] Total timetables 12429
+[2026-07-20 18:08:44] https://data.bus-data.dft.gov.uk/timetable/dataset/2154/download/
+[2026-07-20 18:08:45] Total timetables 3070
+[2026-07-20 18:08:46] https://data.bus-data.dft.gov.uk/timetable/dataset/2156/download/
+[2026-07-20 18:08:47] Total timetables 9376
+[2026-07-20 18:08:49] https://data.bus-data.dft.gov.uk/timetable/dataset/2157/download/
+[2026-07-20 18:08:51] Total timetables 16449
+[2026-07-20 18:08:52] https://data.bus-data.dft.gov.uk/timetable/dataset/2173/download/
+[2026-07-20 18:08:53] Total timetables 4201
+[2026-07-20 18:08:54] https://data.bus-data.dft.gov.uk/timetable/dataset/2215/download/
+[2026-07-20 18:08:55] Total timetables 5435
+[2026-07-20 18:08:56] https://data.bus-data.dft.gov.uk/timetable/dataset/2237/download/
+[2026-07-20 18:08:57] Total timetables 2320
+[2026-07-20 18:08:58] https://data.bus-data.dft.gov.uk/timetable/dataset/2282/download/
+[2026-07-20 18:08:58] Total timetables 276
+[2026-07-20 18:08:59] https://data.bus-data.dft.gov.uk/timetable/dataset/2325/download/
+[2026-07-20 18:09:00] Total timetables 4331
+[2026-07-20 18:09:01] https://data.bus-data.dft.gov.uk/timetable/dataset/2349/download/
+[2026-07-20 18:09:02] Total timetables 1749
+[2026-07-20 18:09:03] https://data.bus-data.dft.gov.uk/timetable/dataset/2508/download/
+[2026-07-20 18:09:03] Total timetables 10
+[2026-07-20 18:09:04] https://data.bus-data.dft.gov.uk/timetable/dataset/2648/download/
+[2026-07-20 18:09:05] Total timetables 4202
+[2026-07-20 18:09:06] https://data.bus-data.dft.gov.uk/timetable/dataset/2877/download/
+[2026-07-20 18:09:08] Total timetables 13825
+[2026-07-20 18:09:09] https://data.bus-data.dft.gov.uk/timetable/dataset/3119/download/
+[2026-07-20 18:09:09] Total timetables 2
+[2026-07-20 18:09:10] https://data.bus-data.dft.gov.uk/timetable/dataset/3448/download/
+[2026-07-20 18:09:10] Total timetables 54
+[2026-07-20 18:09:11] https://data.bus-data.dft.gov.uk/timetable/dataset/3616/download/
+[2026-07-20 18:09:11] Total timetables 8
+[2026-07-20 18:09:12] https://data.bus-data.dft.gov.uk/timetable/dataset/4604/download/
+[2026-07-20 18:09:12] Total timetables 6
+[2026-07-20 18:09:13] https://data.bus-data.dft.gov.uk/timetable/dataset/4639/download/
+[2026-07-20 18:09:14] Total timetables 153
+[2026-07-20 18:09:15] https://data.bus-data.dft.gov.uk/timetable/dataset/4652/download/
+[2026-07-20 18:09:15] Total timetables 96
+[2026-07-20 18:09:16] https://data.bus-data.dft.gov.uk/timetable/dataset/4754/download/
+[2026-07-20 18:09:16] Total timetables 142
+[2026-07-20 18:09:17] https://data.bus-data.dft.gov.uk/timetable/dataset/4768/download/
+[2026-07-20 18:09:17] Total timetables 15
+[2026-07-20 18:09:18] https://data.bus-data.dft.gov.uk/timetable/dataset/4933/download/
+[2026-07-20 18:09:20] Total timetables 10309
+[2026-07-20 18:09:21] https://data.bus-data.dft.gov.uk/timetable/dataset/4952/download/
+[2026-07-20 18:09:22] Total timetables 60
+[2026-07-20 18:09:23] https://data.bus-data.dft.gov.uk/timetable/dataset/5014/download/
+[2026-07-20 18:09:24] Total timetables 40
+[2026-07-20 18:09:25] https://data.bus-data.dft.gov.uk/timetable/dataset/5024/download/
+[2026-07-20 18:09:25] Total timetables 70
+[2026-07-20 18:09:26] https://data.bus-data.dft.gov.uk/timetable/dataset/5122/download/
+[2026-07-20 18:09:26] Total timetables 2259
+[2026-07-20 18:09:27] https://data.bus-data.dft.gov.uk/timetable/dataset/5127/download/
+[2026-07-20 18:09:27] Total timetables 461
+[2026-07-20 18:09:28] https://data.bus-data.dft.gov.uk/timetable/dataset/5296/download/
+[2026-07-20 18:09:29] Total timetables 641
+[2026-07-20 18:09:30] https://data.bus-data.dft.gov.uk/timetable/dataset/5336/download/
+[2026-07-20 18:09:30] Total timetables 406
+[2026-07-20 18:09:31] https://data.bus-data.dft.gov.uk/timetable/dataset/5337/download/
+[2026-07-20 18:09:31] Total timetables 284
+[2026-07-20 18:09:32] https://data.bus-data.dft.gov.uk/timetable/dataset/5338/download/
+[2026-07-20 18:09:33] Total timetables 266
+[2026-07-20 18:09:34] https://data.bus-data.dft.gov.uk/timetable/dataset/5339/download/
+[2026-07-20 18:09:34] Total timetables 64
+[2026-07-20 18:09:35] https://data.bus-data.dft.gov.uk/timetable/dataset/5340/download/
+[2026-07-20 18:09:35] Total timetables 8
+[2026-07-20 18:09:36] https://data.bus-data.dft.gov.uk/timetable/dataset/5460/download/
+[2026-07-20 18:09:36] Total timetables 14
+[2026-07-20 18:09:37] https://data.bus-data.dft.gov.uk/timetable/dataset/5463/download/
+[2026-07-20 18:09:38] Total timetables 175
+[2026-07-20 18:09:39] https://data.bus-data.dft.gov.uk/timetable/dataset/5702/download/
+[2026-07-20 18:09:39] Total timetables 41
+[2026-07-20 18:09:40] https://data.bus-data.dft.gov.uk/timetable/dataset/5705/download/
+[2026-07-20 18:09:40] Total timetables 166
+[2026-07-20 18:09:41] https://data.bus-data.dft.gov.uk/timetable/dataset/6097/download/
+[2026-07-20 18:09:41] Total timetables 4
+[2026-07-20 18:09:42] https://data.bus-data.dft.gov.uk/timetable/dataset/6270/download/
+[2026-07-20 18:09:42] Total timetables 4
+[2026-07-20 18:09:43] https://data.bus-data.dft.gov.uk/timetable/dataset/6323/download/
+[2026-07-20 18:09:44] Total timetables 166
+[2026-07-20 18:09:45] https://data.bus-data.dft.gov.uk/timetable/dataset/6387/download/
+[2026-07-20 18:09:45] Total timetables 6
+[2026-07-20 18:09:46] https://data.bus-data.dft.gov.uk/timetable/dataset/6652/download/
+[2026-07-20 18:09:46] Total timetables 2
+[2026-07-20 18:09:47] https://data.bus-data.dft.gov.uk/timetable/dataset/6656/download/
+[2026-07-20 18:09:47] Total timetables 12
+[2026-07-20 18:09:48] https://data.bus-data.dft.gov.uk/timetable/dataset/6657/download/
+[2026-07-20 18:09:49] Total timetables 36
+[2026-07-20 18:09:50] https://data.bus-data.dft.gov.uk/timetable/dataset/6658/download/
+[2026-07-20 18:09:50] Total timetables 48
+[2026-07-20 18:09:51] https://data.bus-data.dft.gov.uk/timetable/dataset/6659/download/
+[2026-07-20 18:09:51] Total timetables 24
+[2026-07-20 18:09:52] https://data.bus-data.dft.gov.uk/timetable/dataset/6660/download/
+[2026-07-20 18:09:52] Total timetables 24
+[2026-07-20 18:09:53] https://data.bus-data.dft.gov.uk/timetable/dataset/6662/download/
+[2026-07-20 18:09:54] Total timetables 12
+[2026-07-20 18:09:55] https://data.bus-data.dft.gov.uk/timetable/dataset/6663/download/
+[2026-07-20 18:09:55] Total timetables 24
+[2026-07-20 18:09:56] https://data.bus-data.dft.gov.uk/timetable/dataset/6664/download/
+[2026-07-20 18:09:56] Total timetables 12
+[2026-07-20 18:09:57] https://data.bus-data.dft.gov.uk/timetable/dataset/6665/download/
+[2026-07-20 18:09:57] Total timetables 24
+[2026-07-20 18:09:58] https://data.bus-data.dft.gov.uk/timetable/dataset/6666/download/
+[2026-07-20 18:09:59] Total timetables 24
+[2026-07-20 18:10:00] https://data.bus-data.dft.gov.uk/timetable/dataset/6667/download/
+[2026-07-20 18:10:00] Total timetables 22
+[2026-07-20 18:10:01] https://data.bus-data.dft.gov.uk/timetable/dataset/6668/download/
+[2026-07-20 18:10:01] Total timetables 7
+[2026-07-20 18:10:02] https://data.bus-data.dft.gov.uk/timetable/dataset/6670/download/
+[2026-07-20 18:10:02] Total timetables 2
+[2026-07-20 18:10:03] https://data.bus-data.dft.gov.uk/timetable/dataset/6700/download/
+[2026-07-20 18:10:04] Total timetables 4
+[2026-07-20 18:10:05] https://data.bus-data.dft.gov.uk/timetable/dataset/6701/download/
+[2026-07-20 18:10:05] Total timetables 6
+[2026-07-20 18:10:06] https://data.bus-data.dft.gov.uk/timetable/dataset/6702/download/
+[2026-07-20 18:10:06] Total timetables 4
+[2026-07-20 18:10:07] https://data.bus-data.dft.gov.uk/timetable/dataset/6705/download/
+[2026-07-20 18:10:08] Total timetables 2
+[2026-07-20 18:10:09] https://data.bus-data.dft.gov.uk/timetable/dataset/6706/download/
+[2026-07-20 18:10:09] Total timetables 2
+[2026-07-20 18:10:10] https://data.bus-data.dft.gov.uk/timetable/dataset/6707/download/
+[2026-07-20 18:10:10] Total timetables 2
+[2026-07-20 18:10:11] https://data.bus-data.dft.gov.uk/timetable/dataset/6708/download/
+[2026-07-20 18:10:11] Total timetables 2
+[2026-07-20 18:10:12] https://data.bus-data.dft.gov.uk/timetable/dataset/6729/download/
+[2026-07-20 18:10:13] Total timetables 2
+[2026-07-20 18:10:14] https://data.bus-data.dft.gov.uk/timetable/dataset/6731/download/
+[2026-07-20 18:10:14] Total timetables 24
+[2026-07-20 18:10:15] https://data.bus-data.dft.gov.uk/timetable/dataset/6734/download/
+[2026-07-20 18:10:15] Total timetables 71
+[2026-07-20 18:10:16] https://data.bus-data.dft.gov.uk/timetable/dataset/6759/download/
+[2026-07-20 18:10:16] Total timetables 16
+[2026-07-20 18:10:17] https://data.bus-data.dft.gov.uk/timetable/dataset/6760/download/
+[2026-07-20 18:10:17] Total timetables 12
+[2026-07-20 18:10:18] https://data.bus-data.dft.gov.uk/timetable/dataset/6762/download/
+[2026-07-20 18:10:18] Total timetables 22
+[2026-07-20 18:10:19] https://data.bus-data.dft.gov.uk/timetable/dataset/6802/download/
+[2026-07-20 18:10:20] Total timetables 10
+[2026-07-20 18:10:21] https://data.bus-data.dft.gov.uk/timetable/dataset/6803/download/
+[2026-07-20 18:10:21] Total timetables 2
+[2026-07-20 18:10:22] https://data.bus-data.dft.gov.uk/timetable/dataset/6804/download/
+[2026-07-20 18:10:22] Total timetables 4
+[2026-07-20 18:10:23] https://data.bus-data.dft.gov.uk/timetable/dataset/6809/download/
+[2026-07-20 18:10:23] Total timetables 22
+[2026-07-20 18:10:24] https://data.bus-data.dft.gov.uk/timetable/dataset/6844/download/
+[2026-07-20 18:10:24] Total timetables 24
+[2026-07-20 18:10:25] https://data.bus-data.dft.gov.uk/timetable/dataset/6896/download/
+[2026-07-20 18:10:26] Total timetables 6
+[2026-07-20 18:10:27] https://data.bus-data.dft.gov.uk/timetable/dataset/6898/download/
+[2026-07-20 18:10:27] Total timetables 2
+[2026-07-20 18:10:28] https://data.bus-data.dft.gov.uk/timetable/dataset/6899/download/
+[2026-07-20 18:10:28] Total timetables 2
+[2026-07-20 18:10:29] https://data.bus-data.dft.gov.uk/timetable/dataset/6903/download/
+[2026-07-20 18:10:29] Total timetables 4
+[2026-07-20 18:10:30] https://data.bus-data.dft.gov.uk/timetable/dataset/6904/download/
+[2026-07-20 18:10:30] Total timetables 2
+[2026-07-20 18:10:31] https://data.bus-data.dft.gov.uk/timetable/dataset/6905/download/
+[2026-07-20 18:10:32] Total timetables 2
+[2026-07-20 18:10:33] https://data.bus-data.dft.gov.uk/timetable/dataset/6906/download/
+[2026-07-20 18:10:33] Total timetables 2
+[2026-07-20 18:10:34] https://data.bus-data.dft.gov.uk/timetable/dataset/6907/download/
+[2026-07-20 18:10:34] Total timetables 1
+[2026-07-20 18:10:35] https://data.bus-data.dft.gov.uk/timetable/dataset/6908/download/
+[2026-07-20 18:10:35] Total timetables 2
+[2026-07-20 18:10:36] https://data.bus-data.dft.gov.uk/timetable/dataset/6909/download/
+[2026-07-20 18:10:36] Total timetables 2
+[2026-07-20 18:10:37] https://data.bus-data.dft.gov.uk/timetable/dataset/6910/download/
+[2026-07-20 18:10:38] Total timetables 2
+[2026-07-20 18:10:39] https://data.bus-data.dft.gov.uk/timetable/dataset/6911/download/
+[2026-07-20 18:10:39] Total timetables 2
+[2026-07-20 18:10:40] https://data.bus-data.dft.gov.uk/timetable/dataset/6912/download/
+[2026-07-20 18:10:40] Total timetables 2
+[2026-07-20 18:10:41] https://data.bus-data.dft.gov.uk/timetable/dataset/6913/download/
+[2026-07-20 18:10:41] Total timetables 2
+[2026-07-20 18:10:42] https://data.bus-data.dft.gov.uk/timetable/dataset/6914/download/
+[2026-07-20 18:10:43] Total timetables 2
+[2026-07-20 18:10:44] https://data.bus-data.dft.gov.uk/timetable/dataset/6915/download/
+[2026-07-20 18:10:44] Total timetables 2
+[2026-07-20 18:10:45] https://data.bus-data.dft.gov.uk/timetable/dataset/6921/download/
+[2026-07-20 18:10:45] Total timetables 86
+[2026-07-20 18:10:46] https://data.bus-data.dft.gov.uk/timetable/dataset/7009/download/
+[2026-07-20 18:10:46] Total timetables 133
+[2026-07-20 18:10:47] https://data.bus-data.dft.gov.uk/timetable/dataset/7165/download/
+[2026-07-20 18:10:47] Total timetables 10
+[2026-07-20 18:10:48] https://data.bus-data.dft.gov.uk/timetable/dataset/7315/download/
+[2026-07-20 18:10:49] Total timetables 86
+[2026-07-20 18:10:50] https://data.bus-data.dft.gov.uk/timetable/dataset/7479/download/
+[2026-07-20 18:10:50] Total timetables 20
+[2026-07-20 18:10:51] https://data.bus-data.dft.gov.uk/timetable/dataset/7526/download/
+[2026-07-20 18:10:51] Total timetables 4
+[2026-07-20 18:10:52] https://data.bus-data.dft.gov.uk/timetable/dataset/7605/download/
+[2026-07-20 18:10:52] Total timetables 445
+[2026-07-20 18:10:53] https://data.bus-data.dft.gov.uk/timetable/dataset/7970/download/
+[2026-07-20 18:10:53] Total timetables 58
+[2026-07-20 18:10:54] https://data.bus-data.dft.gov.uk/timetable/dataset/8007/download/
+[2026-07-20 18:10:54] Total timetables 143
+[2026-07-20 18:10:55] https://data.bus-data.dft.gov.uk/timetable/dataset/8240/download/
+[2026-07-20 18:10:55] Total timetables 27
+[2026-07-20 18:10:56] https://data.bus-data.dft.gov.uk/timetable/dataset/8251/download/
+[2026-07-20 18:10:57] Total timetables 159
+[2026-07-20 18:10:58] https://data.bus-data.dft.gov.uk/timetable/dataset/8316/download/
+[2026-07-20 18:10:59] Total timetables 1753
+[2026-07-20 18:11:00] https://data.bus-data.dft.gov.uk/timetable/dataset/8322/download/
+[2026-07-20 18:11:00] Total timetables 2058
+[2026-07-20 18:11:01] https://data.bus-data.dft.gov.uk/timetable/dataset/8324/download/
+[2026-07-20 18:11:02] Total timetables 3206
+[2026-07-20 18:11:03] https://data.bus-data.dft.gov.uk/timetable/dataset/8325/download/
+[2026-07-20 18:11:05] Total timetables 6926
+[2026-07-20 18:11:06] https://data.bus-data.dft.gov.uk/timetable/dataset/8387/download/
+[2026-07-20 18:11:06] Total timetables 24
+[2026-07-20 18:11:07] https://data.bus-data.dft.gov.uk/timetable/dataset/8449/download/
+[2026-07-20 18:11:07] Total timetables 1027
+[2026-07-20 18:11:08] https://data.bus-data.dft.gov.uk/timetable/dataset/8601/download/
+[2026-07-20 18:11:08] Total timetables 2
+[2026-07-20 18:11:09] https://data.bus-data.dft.gov.uk/timetable/dataset/8935/download/
+[2026-07-20 18:11:10] Total timetables 2
+[2026-07-20 18:11:11] https://data.bus-data.dft.gov.uk/timetable/dataset/8936/download/
+[2026-07-20 18:11:11] Total timetables 2
+[2026-07-20 18:11:12] https://data.bus-data.dft.gov.uk/timetable/dataset/8937/download/
+[2026-07-20 18:11:12] Total timetables 2
+[2026-07-20 18:11:13] https://data.bus-data.dft.gov.uk/timetable/dataset/8938/download/
+[2026-07-20 18:11:13] Total timetables 2
+[2026-07-20 18:11:14] https://data.bus-data.dft.gov.uk/timetable/dataset/8939/download/
+[2026-07-20 18:11:14] Total timetables 2
+[2026-07-20 18:11:15] https://data.bus-data.dft.gov.uk/timetable/dataset/9229/download/
+[2026-07-20 18:11:15] Total timetables 134
+[2026-07-20 18:11:16] https://data.bus-data.dft.gov.uk/timetable/dataset/9450/download/
+[2026-07-20 18:11:17] Total timetables 436
+[2026-07-20 18:11:18] https://data.bus-data.dft.gov.uk/timetable/dataset/9452/download/
+[2026-07-20 18:11:18] Total timetables 279
+[2026-07-20 18:11:19] https://data.bus-data.dft.gov.uk/timetable/dataset/9453/download/
+[2026-07-20 18:11:20] Total timetables 1176
+[2026-07-20 18:11:21] https://data.bus-data.dft.gov.uk/timetable/dataset/9454/download/
+[2026-07-20 18:11:21] Total timetables 291
+[2026-07-20 18:11:22] https://data.bus-data.dft.gov.uk/timetable/dataset/9455/download/
+[2026-07-20 18:11:23] Total timetables 369
+[2026-07-20 18:11:24] https://data.bus-data.dft.gov.uk/timetable/dataset/9457/download/
+[2026-07-20 18:11:24] Total timetables 1176
+[2026-07-20 18:11:25] https://data.bus-data.dft.gov.uk/timetable/dataset/9460/download/
+[2026-07-20 18:11:26] Total timetables 321
+[2026-07-20 18:11:27] https://data.bus-data.dft.gov.uk/timetable/dataset/9461/download/
+[2026-07-20 18:11:27] Total timetables 284
+[2026-07-20 18:11:28] https://data.bus-data.dft.gov.uk/timetable/dataset/9463/download/
+[2026-07-20 18:11:28] Total timetables 386
+[2026-07-20 18:11:29] https://data.bus-data.dft.gov.uk/timetable/dataset/9468/download/
+[2026-07-20 18:11:30] Total timetables 392
+[2026-07-20 18:11:31] https://data.bus-data.dft.gov.uk/timetable/dataset/9469/download/
+[2026-07-20 18:11:31] Total timetables 153
+[2026-07-20 18:11:32] https://data.bus-data.dft.gov.uk/timetable/dataset/9470/download/
+[2026-07-20 18:11:32] Total timetables 380
+[2026-07-20 18:11:33] https://data.bus-data.dft.gov.uk/timetable/dataset/9471/download/
+[2026-07-20 18:11:33] Total timetables 367
+[2026-07-20 18:11:34] https://data.bus-data.dft.gov.uk/timetable/dataset/9472/download/
+[2026-07-20 18:11:35] Total timetables 366
+[2026-07-20 18:11:36] https://data.bus-data.dft.gov.uk/timetable/dataset/9473/download/
+[2026-07-20 18:11:36] Total timetables 180
+[2026-07-20 18:11:37] https://data.bus-data.dft.gov.uk/timetable/dataset/9474/download/
+[2026-07-20 18:11:37] Total timetables 80
+[2026-07-20 18:11:38] https://data.bus-data.dft.gov.uk/timetable/dataset/9475/download/
+[2026-07-20 18:11:38] Total timetables 178
+[2026-07-20 18:11:40] https://data.bus-data.dft.gov.uk/timetable/dataset/9476/download/
+[2026-07-20 18:11:40] Total timetables 6
+[2026-07-20 18:11:41] https://data.bus-data.dft.gov.uk/timetable/dataset/9477/download/
+[2026-07-20 18:11:41] Total timetables 459
+[2026-07-20 18:11:42] https://data.bus-data.dft.gov.uk/timetable/dataset/9478/download/
+[2026-07-20 18:11:42] Total timetables 321
+[2026-07-20 18:11:43] https://data.bus-data.dft.gov.uk/timetable/dataset/9480/download/
+[2026-07-20 18:11:44] Total timetables 321
+[2026-07-20 18:11:45] https://data.bus-data.dft.gov.uk/timetable/dataset/9481/download/
+[2026-07-20 18:11:45] Total timetables 111
+[2026-07-20 18:11:46] https://data.bus-data.dft.gov.uk/timetable/dataset/9482/download/
+[2026-07-20 18:11:47] Total timetables 178
+[2026-07-20 18:11:48] https://data.bus-data.dft.gov.uk/timetable/dataset/9707/download/
+[2026-07-20 18:11:48] Total timetables 1650
+[2026-07-20 18:11:49] https://data.bus-data.dft.gov.uk/timetable/dataset/9725/download/
+[2026-07-20 18:11:49] Total timetables 33
+[2026-07-20 18:11:50] https://data.bus-data.dft.gov.uk/timetable/dataset/9728/download/
+[2026-07-20 18:11:50] Total timetables 4
+[2026-07-20 18:11:51] https://data.bus-data.dft.gov.uk/timetable/dataset/9731/download/
+[2026-07-20 18:11:52] Total timetables 660
+[2026-07-20 18:11:53] https://data.bus-data.dft.gov.uk/timetable/dataset/9810/download/
+[2026-07-20 18:11:53] Total timetables 70
+[2026-07-20 18:11:54] https://data.bus-data.dft.gov.uk/timetable/dataset/9975/download/
+[2026-07-20 18:11:54] Total timetables 468
+[2026-07-20 18:11:55] https://data.bus-data.dft.gov.uk/timetable/dataset/10210/download/
+[2026-07-20 18:11:56] Total timetables 1456
+[2026-07-20 18:11:57] https://data.bus-data.dft.gov.uk/timetable/dataset/10338/download/
+[2026-07-20 18:11:57] Total timetables 8
+[2026-07-20 18:11:58] https://data.bus-data.dft.gov.uk/timetable/dataset/10405/download/
+[2026-07-20 18:11:58] Total timetables 1114
+[2026-07-20 18:11:59] https://data.bus-data.dft.gov.uk/timetable/dataset/10466/download/
+[2026-07-20 18:11:59] Total timetables 2
+[2026-07-20 18:12:00] https://data.bus-data.dft.gov.uk/timetable/dataset/10474/download/
+[2026-07-20 18:12:01] Total timetables 434
+[2026-07-20 18:12:02] https://data.bus-data.dft.gov.uk/timetable/dataset/10475/download/
+[2026-07-20 18:12:02] Total timetables 279
+[2026-07-20 18:12:03] https://data.bus-data.dft.gov.uk/timetable/dataset/10476/download/
+[2026-07-20 18:12:03] Total timetables 291
+[2026-07-20 18:12:04] https://data.bus-data.dft.gov.uk/timetable/dataset/10477/download/
+[2026-07-20 18:12:05] Total timetables 369
+[2026-07-20 18:12:06] https://data.bus-data.dft.gov.uk/timetable/dataset/10478/download/
+[2026-07-20 18:12:06] Total timetables 102
+[2026-07-20 18:12:07] https://data.bus-data.dft.gov.uk/timetable/dataset/10479/download/
+[2026-07-20 18:12:08] Total timetables 95
+[2026-07-20 18:12:09] https://data.bus-data.dft.gov.uk/timetable/dataset/10480/download/
+[2026-07-20 18:12:09] Total timetables 660
+[2026-07-20 18:12:10] https://data.bus-data.dft.gov.uk/timetable/dataset/10481/download/
+[2026-07-20 18:12:11] Total timetables 321
+[2026-07-20 18:12:12] https://data.bus-data.dft.gov.uk/timetable/dataset/10482/download/
+[2026-07-20 18:12:12] Total timetables 386
+[2026-07-20 18:12:13] https://data.bus-data.dft.gov.uk/timetable/dataset/10483/download/
+[2026-07-20 18:12:13] Total timetables 392
+[2026-07-20 18:12:14] https://data.bus-data.dft.gov.uk/timetable/dataset/10484/download/
+[2026-07-20 18:12:15] Total timetables 153
+[2026-07-20 18:12:16] https://data.bus-data.dft.gov.uk/timetable/dataset/10485/download/
+[2026-07-20 18:12:16] Total timetables 380
+[2026-07-20 18:12:17] https://data.bus-data.dft.gov.uk/timetable/dataset/10486/download/
+[2026-07-20 18:12:17] Total timetables 90
+[2026-07-20 18:12:18] https://data.bus-data.dft.gov.uk/timetable/dataset/10487/download/
+[2026-07-20 18:12:19] Total timetables 255
+[2026-07-20 18:12:20] https://data.bus-data.dft.gov.uk/timetable/dataset/10488/download/
+[2026-07-20 18:12:20] Total timetables 366
+[2026-07-20 18:12:21] https://data.bus-data.dft.gov.uk/timetable/dataset/10489/download/
+[2026-07-20 18:12:21] Total timetables 180
+[2026-07-20 18:12:22] https://data.bus-data.dft.gov.uk/timetable/dataset/10490/download/
+[2026-07-20 18:12:23] Total timetables 111
+[2026-07-20 18:12:24] https://data.bus-data.dft.gov.uk/timetable/dataset/10493/download/
+[2026-07-20 18:12:24] Total timetables 6
+[2026-07-20 18:12:25] https://data.bus-data.dft.gov.uk/timetable/dataset/10494/download/
+[2026-07-20 18:12:25] Total timetables 459
+[2026-07-20 18:12:26] https://data.bus-data.dft.gov.uk/timetable/dataset/10495/download/
+[2026-07-20 18:12:27] Total timetables 1176
+[2026-07-20 18:12:28] https://data.bus-data.dft.gov.uk/timetable/dataset/10528/download/
+[2026-07-20 18:12:28] Total timetables 12
+[2026-07-20 18:12:29] https://data.bus-data.dft.gov.uk/timetable/dataset/10544/download/
+[2026-07-20 18:12:29] Total timetables 392
+[2026-07-20 18:12:30] https://data.bus-data.dft.gov.uk/timetable/dataset/10596/download/
+[2026-07-20 18:12:31] Total timetables 971
+[2026-07-20 18:12:32] https://data.bus-data.dft.gov.uk/timetable/dataset/10608/download/
+[2026-07-20 18:12:32] Total timetables 218
+[2026-07-20 18:12:33] https://data.bus-data.dft.gov.uk/timetable/dataset/10615/download/
+[2026-07-20 18:12:35] Total timetables 698
+[2026-07-20 18:12:36] https://data.bus-data.dft.gov.uk/timetable/dataset/10672/download/
+[2026-07-20 18:12:37] Total timetables 89
+[2026-07-20 18:12:38] https://data.bus-data.dft.gov.uk/timetable/dataset/10798/download/
+[2026-07-20 18:12:38] Total timetables 1418
+[2026-07-20 18:12:39] https://data.bus-data.dft.gov.uk/timetable/dataset/10814/download/
+[2026-07-20 18:12:39] Total timetables 127
+[2026-07-20 18:12:40] https://data.bus-data.dft.gov.uk/timetable/dataset/10833/download/
+[2026-07-20 18:12:40] Total timetables 166
+[2026-07-20 18:12:41] https://data.bus-data.dft.gov.uk/timetable/dataset/10894/download/
+[2026-07-20 18:12:41] Total timetables 9
+[2026-07-20 18:12:42] https://data.bus-data.dft.gov.uk/timetable/dataset/10964/download/
+[2026-07-20 18:12:43] Total timetables 85
+[2026-07-20 18:12:44] https://data.bus-data.dft.gov.uk/timetable/dataset/11114/download/
+[2026-07-20 18:12:44] Total timetables 30
+[2026-07-20 18:12:45] https://data.bus-data.dft.gov.uk/timetable/dataset/11155/download/
+[2026-07-20 18:12:45] Total timetables 24
+[2026-07-20 18:12:46] https://data.bus-data.dft.gov.uk/timetable/dataset/11156/download/
+[2026-07-20 18:12:46] Total timetables 30
+[2026-07-20 18:12:47] https://data.bus-data.dft.gov.uk/timetable/dataset/11157/download/
+[2026-07-20 18:12:47] Total timetables 61
+[2026-07-20 18:12:48] https://data.bus-data.dft.gov.uk/timetable/dataset/11467/download/
+[2026-07-20 18:12:49] Total timetables 736
+[2026-07-20 18:12:50] https://data.bus-data.dft.gov.uk/timetable/dataset/11526/download/
+[2026-07-20 18:12:50] Total timetables 665
+[2026-07-20 18:12:51] https://data.bus-data.dft.gov.uk/timetable/dataset/11530/download/
+[2026-07-20 18:12:51] Total timetables 34
+[2026-07-20 18:12:52] https://data.bus-data.dft.gov.uk/timetable/dataset/11630/download/
+[2026-07-20 18:12:52] Total timetables 379
+[2026-07-20 18:12:53] https://data.bus-data.dft.gov.uk/timetable/dataset/11631/download/
+[2026-07-20 18:12:54] Total timetables 366
+[2026-07-20 18:12:55] https://data.bus-data.dft.gov.uk/timetable/dataset/11686/download/
+[2026-07-20 18:12:55] Total timetables 170
+[2026-07-20 18:12:56] https://data.bus-data.dft.gov.uk/timetable/dataset/11695/download/
+[2026-07-20 18:12:56] Total timetables 17
+[2026-07-20 18:12:57] https://data.bus-data.dft.gov.uk/timetable/dataset/11698/download/
+[2026-07-20 18:12:57] Total timetables 32
+[2026-07-20 18:12:58] https://data.bus-data.dft.gov.uk/timetable/dataset/11702/download/
+[2026-07-20 18:12:58] Total timetables 20
+[2026-07-20 18:12:59] https://data.bus-data.dft.gov.uk/timetable/dataset/11721/download/
+[2026-07-20 18:13:00] Total timetables 29
+[2026-07-20 18:13:01] https://data.bus-data.dft.gov.uk/timetable/dataset/11730/download/
+[2026-07-20 18:13:01] Total timetables 99
+[2026-07-20 18:13:02] https://data.bus-data.dft.gov.uk/timetable/dataset/11731/download/
+[2026-07-20 18:13:02] Total timetables 42
+[2026-07-20 18:13:03] https://data.bus-data.dft.gov.uk/timetable/dataset/11732/download/
+[2026-07-20 18:13:03] Total timetables 8
+[2026-07-20 18:13:04] https://data.bus-data.dft.gov.uk/timetable/dataset/11733/download/
+[2026-07-20 18:13:04] Total timetables 45
+[2026-07-20 18:13:05] https://data.bus-data.dft.gov.uk/timetable/dataset/11737/download/
+[2026-07-20 18:13:05] Total timetables 622
+[2026-07-20 18:13:06] https://data.bus-data.dft.gov.uk/timetable/dataset/11824/download/
+[2026-07-20 18:13:07] Total timetables 29
+[2026-07-20 18:13:08] https://data.bus-data.dft.gov.uk/timetable/dataset/11895/download/
+[2026-07-20 18:13:08] Total timetables 6
+[2026-07-20 18:13:09] https://data.bus-data.dft.gov.uk/timetable/dataset/11945/download/
+[2026-07-20 18:13:09] Total timetables 30
+[2026-07-20 18:13:10] https://data.bus-data.dft.gov.uk/timetable/dataset/12168/download/
+[2026-07-20 18:13:10] Total timetables 13
+[2026-07-20 18:13:11] https://data.bus-data.dft.gov.uk/timetable/dataset/12346/download/
+[2026-07-20 18:13:11] Total timetables 57
+[2026-07-20 18:13:12] https://data.bus-data.dft.gov.uk/timetable/dataset/12447/download/
+[2026-07-20 18:13:12] Total timetables 866
+[2026-07-20 18:13:13] https://data.bus-data.dft.gov.uk/timetable/dataset/12489/download/
+[2026-07-20 18:13:14] Total timetables 103
+[2026-07-20 18:13:15] https://data.bus-data.dft.gov.uk/timetable/dataset/12524/download/
+[2026-07-20 18:13:15] Total timetables 2
+[2026-07-20 18:13:16] https://data.bus-data.dft.gov.uk/timetable/dataset/12525/download/
+[2026-07-20 18:13:16] Total timetables 2
+[2026-07-20 18:13:17] https://data.bus-data.dft.gov.uk/timetable/dataset/12543/download/
+[2026-07-20 18:13:17] Total timetables 2
+[2026-07-20 18:13:18] https://data.bus-data.dft.gov.uk/timetable/dataset/12567/download/
+[2026-07-20 18:13:18] Total timetables 2
+[2026-07-20 18:13:19] https://data.bus-data.dft.gov.uk/timetable/dataset/12573/download/
+[2026-07-20 18:13:19] Total timetables 38
+[2026-07-20 18:13:20] https://data.bus-data.dft.gov.uk/timetable/dataset/12574/download/
+[2026-07-20 18:13:21] Total timetables 2231
+[2026-07-20 18:13:22] https://data.bus-data.dft.gov.uk/timetable/dataset/12634/download/
+[2026-07-20 18:13:22] Total timetables 30
+[2026-07-20 18:13:23] https://data.bus-data.dft.gov.uk/timetable/dataset/12635/download/
+[2026-07-20 18:13:23] Total timetables 36
+[2026-07-20 18:13:24] https://data.bus-data.dft.gov.uk/timetable/dataset/12664/download/
+[2026-07-20 18:13:25] Total timetables 2
+[2026-07-20 18:13:26] https://data.bus-data.dft.gov.uk/timetable/dataset/12700/download/
+[2026-07-20 18:13:26] Total timetables 2
+[2026-07-20 18:13:27] https://data.bus-data.dft.gov.uk/timetable/dataset/12701/download/
+[2026-07-20 18:13:27] Total timetables 40
+[2026-07-20 18:13:28] https://data.bus-data.dft.gov.uk/timetable/dataset/12702/download/
+[2026-07-20 18:13:28] Total timetables 31
+[2026-07-20 18:13:29] https://data.bus-data.dft.gov.uk/timetable/dataset/12703/download/
+[2026-07-20 18:13:29] Total timetables 12
+[2026-07-20 18:13:30] https://data.bus-data.dft.gov.uk/timetable/dataset/12704/download/
+[2026-07-20 18:13:31] Total timetables 58
+[2026-07-20 18:13:32] https://data.bus-data.dft.gov.uk/timetable/dataset/12705/download/
+[2026-07-20 18:13:32] Total timetables 22
+[2026-07-20 18:13:33] https://data.bus-data.dft.gov.uk/timetable/dataset/12706/download/
+[2026-07-20 18:13:33] Total timetables 38
+[2026-07-20 18:13:34] https://data.bus-data.dft.gov.uk/timetable/dataset/12709/download/
+[2026-07-20 18:13:35] Total timetables 33
+[2026-07-20 18:13:36] https://data.bus-data.dft.gov.uk/timetable/dataset/12710/download/
+[2026-07-20 18:13:36] Total timetables 8
+[2026-07-20 18:13:37] https://data.bus-data.dft.gov.uk/timetable/dataset/12711/download/
+[2026-07-20 18:13:37] Total timetables 2
+[2026-07-20 18:13:38] https://data.bus-data.dft.gov.uk/timetable/dataset/12713/download/
+[2026-07-20 18:13:38] Total timetables 2
+[2026-07-20 18:13:39] https://data.bus-data.dft.gov.uk/timetable/dataset/12716/download/
+[2026-07-20 18:13:47] Total timetables 2
+[2026-07-20 18:13:48] https://data.bus-data.dft.gov.uk/timetable/dataset/12717/download/
+[2026-07-20 18:13:48] Total timetables 2
+[2026-07-20 18:13:49] https://data.bus-data.dft.gov.uk/timetable/dataset/12718/download/
+[2026-07-20 18:13:50] Total timetables 2
+[2026-07-20 18:13:51] https://data.bus-data.dft.gov.uk/timetable/dataset/12719/download/
+[2026-07-20 18:13:51] Total timetables 2
+[2026-07-20 18:13:52] https://data.bus-data.dft.gov.uk/timetable/dataset/12720/download/
+[2026-07-20 18:13:52] Total timetables 4
+[2026-07-20 18:13:53] https://data.bus-data.dft.gov.uk/timetable/dataset/12722/download/
+[2026-07-20 18:13:53] Total timetables 2
+[2026-07-20 18:13:54] https://data.bus-data.dft.gov.uk/timetable/dataset/12723/download/
+[2026-07-20 18:13:55] Total timetables 2
+[2026-07-20 18:13:56] https://data.bus-data.dft.gov.uk/timetable/dataset/12733/download/
+[2026-07-20 18:13:56] Total timetables 34
+[2026-07-20 18:13:57] https://data.bus-data.dft.gov.uk/timetable/dataset/12739/download/
+[2026-07-20 18:13:57] Total timetables 3307
+[2026-07-20 18:13:58] https://data.bus-data.dft.gov.uk/timetable/dataset/12769/download/
+[2026-07-20 18:13:59] Total timetables 9523
+[2026-07-20 18:14:00] https://data.bus-data.dft.gov.uk/timetable/dataset/12771/download/
+[2026-07-20 18:14:01] Total timetables 12
+[2026-07-20 18:14:02] https://data.bus-data.dft.gov.uk/timetable/dataset/12830/download/
+[2026-07-20 18:14:02] Total timetables 10
+[2026-07-20 18:14:03] https://data.bus-data.dft.gov.uk/timetable/dataset/12839/download/
+[2026-07-20 18:14:03] Total timetables 279
+[2026-07-20 18:14:04] https://data.bus-data.dft.gov.uk/timetable/dataset/12840/download/
+[2026-07-20 18:14:05] Total timetables 357
+[2026-07-20 18:14:06] https://data.bus-data.dft.gov.uk/timetable/dataset/12841/download/
+[2026-07-20 18:14:06] Total timetables 386
+[2026-07-20 18:14:07] https://data.bus-data.dft.gov.uk/timetable/dataset/12842/download/
+[2026-07-20 18:14:08] Total timetables 380
+[2026-07-20 18:14:09] https://data.bus-data.dft.gov.uk/timetable/dataset/12843/download/
+[2026-07-20 18:14:09] Total timetables 249
+[2026-07-20 18:14:10] https://data.bus-data.dft.gov.uk/timetable/dataset/12844/download/
+[2026-07-20 18:14:10] Total timetables 366
+[2026-07-20 18:14:11] https://data.bus-data.dft.gov.uk/timetable/dataset/12845/download/
+[2026-07-20 18:14:12] Total timetables 165
+[2026-07-20 18:14:13] https://data.bus-data.dft.gov.uk/timetable/dataset/12846/download/
+[2026-07-20 18:14:13] Total timetables 459
+[2026-07-20 18:14:14] https://data.bus-data.dft.gov.uk/timetable/dataset/12881/download/
+[2026-07-20 18:14:14] Total timetables 15
+[2026-07-20 18:14:15] https://data.bus-data.dft.gov.uk/timetable/dataset/12922/download/
+[2026-07-20 18:14:15] Total timetables 26
+[2026-07-20 18:14:16] https://data.bus-data.dft.gov.uk/timetable/dataset/12924/download/
+[2026-07-20 18:14:16] Total timetables 5
+[2026-07-20 18:14:17] https://data.bus-data.dft.gov.uk/timetable/dataset/12925/download/
+[2026-07-20 18:14:18] Total timetables 22
+[2026-07-20 18:14:19] https://data.bus-data.dft.gov.uk/timetable/dataset/12926/download/
+[2026-07-20 18:14:19] Total timetables 12
+[2026-07-20 18:14:20] https://data.bus-data.dft.gov.uk/timetable/dataset/12927/download/
+[2026-07-20 18:14:20] Total timetables 26
+[2026-07-20 18:14:21] https://data.bus-data.dft.gov.uk/timetable/dataset/12928/download/
+[2026-07-20 18:14:21] Total timetables 26
+[2026-07-20 18:14:22] https://data.bus-data.dft.gov.uk/timetable/dataset/12929/download/
+[2026-07-20 18:14:22] Total timetables 23
+[2026-07-20 18:14:23] https://data.bus-data.dft.gov.uk/timetable/dataset/12956/download/
+[2026-07-20 18:14:23] Total timetables 38
+[2026-07-20 18:14:24] https://data.bus-data.dft.gov.uk/timetable/dataset/12958/download/
+[2026-07-20 18:14:25] Total timetables 30
+[2026-07-20 18:14:26] https://data.bus-data.dft.gov.uk/timetable/dataset/12977/download/
+[2026-07-20 18:14:26] Total timetables 2
+[2026-07-20 18:14:27] https://data.bus-data.dft.gov.uk/timetable/dataset/12978/download/
+[2026-07-20 18:14:27] Total timetables 2
+[2026-07-20 18:14:28] https://data.bus-data.dft.gov.uk/timetable/dataset/12979/download/
+[2026-07-20 18:14:28] Total timetables 2
+[2026-07-20 18:14:29] https://data.bus-data.dft.gov.uk/timetable/dataset/13039/download/
+[2026-07-20 18:14:29] Total timetables 23
+[2026-07-20 18:14:30] https://data.bus-data.dft.gov.uk/timetable/dataset/13040/download/
+[2026-07-20 18:14:30] Total timetables 10
+[2026-07-20 18:14:31] https://data.bus-data.dft.gov.uk/timetable/dataset/13048/download/
+[2026-07-20 18:14:32] Total timetables 40
+[2026-07-20 18:14:33] https://data.bus-data.dft.gov.uk/timetable/dataset/13052/download/
+[2026-07-20 18:14:33] Total timetables 2
+[2026-07-20 18:14:34] https://data.bus-data.dft.gov.uk/timetable/dataset/13060/download/
+[2026-07-20 18:14:34] Total timetables 2
+[2026-07-20 18:14:35] https://data.bus-data.dft.gov.uk/timetable/dataset/13062/download/
+[2026-07-20 18:14:35] Total timetables 6
+[2026-07-20 18:14:36] https://data.bus-data.dft.gov.uk/timetable/dataset/13067/download/
+[2026-07-20 18:14:37] Total timetables 12
+[2026-07-20 18:14:38] https://data.bus-data.dft.gov.uk/timetable/dataset/13074/download/
+[2026-07-20 18:14:39] Total timetables 12
+[2026-07-20 18:14:40] https://data.bus-data.dft.gov.uk/timetable/dataset/13081/download/
+[2026-07-20 18:14:40] Total timetables 2
+[2026-07-20 18:14:41] https://data.bus-data.dft.gov.uk/timetable/dataset/13083/download/
+[2026-07-20 18:14:41] Total timetables 8
+[2026-07-20 18:14:42] https://data.bus-data.dft.gov.uk/timetable/dataset/13086/download/
+[2026-07-20 18:14:42] Total timetables 16
+[2026-07-20 18:14:43] https://data.bus-data.dft.gov.uk/timetable/dataset/13087/download/
+[2026-07-20 18:14:43] Total timetables 16
+[2026-07-20 18:14:44] https://data.bus-data.dft.gov.uk/timetable/dataset/13088/download/
+[2026-07-20 18:14:44] 
+Operator code not found.
+
+[2026-07-20 18:14:44] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] 
+Operator code not found.
+
+[2026-07-20 18:14:45] Total timetables 0
+[2026-07-20 18:14:46] https://data.bus-data.dft.gov.uk/timetable/dataset/13090/download/
+[2026-07-20 18:14:46] Total timetables 92
+[2026-07-20 18:14:47] https://data.bus-data.dft.gov.uk/timetable/dataset/13094/download/
+[2026-07-20 18:14:47] Total timetables 2
+[2026-07-20 18:14:48] https://data.bus-data.dft.gov.uk/timetable/dataset/13095/download/
+[2026-07-20 18:14:48] Total timetables 2
+[2026-07-20 18:14:49] https://data.bus-data.dft.gov.uk/timetable/dataset/13096/download/
+[2026-07-20 18:14:49] Total timetables 68
+[2026-07-20 18:14:50] https://data.bus-data.dft.gov.uk/timetable/dataset/13099/download/
+[2026-07-20 18:14:50] Total timetables 2
+[2026-07-20 18:14:51] https://data.bus-data.dft.gov.uk/timetable/dataset/13100/download/
+[2026-07-20 18:14:52] Total timetables 2
+[2026-07-20 18:14:53] https://data.bus-data.dft.gov.uk/timetable/dataset/13101/download/
+[2026-07-20 18:14:53] Total timetables 2
+[2026-07-20 18:14:54] https://data.bus-data.dft.gov.uk/timetable/dataset/13111/download/
+[2026-07-20 18:14:54] Total timetables 4
+[2026-07-20 18:14:55] https://data.bus-data.dft.gov.uk/timetable/dataset/13122/download/
+[2026-07-20 18:14:55] Total timetables 13
+[2026-07-20 18:14:56] https://data.bus-data.dft.gov.uk/timetable/dataset/13123/download/
+[2026-07-20 18:14:56] 
+Operator code not found.
+
+[2026-07-20 18:14:56] 
+Operator code not found.
+
+[2026-07-20 18:14:56] 
+Operator code not found.
+
+[2026-07-20 18:14:56] Total timetables 0
+[2026-07-20 18:14:57] https://data.bus-data.dft.gov.uk/timetable/dataset/13124/download/
+[2026-07-20 18:14:57] 
+Operator code not found.
+
+[2026-07-20 18:14:57] 
+Operator code not found.
+
+[2026-07-20 18:14:57] 
+Operator code not found.
+
+[2026-07-20 18:14:57] Total timetables 0
+[2026-07-20 18:14:58] https://data.bus-data.dft.gov.uk/timetable/dataset/13125/download/
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] 
+Operator code not found.
+
+[2026-07-20 18:14:59] Total timetables 0
+[2026-07-20 18:15:00] https://data.bus-data.dft.gov.uk/timetable/dataset/13129/download/
+[2026-07-20 18:15:00] 
+Operator code not found.
+
+[2026-07-20 18:15:00] Total timetables 0
+[2026-07-20 18:15:01] https://data.bus-data.dft.gov.uk/timetable/dataset/13130/download/
+[2026-07-20 18:15:01] 
+Operator code not found.
+
+[2026-07-20 18:15:01] Total timetables 0
+[2026-07-20 18:15:02] https://data.bus-data.dft.gov.uk/timetable/dataset/13131/download/
+[2026-07-20 18:15:02] 
+Operator code not found.
+
+[2026-07-20 18:15:02] Total timetables 0
+[2026-07-20 18:15:03] https://data.bus-data.dft.gov.uk/timetable/dataset/13132/download/
+[2026-07-20 18:15:04] 
+Operator code not found.
+
+[2026-07-20 18:15:04] Total timetables 0
+[2026-07-20 18:15:05] https://data.bus-data.dft.gov.uk/timetable/dataset/13137/download/
+[2026-07-20 18:15:05] Total timetables 2
+[2026-07-20 18:15:06] https://data.bus-data.dft.gov.uk/timetable/dataset/13138/download/
+[2026-07-20 18:15:06] 
+Operator code not found.
+
+[2026-07-20 18:15:06] Total timetables 0
+[2026-07-20 18:15:07] https://data.bus-data.dft.gov.uk/timetable/dataset/13139/download/
+[2026-07-20 18:15:07] 
+Operator code not found.
+
+[2026-07-20 18:15:07] Total timetables 0
+[2026-07-20 18:15:08] https://data.bus-data.dft.gov.uk/timetable/dataset/13140/download/
+[2026-07-20 18:15:08] 
+Operator code not found.
+
+[2026-07-20 18:15:08] Total timetables 0
+[2026-07-20 18:15:09] https://data.bus-data.dft.gov.uk/timetable/dataset/13148/download/
+[2026-07-20 18:15:09] Total timetables 3
+[2026-07-20 18:15:10] https://data.bus-data.dft.gov.uk/timetable/dataset/13149/download/
+[2026-07-20 18:15:10] Total timetables 2
+[2026-07-20 18:15:11] https://data.bus-data.dft.gov.uk/timetable/dataset/13150/download/
+[2026-07-20 18:15:12] Total timetables 11
+[2026-07-20 18:15:13] https://data.bus-data.dft.gov.uk/timetable/dataset/13156/download/
+[2026-07-20 18:15:13] Total timetables 4
+[2026-07-20 18:15:14] https://data.bus-data.dft.gov.uk/timetable/dataset/13157/download/
+[2026-07-20 18:15:14] Total timetables 2
+[2026-07-20 18:15:15] https://data.bus-data.dft.gov.uk/timetable/dataset/13158/download/
+[2026-07-20 18:15:15] Total timetables 6
+[2026-07-20 18:15:16] https://data.bus-data.dft.gov.uk/timetable/dataset/13232/download/
+[2026-07-20 18:15:16] Total timetables 16
+[2026-07-20 18:15:17] https://data.bus-data.dft.gov.uk/timetable/dataset/13244/download/
+[2026-07-20 18:15:18] Total timetables 339
+[2026-07-20 18:15:19] https://data.bus-data.dft.gov.uk/timetable/dataset/13286/download/
+[2026-07-20 18:15:19] Total timetables 12
+[2026-07-20 18:15:20] https://data.bus-data.dft.gov.uk/timetable/dataset/13322/download/
+[2026-07-20 18:15:26] Total timetables 64672
+[2026-07-20 18:15:27] https://data.bus-data.dft.gov.uk/timetable/dataset/13341/download/
+[2026-07-20 18:15:27] Total timetables 167
+[2026-07-20 18:15:28] https://data.bus-data.dft.gov.uk/timetable/dataset/13394/download/
+[2026-07-20 18:15:29] Total timetables 190
+[2026-07-20 18:15:30] https://data.bus-data.dft.gov.uk/timetable/dataset/13403/download/
+[2026-07-20 18:15:30] Total timetables 20
+[2026-07-20 18:15:31] https://data.bus-data.dft.gov.uk/timetable/dataset/13451/download/
+[2026-07-20 18:15:31] Total timetables 12
+[2026-07-20 18:15:32] https://data.bus-data.dft.gov.uk/timetable/dataset/13454/download/
+[2026-07-20 18:15:32] Total timetables 10
+[2026-07-20 18:15:33] https://data.bus-data.dft.gov.uk/timetable/dataset/13456/download/
+[2026-07-20 18:15:33] Total timetables 21
+[2026-07-20 18:15:34] https://data.bus-data.dft.gov.uk/timetable/dataset/13493/download/
+[2026-07-20 18:15:35] Total timetables 4671
+[2026-07-20 18:15:36] https://data.bus-data.dft.gov.uk/timetable/dataset/13501/download/
+[2026-07-20 18:15:36] Total timetables 2
+[2026-07-20 18:15:37] https://data.bus-data.dft.gov.uk/timetable/dataset/13539/download/
+[2026-07-20 18:15:37] Total timetables 434
+[2026-07-20 18:15:38] https://data.bus-data.dft.gov.uk/timetable/dataset/13540/download/
+[2026-07-20 18:15:38] Total timetables 292
+[2026-07-20 18:15:39] https://data.bus-data.dft.gov.uk/timetable/dataset/13541/download/
+[2026-07-20 18:15:40] Total timetables 357
+[2026-07-20 18:15:41] https://data.bus-data.dft.gov.uk/timetable/dataset/13542/download/
+[2026-07-20 18:15:41] Total timetables 321
+[2026-07-20 18:15:42] https://data.bus-data.dft.gov.uk/timetable/dataset/13543/download/
+[2026-07-20 18:15:43] Total timetables 386
+[2026-07-20 18:15:44] https://data.bus-data.dft.gov.uk/timetable/dataset/13544/download/
+[2026-07-20 18:15:44] Total timetables 279
+[2026-07-20 18:15:45] https://data.bus-data.dft.gov.uk/timetable/dataset/13547/download/
+[2026-07-20 18:15:45] Total timetables 392
+[2026-07-20 18:15:46] https://data.bus-data.dft.gov.uk/timetable/dataset/13548/download/
+[2026-07-20 18:15:47] Total timetables 380
+[2026-07-20 18:15:48] https://data.bus-data.dft.gov.uk/timetable/dataset/13549/download/
+[2026-07-20 18:15:48] Total timetables 249
+[2026-07-20 18:15:49] https://data.bus-data.dft.gov.uk/timetable/dataset/13550/download/
+[2026-07-20 18:15:49] Total timetables 366
+[2026-07-20 18:15:50] https://data.bus-data.dft.gov.uk/timetable/dataset/13552/download/
+[2026-07-20 18:15:51] Total timetables 165
+[2026-07-20 18:15:52] https://data.bus-data.dft.gov.uk/timetable/dataset/13553/download/
+[2026-07-20 18:15:52] Total timetables 111
+[2026-07-20 18:15:53] https://data.bus-data.dft.gov.uk/timetable/dataset/13554/download/
+[2026-07-20 18:15:53] Total timetables 459
+[2026-07-20 18:15:54] https://data.bus-data.dft.gov.uk/timetable/dataset/13581/download/
+[2026-07-20 18:15:55] Total timetables 88
+[2026-07-20 18:15:56] https://data.bus-data.dft.gov.uk/timetable/dataset/13600/download/
+[2026-07-20 18:15:56] Total timetables 42
+[2026-07-20 18:15:57] https://data.bus-data.dft.gov.uk/timetable/dataset/13604/download/
+[2026-07-20 18:15:57] Total timetables 72
+[2026-07-20 18:15:58] https://data.bus-data.dft.gov.uk/timetable/dataset/13638/download/
+[2026-07-20 18:15:58] Total timetables 2
+[2026-07-20 18:15:59] https://data.bus-data.dft.gov.uk/timetable/dataset/13639/download/
+[2026-07-20 18:16:30] Total timetables 33
+[2026-07-20 18:16:31] https://data.bus-data.dft.gov.uk/timetable/dataset/13640/download/
+[2026-07-20 18:16:31] Total timetables 2
+[2026-07-20 18:16:32] https://data.bus-data.dft.gov.uk/timetable/dataset/13649/download/
+[2026-07-20 18:16:33] Total timetables 2802
+[2026-07-20 18:16:34] https://data.bus-data.dft.gov.uk/timetable/dataset/13678/download/
+[2026-07-20 18:16:34] Total timetables 605
+[2026-07-20 18:16:35] https://data.bus-data.dft.gov.uk/timetable/dataset/13683/download/
+[2026-07-20 18:16:35] Total timetables 6
+[2026-07-20 18:16:36] https://data.bus-data.dft.gov.uk/timetable/dataset/13712/download/
+[2026-07-20 18:16:36] Total timetables 12
+[2026-07-20 18:16:37] https://data.bus-data.dft.gov.uk/timetable/dataset/13713/download/
+[2026-07-20 18:16:37] Total timetables 36
+[2026-07-20 18:16:38] https://data.bus-data.dft.gov.uk/timetable/dataset/13714/download/
+[2026-07-20 18:16:39] Total timetables 12
+[2026-07-20 18:16:40] https://data.bus-data.dft.gov.uk/timetable/dataset/13715/download/
+[2026-07-20 18:16:40] Total timetables 24
+[2026-07-20 18:16:41] https://data.bus-data.dft.gov.uk/timetable/dataset/13716/download/
+[2026-07-20 18:16:41] Total timetables 12
+[2026-07-20 18:16:42] https://data.bus-data.dft.gov.uk/timetable/dataset/13798/download/
+[2026-07-20 18:16:42] Total timetables 16
+[2026-07-20 18:16:43] https://data.bus-data.dft.gov.uk/timetable/dataset/13801/download/
+[2026-07-20 18:16:43] Total timetables 118
+[2026-07-20 18:16:44] https://data.bus-data.dft.gov.uk/timetable/dataset/13877/download/
+[2026-07-20 18:16:44] Total timetables 65
+[2026-07-20 18:16:45] https://data.bus-data.dft.gov.uk/timetable/dataset/13883/download/
+[2026-07-20 18:16:46] Total timetables 22
+[2026-07-20 18:16:47] https://data.bus-data.dft.gov.uk/timetable/dataset/13893/download/
+[2026-07-20 18:16:47] Total timetables 11
+[2026-07-20 18:16:48] https://data.bus-data.dft.gov.uk/timetable/dataset/13906/download/
+[2026-07-20 18:16:48] Total timetables 2
+[2026-07-20 18:16:49] https://data.bus-data.dft.gov.uk/timetable/dataset/13958/download/
+[2026-07-20 18:16:49] Total timetables 67
+[2026-07-20 18:16:50] https://data.bus-data.dft.gov.uk/timetable/dataset/13975/download/
+[2026-07-20 18:16:50] Total timetables 50
+[2026-07-20 18:16:51] https://data.bus-data.dft.gov.uk/timetable/dataset/13997/download/
+[2026-07-20 18:16:52] Total timetables 25
+[2026-07-20 18:16:53] https://data.bus-data.dft.gov.uk/timetable/dataset/14109/download/
+[2026-07-20 18:16:53] Total timetables 432
+[2026-07-20 18:16:54] https://data.bus-data.dft.gov.uk/timetable/dataset/14135/download/
+[2026-07-20 18:16:54] Total timetables 4
+[2026-07-20 18:16:55] https://data.bus-data.dft.gov.uk/timetable/dataset/14193/download/
+[2026-07-20 18:16:55] Total timetables 26
+[2026-07-20 18:16:56] https://data.bus-data.dft.gov.uk/timetable/dataset/14241/download/
+[2026-07-20 18:16:56] Total timetables 1619
+[2026-07-20 18:16:57] https://data.bus-data.dft.gov.uk/timetable/dataset/14308/download/
+[2026-07-20 18:16:58] Total timetables 3
+[2026-07-20 18:16:59] https://data.bus-data.dft.gov.uk/timetable/dataset/14339/download/
+[2026-07-20 18:16:59] Total timetables 321
+[2026-07-20 18:17:00] https://data.bus-data.dft.gov.uk/timetable/dataset/14340/download/
+[2026-07-20 18:17:01] Total timetables 459
+[2026-07-20 18:17:02] https://data.bus-data.dft.gov.uk/timetable/dataset/14353/download/
+[2026-07-20 18:17:02] Total timetables 2
+[2026-07-20 18:17:03] https://data.bus-data.dft.gov.uk/timetable/dataset/14374/download/
+[2026-07-20 18:17:03] Total timetables 2
+[2026-07-20 18:17:04] https://data.bus-data.dft.gov.uk/timetable/dataset/14434/download/
+[2026-07-20 18:17:05] Total timetables 2
+[2026-07-20 18:17:06] https://data.bus-data.dft.gov.uk/timetable/dataset/14443/download/
+[2026-07-20 18:17:06] Total timetables 339
+[2026-07-20 18:17:07] https://data.bus-data.dft.gov.uk/timetable/dataset/14447/download/
+[2026-07-20 18:17:07] Total timetables 24
+[2026-07-20 18:17:08] https://data.bus-data.dft.gov.uk/timetable/dataset/14451/download/
+[2026-07-20 18:17:09] Total timetables 8361
+[2026-07-20 18:17:10] https://data.bus-data.dft.gov.uk/timetable/dataset/14576/download/
+[2026-07-20 18:17:11] Total timetables 64
+[2026-07-20 18:17:12] https://data.bus-data.dft.gov.uk/timetable/dataset/14582/download/
+[2026-07-20 18:17:12] Total timetables 56
+[2026-07-20 18:17:13] https://data.bus-data.dft.gov.uk/timetable/dataset/14598/download/
+[2026-07-20 18:17:13] Total timetables 432
+[2026-07-20 18:17:14] https://data.bus-data.dft.gov.uk/timetable/dataset/14604/download/
+[2026-07-20 18:17:14] Total timetables 12
+[2026-07-20 18:17:15] https://data.bus-data.dft.gov.uk/timetable/dataset/14605/download/
+[2026-07-20 18:17:15] Total timetables 12
+[2026-07-20 18:17:16] https://data.bus-data.dft.gov.uk/timetable/dataset/14621/download/
+[2026-07-20 18:17:17] Total timetables 49
+[2026-07-20 18:17:18] https://data.bus-data.dft.gov.uk/timetable/dataset/14644/download/
+[2026-07-20 18:17:18] Total timetables 62
+[2026-07-20 18:17:19] https://data.bus-data.dft.gov.uk/timetable/dataset/14667/download/
+[2026-07-20 18:17:21] Total timetables 6589
+[2026-07-20 18:17:22] https://data.bus-data.dft.gov.uk/timetable/dataset/14704/download/
+[2026-07-20 18:17:22] Total timetables 2
+[2026-07-20 18:17:23] https://data.bus-data.dft.gov.uk/timetable/dataset/14706/download/
+[2026-07-20 18:17:23] Total timetables 2
+[2026-07-20 18:17:24] https://data.bus-data.dft.gov.uk/timetable/dataset/14707/download/
+[2026-07-20 18:17:24] Total timetables 2
+[2026-07-20 18:17:25] https://data.bus-data.dft.gov.uk/timetable/dataset/14727/download/
+[2026-07-20 18:17:25] Total timetables 104
+[2026-07-20 18:17:26] https://data.bus-data.dft.gov.uk/timetable/dataset/14744/download/
+[2026-07-20 18:17:27] Total timetables 134
+[2026-07-20 18:17:28] https://data.bus-data.dft.gov.uk/timetable/dataset/14750/download/
+[2026-07-20 18:17:28] Total timetables 2
+[2026-07-20 18:17:29] https://data.bus-data.dft.gov.uk/timetable/dataset/14819/download/
+[2026-07-20 18:17:29] Total timetables 245
+[2026-07-20 18:17:30] https://data.bus-data.dft.gov.uk/timetable/dataset/14854/download/
+[2026-07-20 18:17:30] Total timetables 5
+[2026-07-20 18:17:31] https://data.bus-data.dft.gov.uk/timetable/dataset/14855/download/
+[2026-07-20 18:17:31] Total timetables 4
+[2026-07-20 18:17:32] https://data.bus-data.dft.gov.uk/timetable/dataset/14915/download/
+[2026-07-20 18:17:33] Total timetables 2
+[2026-07-20 18:17:34] https://data.bus-data.dft.gov.uk/timetable/dataset/14928/download/
+[2026-07-20 18:17:36] Total timetables 15981
+[2026-07-20 18:17:37] https://data.bus-data.dft.gov.uk/timetable/dataset/14950/download/
+[2026-07-20 18:17:37] Total timetables 473
+[2026-07-20 18:17:38] https://data.bus-data.dft.gov.uk/timetable/dataset/15089/download/
+[2026-07-20 18:17:38] Total timetables 18
+[2026-07-20 18:17:39] https://data.bus-data.dft.gov.uk/timetable/dataset/15102/download/
+[2026-07-20 18:17:39] Total timetables 69
+[2026-07-20 18:17:40] https://data.bus-data.dft.gov.uk/timetable/dataset/15162/download/
+[2026-07-20 18:17:40] Total timetables 48
+[2026-07-20 18:17:41] https://data.bus-data.dft.gov.uk/timetable/dataset/15174/download/
+[2026-07-20 18:17:41] Total timetables 45
+[2026-07-20 18:17:42] https://data.bus-data.dft.gov.uk/timetable/dataset/15190/download/
+[2026-07-20 18:17:43] Total timetables 2
+[2026-07-20 18:17:44] https://data.bus-data.dft.gov.uk/timetable/dataset/15191/download/
+[2026-07-20 18:17:44] Total timetables 2
+[2026-07-20 18:17:45] https://data.bus-data.dft.gov.uk/timetable/dataset/15193/download/
+[2026-07-20 18:17:45] Total timetables 30
+[2026-07-20 18:17:46] https://data.bus-data.dft.gov.uk/timetable/dataset/15195/download/
+[2026-07-20 18:17:46] Total timetables 6
+[2026-07-20 18:17:47] https://data.bus-data.dft.gov.uk/timetable/dataset/15200/download/
+[2026-07-20 18:17:47] Total timetables 13
+[2026-07-20 18:17:48] https://data.bus-data.dft.gov.uk/timetable/dataset/15276/download/
+[2026-07-20 18:17:49] Total timetables 386
+[2026-07-20 18:17:50] https://data.bus-data.dft.gov.uk/timetable/dataset/15277/download/
+[2026-07-20 18:17:50] Total timetables 380
+[2026-07-20 18:17:51] https://data.bus-data.dft.gov.uk/timetable/dataset/15278/download/
+[2026-07-20 18:17:51] Total timetables 366
+[2026-07-20 18:17:52] https://data.bus-data.dft.gov.uk/timetable/dataset/15280/download/
+[2026-07-20 18:17:53] Total timetables 459
+[2026-07-20 18:17:54] https://data.bus-data.dft.gov.uk/timetable/dataset/15289/download/
+[2026-07-20 18:17:54] Total timetables 2
+[2026-07-20 18:17:55] https://data.bus-data.dft.gov.uk/timetable/dataset/15313/download/
+[2026-07-20 18:17:55] Total timetables 2
+[2026-07-20 18:17:56] https://data.bus-data.dft.gov.uk/timetable/dataset/15314/download/
+[2026-07-20 18:17:56] Total timetables 1011
+[2026-07-20 18:17:57] https://data.bus-data.dft.gov.uk/timetable/dataset/15333/download/
+[2026-07-20 18:17:57] Total timetables 12
+[2026-07-20 18:17:58] https://data.bus-data.dft.gov.uk/timetable/dataset/15338/download/
+[2026-07-20 18:17:59] Total timetables 12
+[2026-07-20 18:18:00] https://data.bus-data.dft.gov.uk/timetable/dataset/15348/download/
+[2026-07-20 18:18:00] Total timetables 270
+[2026-07-20 18:18:01] https://data.bus-data.dft.gov.uk/timetable/dataset/15366/download/
+[2026-07-20 18:18:01] Total timetables 14
+[2026-07-20 18:18:02] https://data.bus-data.dft.gov.uk/timetable/dataset/15398/download/
+[2026-07-20 18:18:02] Total timetables 271
+[2026-07-20 18:18:03] https://data.bus-data.dft.gov.uk/timetable/dataset/15433/download/
+[2026-07-20 18:18:04] Total timetables 5
+[2026-07-20 18:18:05] https://data.bus-data.dft.gov.uk/timetable/dataset/15438/download/
+[2026-07-20 18:18:05] Total timetables 4418
+[2026-07-20 18:18:06] https://data.bus-data.dft.gov.uk/timetable/dataset/15447/download/
+[2026-07-20 18:18:07] Total timetables 2
+[2026-07-20 18:18:08] https://data.bus-data.dft.gov.uk/timetable/dataset/15451/download/
+[2026-07-20 18:18:08] Total timetables 2
+[2026-07-20 18:18:09] https://data.bus-data.dft.gov.uk/timetable/dataset/15452/download/
+[2026-07-20 18:18:09] Total timetables 2
+[2026-07-20 18:18:10] https://data.bus-data.dft.gov.uk/timetable/dataset/15482/download/
+[2026-07-20 18:18:10] Total timetables 2
+[2026-07-20 18:18:11] https://data.bus-data.dft.gov.uk/timetable/dataset/15483/download/
+[2026-07-20 18:18:11] Total timetables 2
+[2026-07-20 18:18:12] https://data.bus-data.dft.gov.uk/timetable/dataset/15518/download/
+[2026-07-20 18:18:13] Total timetables 1622
+[2026-07-20 18:18:14] https://data.bus-data.dft.gov.uk/timetable/dataset/15536/download/
+[2026-07-20 18:18:14] Total timetables 26
+[2026-07-20 18:18:15] https://data.bus-data.dft.gov.uk/timetable/dataset/15557/download/
+[2026-07-20 18:18:15] Total timetables 14
+[2026-07-20 18:18:16] https://data.bus-data.dft.gov.uk/timetable/dataset/15567/download/
+[2026-07-20 18:18:16] Total timetables 12
+[2026-07-20 18:18:17] https://data.bus-data.dft.gov.uk/timetable/dataset/15570/download/
+[2026-07-20 18:18:18] Total timetables 6
+[2026-07-20 18:18:19] https://data.bus-data.dft.gov.uk/timetable/dataset/15581/download/
+[2026-07-20 18:18:19] Total timetables 612
+[2026-07-20 18:18:20] https://data.bus-data.dft.gov.uk/timetable/dataset/15654/download/
+[2026-07-20 18:18:20] Total timetables 1246
+[2026-07-20 18:18:21] https://data.bus-data.dft.gov.uk/timetable/dataset/15659/download/
+[2026-07-20 18:18:21] Total timetables 2
+[2026-07-20 18:18:22] https://data.bus-data.dft.gov.uk/timetable/dataset/15755/download/
+[2026-07-20 18:18:22] Total timetables 4
+[2026-07-20 18:18:23] https://data.bus-data.dft.gov.uk/timetable/dataset/15761/download/
+[2026-07-20 18:18:24] Total timetables 6009
+[2026-07-20 18:18:25] https://data.bus-data.dft.gov.uk/timetable/dataset/15763/download/
+[2026-07-20 18:18:26] Total timetables 8497
+[2026-07-20 18:18:27] https://data.bus-data.dft.gov.uk/timetable/dataset/15766/download/
+[2026-07-20 18:18:28] Total timetables 11381
+[2026-07-20 18:18:29] https://data.bus-data.dft.gov.uk/timetable/dataset/15796/download/
+[2026-07-20 18:18:29] Total timetables 3875
+[2026-07-20 18:18:30] https://data.bus-data.dft.gov.uk/timetable/dataset/15822/download/
+[2026-07-20 18:18:30] Total timetables 5190
+[2026-07-20 18:18:31] https://data.bus-data.dft.gov.uk/timetable/dataset/15827/download/
+[2026-07-20 18:18:32] Total timetables 2
+[2026-07-20 18:18:33] https://data.bus-data.dft.gov.uk/timetable/dataset/15871/download/
+[2026-07-20 18:18:33] Total timetables 136
+[2026-07-20 18:18:34] https://data.bus-data.dft.gov.uk/timetable/dataset/15872/download/
+[2026-07-20 18:18:36] Total timetables 14391
+[2026-07-20 18:18:37] https://data.bus-data.dft.gov.uk/timetable/dataset/15873/download/
+[2026-07-20 18:18:38] Total timetables 4933
+[2026-07-20 18:18:39] https://data.bus-data.dft.gov.uk/timetable/dataset/15874/download/
+[2026-07-20 18:18:40] Total timetables 6633
+[2026-07-20 18:18:41] https://data.bus-data.dft.gov.uk/timetable/dataset/15875/download/
+[2026-07-20 18:18:42] Total timetables 8099
+[2026-07-20 18:18:43] https://data.bus-data.dft.gov.uk/timetable/dataset/15876/download/
+[2026-07-20 18:18:44] Total timetables 2562
+[2026-07-20 18:18:45] https://data.bus-data.dft.gov.uk/timetable/dataset/15879/download/
+[2026-07-20 18:18:46] Total timetables 5448
+[2026-07-20 18:18:47] https://data.bus-data.dft.gov.uk/timetable/dataset/15884/download/
+[2026-07-20 18:18:48] Total timetables 7092
+[2026-07-20 18:18:49] https://data.bus-data.dft.gov.uk/timetable/dataset/15900/download/
+[2026-07-20 18:18:49] Total timetables 10
+[2026-07-20 18:18:50] https://data.bus-data.dft.gov.uk/timetable/dataset/15913/download/
+[2026-07-20 18:18:51] Total timetables 8792
+[2026-07-20 18:18:52] https://data.bus-data.dft.gov.uk/timetable/dataset/15954/download/
+[2026-07-20 18:18:53] Total timetables 14005
+[2026-07-20 18:18:54] https://data.bus-data.dft.gov.uk/timetable/dataset/15998/download/
+[2026-07-20 18:18:54] Total timetables 24
+[2026-07-20 18:18:55] https://data.bus-data.dft.gov.uk/timetable/dataset/16047/download/
+[2026-07-20 18:18:56] Total timetables 49
+[2026-07-20 18:18:57] https://data.bus-data.dft.gov.uk/timetable/dataset/16079/download/
+[2026-07-20 18:18:57] Total timetables 8
+[2026-07-20 18:18:58] https://data.bus-data.dft.gov.uk/timetable/dataset/16094/download/
+[2026-07-20 18:18:58] Total timetables 11
+[2026-07-20 18:18:59] https://data.bus-data.dft.gov.uk/timetable/dataset/16095/download/
+[2026-07-20 18:19:00] Total timetables 14
+[2026-07-20 18:19:01] https://data.bus-data.dft.gov.uk/timetable/dataset/16147/download/
+[2026-07-20 18:19:02] Total timetables 2
+[2026-07-20 18:19:03] https://data.bus-data.dft.gov.uk/timetable/dataset/16194/download/
+[2026-07-20 18:19:03] Total timetables 5384
+[2026-07-20 18:19:04] https://data.bus-data.dft.gov.uk/timetable/dataset/16219/download/
+[2026-07-20 18:19:04] Total timetables 48
+[2026-07-20 18:19:05] https://data.bus-data.dft.gov.uk/timetable/dataset/16242/download/
+[2026-07-20 18:19:06] Total timetables 2
+[2026-07-20 18:19:07] https://data.bus-data.dft.gov.uk/timetable/dataset/16247/download/
+[2026-07-20 18:19:07] Total timetables 6
+[2026-07-20 18:19:08] https://data.bus-data.dft.gov.uk/timetable/dataset/16291/download/
+[2026-07-20 18:19:08] Total timetables 82
+[2026-07-20 18:19:09] https://data.bus-data.dft.gov.uk/timetable/dataset/16304/download/
+[2026-07-20 18:19:09] Total timetables 2
+[2026-07-20 18:19:10] https://data.bus-data.dft.gov.uk/timetable/dataset/16318/download/
+[2026-07-20 18:19:10] Total timetables 13
+[2026-07-20 18:19:11] https://data.bus-data.dft.gov.uk/timetable/dataset/16319/download/
+[2026-07-20 18:19:12] Total timetables 22
+[2026-07-20 18:19:13] https://data.bus-data.dft.gov.uk/timetable/dataset/16333/download/
+[2026-07-20 18:19:13] Total timetables 2
+[2026-07-20 18:19:14] https://data.bus-data.dft.gov.uk/timetable/dataset/16344/download/
+[2026-07-20 18:19:15] Total timetables 2
+[2026-07-20 18:19:16] https://data.bus-data.dft.gov.uk/timetable/dataset/16353/download/
+[2026-07-20 18:19:16] Total timetables 24
+[2026-07-20 18:19:17] https://data.bus-data.dft.gov.uk/timetable/dataset/16354/download/
+[2026-07-20 18:19:17] Total timetables 24
+[2026-07-20 18:19:18] https://data.bus-data.dft.gov.uk/timetable/dataset/16359/download/
+[2026-07-20 18:19:19] Total timetables 15
+[2026-07-20 18:19:20] https://data.bus-data.dft.gov.uk/timetable/dataset/16388/download/
+[2026-07-20 18:19:20] Total timetables 42
+[2026-07-20 18:19:21] https://data.bus-data.dft.gov.uk/timetable/dataset/16430/download/
+[2026-07-20 18:19:21] Total timetables 20
+[2026-07-20 18:19:22] https://data.bus-data.dft.gov.uk/timetable/dataset/16450/download/
+[2026-07-20 18:19:23] Total timetables 434
+[2026-07-20 18:19:24] https://data.bus-data.dft.gov.uk/timetable/dataset/16451/download/
+[2026-07-20 18:19:24] Total timetables 281
+[2026-07-20 18:19:25] https://data.bus-data.dft.gov.uk/timetable/dataset/16452/download/
+[2026-07-20 18:19:26] Total timetables 292
+[2026-07-20 18:19:27] https://data.bus-data.dft.gov.uk/timetable/dataset/16453/download/
+[2026-07-20 18:19:27] Total timetables 357
+[2026-07-20 18:19:28] https://data.bus-data.dft.gov.uk/timetable/dataset/16454/download/
+[2026-07-20 18:19:29] Total timetables 321
+[2026-07-20 18:19:30] https://data.bus-data.dft.gov.uk/timetable/dataset/16456/download/
+[2026-07-20 18:19:30] Total timetables 392
+[2026-07-20 18:19:31] https://data.bus-data.dft.gov.uk/timetable/dataset/16457/download/
+[2026-07-20 18:19:32] Total timetables 182
+[2026-07-20 18:19:33] https://data.bus-data.dft.gov.uk/timetable/dataset/16458/download/
+[2026-07-20 18:19:33] Total timetables 285
+[2026-07-20 18:19:34] https://data.bus-data.dft.gov.uk/timetable/dataset/16459/download/
+[2026-07-20 18:19:34] Total timetables 380
+[2026-07-20 18:19:35] https://data.bus-data.dft.gov.uk/timetable/dataset/16461/download/
+[2026-07-20 18:19:36] Total timetables 288
+[2026-07-20 18:19:37] https://data.bus-data.dft.gov.uk/timetable/dataset/16462/download/
+[2026-07-20 18:19:37] Total timetables 366
+[2026-07-20 18:19:38] https://data.bus-data.dft.gov.uk/timetable/dataset/16463/download/
+[2026-07-20 18:19:38] Total timetables 111
+[2026-07-20 18:19:39] https://data.bus-data.dft.gov.uk/timetable/dataset/16464/download/
+[2026-07-20 18:19:40] Total timetables 459
+[2026-07-20 18:19:41] https://data.bus-data.dft.gov.uk/timetable/dataset/16467/download/
+[2026-07-20 18:19:41] Total timetables 4924
+[2026-07-20 18:19:42] https://data.bus-data.dft.gov.uk/timetable/dataset/16468/download/
+[2026-07-20 18:19:42] Total timetables 10
+[2026-07-20 18:19:43] https://data.bus-data.dft.gov.uk/timetable/dataset/16474/download/
+[2026-07-20 18:19:44] Total timetables 42
+[2026-07-20 18:19:45] https://data.bus-data.dft.gov.uk/timetable/dataset/16475/download/
+[2026-07-20 18:19:45] Total timetables 42
+[2026-07-20 18:19:46] https://data.bus-data.dft.gov.uk/timetable/dataset/16521/download/
+[2026-07-20 18:19:47] Total timetables 4389
+[2026-07-20 18:19:48] https://data.bus-data.dft.gov.uk/timetable/dataset/16543/download/
+[2026-07-20 18:19:48] Total timetables 7
+[2026-07-20 18:19:49] https://data.bus-data.dft.gov.uk/timetable/dataset/16546/download/
+[2026-07-20 18:19:49] Total timetables 2
+[2026-07-20 18:19:50] https://data.bus-data.dft.gov.uk/timetable/dataset/16547/download/
+[2026-07-20 18:19:50] Total timetables 9
+[2026-07-20 18:19:51] https://data.bus-data.dft.gov.uk/timetable/dataset/16548/download/
+[2026-07-20 18:19:52] Total timetables 2
+[2026-07-20 18:19:53] https://data.bus-data.dft.gov.uk/timetable/dataset/16550/download/
+[2026-07-20 18:19:53] Total timetables 2
+[2026-07-20 18:19:54] https://data.bus-data.dft.gov.uk/timetable/dataset/16572/download/
+[2026-07-20 18:19:54] Total timetables 14
+[2026-07-20 18:19:55] https://data.bus-data.dft.gov.uk/timetable/dataset/16573/download/
+[2026-07-20 18:19:55] Total timetables 15
+[2026-07-20 18:19:56] https://data.bus-data.dft.gov.uk/timetable/dataset/16575/download/
+[2026-07-20 18:19:57] Total timetables 7
+[2026-07-20 18:19:58] https://data.bus-data.dft.gov.uk/timetable/dataset/16577/download/
+[2026-07-20 18:19:58] Total timetables 7
+[2026-07-20 18:19:59] https://data.bus-data.dft.gov.uk/timetable/dataset/16581/download/
+[2026-07-20 18:19:59] Total timetables 8
+[2026-07-20 18:20:00] https://data.bus-data.dft.gov.uk/timetable/dataset/16596/download/
+[2026-07-20 18:20:01] Total timetables 92
+[2026-07-20 18:20:02] https://data.bus-data.dft.gov.uk/timetable/dataset/16641/download/
+[2026-07-20 18:20:02] Total timetables 2
+[2026-07-20 18:20:03] https://data.bus-data.dft.gov.uk/timetable/dataset/16657/download/
+[2026-07-20 18:20:03] Total timetables 64
+[2026-07-20 18:20:04] https://data.bus-data.dft.gov.uk/timetable/dataset/16706/download/
+[2026-07-20 18:20:04] Total timetables 123
+[2026-07-20 18:20:05] https://data.bus-data.dft.gov.uk/timetable/dataset/16707/download/
+[2026-07-20 18:20:05] Total timetables 216
+[2026-07-20 18:20:06] https://data.bus-data.dft.gov.uk/timetable/dataset/16759/download/
+[2026-07-20 18:20:07] Total timetables 489
+[2026-07-20 18:20:08] https://data.bus-data.dft.gov.uk/timetable/dataset/16833/download/
+[2026-07-20 18:20:08] Total timetables 2
+[2026-07-20 18:20:09] https://data.bus-data.dft.gov.uk/timetable/dataset/16841/download/
+[2026-07-20 18:20:09] Total timetables 20
+[2026-07-20 18:20:10] https://data.bus-data.dft.gov.uk/timetable/dataset/16866/download/
+[2026-07-20 18:20:10] Total timetables 262
+[2026-07-20 18:20:11] https://data.bus-data.dft.gov.uk/timetable/dataset/16869/download/
+[2026-07-20 18:20:12] Total timetables 10
+[2026-07-20 18:20:13] https://data.bus-data.dft.gov.uk/timetable/dataset/16888/download/
+[2026-07-20 18:20:13] Total timetables 373
+[2026-07-20 18:20:14] https://data.bus-data.dft.gov.uk/timetable/dataset/16898/download/
+[2026-07-20 18:20:14] Total timetables 166
+[2026-07-20 18:20:15] https://data.bus-data.dft.gov.uk/timetable/dataset/16951/download/
+[2026-07-20 18:20:15] Total timetables 118
+[2026-07-20 18:20:16] https://data.bus-data.dft.gov.uk/timetable/dataset/16978/download/
+[2026-07-20 18:20:17] Total timetables 455
+[2026-07-20 18:20:18] https://data.bus-data.dft.gov.uk/timetable/dataset/17012/download/
+[2026-07-20 18:20:18] Total timetables 292
+[2026-07-20 18:20:19] https://data.bus-data.dft.gov.uk/timetable/dataset/17013/download/
+[2026-07-20 18:20:20] Total timetables 471
+[2026-07-20 18:20:21] https://data.bus-data.dft.gov.uk/timetable/dataset/17163/download/
+[2026-07-20 18:20:22] Total timetables 12055
+[2026-07-20 18:20:23] https://data.bus-data.dft.gov.uk/timetable/dataset/17250/download/
+[2026-07-20 18:20:23] Total timetables 10
+[2026-07-20 18:20:24] https://data.bus-data.dft.gov.uk/timetable/dataset/17415/download/
+[2026-07-20 18:20:24] Total timetables 14
+[2026-07-20 18:20:25] https://data.bus-data.dft.gov.uk/timetable/dataset/17472/download/
+[2026-07-20 18:20:26] Total timetables 12469
+[2026-07-20 18:20:27] https://data.bus-data.dft.gov.uk/timetable/dataset/17530/download/
+[2026-07-20 18:20:27] Total timetables 22
+[2026-07-20 18:20:28] https://data.bus-data.dft.gov.uk/timetable/dataset/17607/download/
+[2026-07-20 18:20:28] Total timetables 981
+[2026-07-20 18:20:29] https://data.bus-data.dft.gov.uk/timetable/dataset/17704/download/
+[2026-07-20 18:20:30] Total timetables 23
+[2026-07-20 18:20:31] https://data.bus-data.dft.gov.uk/timetable/dataset/17720/download/
+[2026-07-20 18:20:31] Total timetables 160
+[2026-07-20 18:20:32] https://data.bus-data.dft.gov.uk/timetable/dataset/17763/download/
+[2026-07-20 18:20:32] Total timetables 20
+[2026-07-20 18:20:33] https://data.bus-data.dft.gov.uk/timetable/dataset/17773/download/
+[2026-07-20 18:20:33] Total timetables 47
+[2026-07-20 18:20:34] https://data.bus-data.dft.gov.uk/timetable/dataset/17853/download/
+[2026-07-20 18:20:35] Total timetables 31
+[2026-07-20 18:20:36] https://data.bus-data.dft.gov.uk/timetable/dataset/17859/download/
+[2026-07-20 18:20:36] Total timetables 36
+[2026-07-20 18:20:37] https://data.bus-data.dft.gov.uk/timetable/dataset/17872/download/
+[2026-07-20 18:20:37] Total timetables 4
+[2026-07-20 18:20:38] https://data.bus-data.dft.gov.uk/timetable/dataset/17961/download/
+[2026-07-20 18:20:38] Total timetables 212
+[2026-07-20 18:20:39] https://data.bus-data.dft.gov.uk/timetable/dataset/17973/download/
+[2026-07-20 18:20:39] Total timetables 380
+[2026-07-20 18:20:40] https://data.bus-data.dft.gov.uk/timetable/dataset/17974/download/
+[2026-07-20 18:20:41] Total timetables 370
+[2026-07-20 18:20:42] https://data.bus-data.dft.gov.uk/timetable/dataset/18046/download/
+[2026-07-20 18:20:48] Total timetables 17356
+[2026-07-20 18:20:49] https://data.bus-data.dft.gov.uk/timetable/dataset/18047/download/
+[2026-07-20 18:20:52] Total timetables 14174
+[2026-07-20 18:20:53] https://data.bus-data.dft.gov.uk/timetable/dataset/18063/download/
+[2026-07-20 18:20:56] Total timetables 14133
+[2026-07-20 18:20:57] https://data.bus-data.dft.gov.uk/timetable/dataset/18064/download/
+[2026-07-20 18:20:59] Total timetables 12062
+[2026-07-20 18:21:00] https://data.bus-data.dft.gov.uk/timetable/dataset/18067/download/
+[2026-07-20 18:21:04] Total timetables 13557
+[2026-07-20 18:21:05] https://data.bus-data.dft.gov.uk/timetable/dataset/18096/download/
+[2026-07-20 18:21:05] Total timetables 5
+[2026-07-20 18:21:06] https://data.bus-data.dft.gov.uk/timetable/dataset/18134/download/
+[2026-07-20 18:21:06] Total timetables 4
+[2026-07-20 18:21:07] https://data.bus-data.dft.gov.uk/timetable/dataset/18179/download/
+[2026-07-20 18:21:07] Total timetables 4
+[2026-07-20 18:21:08] https://data.bus-data.dft.gov.uk/timetable/dataset/18190/download/
+[2026-07-20 18:21:08] Total timetables 21
+[2026-07-20 18:21:09] https://data.bus-data.dft.gov.uk/timetable/dataset/18192/download/
+[2026-07-20 18:21:09] Total timetables 4
+[2026-07-20 18:21:10] https://data.bus-data.dft.gov.uk/timetable/dataset/18193/download/
+[2026-07-20 18:21:11] Total timetables 5
+[2026-07-20 18:21:12] https://data.bus-data.dft.gov.uk/timetable/dataset/18195/download/
+[2026-07-20 18:21:12] Total timetables 6
+[2026-07-20 18:21:13] https://data.bus-data.dft.gov.uk/timetable/dataset/18197/download/
+[2026-07-20 18:21:13] Total timetables 2
+[2026-07-20 18:21:14] https://data.bus-data.dft.gov.uk/timetable/dataset/18199/download/
+[2026-07-20 18:21:14] Total timetables 4
+[2026-07-20 18:21:15] https://data.bus-data.dft.gov.uk/timetable/dataset/18205/download/
+[2026-07-20 18:21:15] Total timetables 16
+[2026-07-20 18:21:16] https://data.bus-data.dft.gov.uk/timetable/dataset/18207/download/
+[2026-07-20 18:21:17] Total timetables 2
+[2026-07-20 18:21:18] https://data.bus-data.dft.gov.uk/timetable/dataset/18291/download/
+[2026-07-20 18:21:18] Total timetables 25
+[2026-07-20 18:21:19] https://data.bus-data.dft.gov.uk/timetable/dataset/18325/download/
+[2026-07-20 18:21:22] Total timetables 9822
+[2026-07-20 18:21:23] https://data.bus-data.dft.gov.uk/timetable/dataset/18326/download/
+[2026-07-20 18:21:26] Total timetables 15393
+[2026-07-20 18:21:27] https://data.bus-data.dft.gov.uk/timetable/dataset/18347/download/
+[2026-07-20 18:21:28] Total timetables 21
+[2026-07-20 18:21:29] https://data.bus-data.dft.gov.uk/timetable/dataset/18348/download/
+[2026-07-20 18:21:29] Total timetables 31
+[2026-07-20 18:21:30] https://data.bus-data.dft.gov.uk/timetable/dataset/18353/download/
+[2026-07-20 18:21:30] Total timetables 60
+[2026-07-20 18:21:31] https://data.bus-data.dft.gov.uk/timetable/dataset/18354/download/
+[2026-07-20 18:21:31] Total timetables 31
+[2026-07-20 18:21:32] https://data.bus-data.dft.gov.uk/timetable/dataset/18366/download/
+[2026-07-20 18:21:32] Total timetables 30
+[2026-07-20 18:21:33] https://data.bus-data.dft.gov.uk/timetable/dataset/18422/download/
+[2026-07-20 18:21:39] Total timetables 25117
+[2026-07-20 18:21:40] https://data.bus-data.dft.gov.uk/timetable/dataset/18423/download/
+[2026-07-20 18:21:44] Total timetables 17659
+[2026-07-20 18:21:45] https://data.bus-data.dft.gov.uk/timetable/dataset/18424/download/
+[2026-07-20 18:21:46] Total timetables 5734
+[2026-07-20 18:21:47] https://data.bus-data.dft.gov.uk/timetable/dataset/18425/download/
+[2026-07-20 18:21:49] Total timetables 8119
+[2026-07-20 18:21:50] https://data.bus-data.dft.gov.uk/timetable/dataset/18446/download/
+[2026-07-20 18:21:51] Total timetables 40
+[2026-07-20 18:21:52] https://data.bus-data.dft.gov.uk/timetable/dataset/18450/download/
+[2026-07-20 18:21:57] Total timetables 25039
+[2026-07-20 18:21:58] https://data.bus-data.dft.gov.uk/timetable/dataset/18484/download/
+[2026-07-20 18:21:58] Total timetables 14
+[2026-07-20 18:21:59] https://data.bus-data.dft.gov.uk/timetable/dataset/18508/download/
+[2026-07-20 18:22:01] Total timetables 6528
+[2026-07-20 18:22:02] https://data.bus-data.dft.gov.uk/timetable/dataset/18509/download/
+[2026-07-20 18:22:04] Total timetables 13171
+[2026-07-20 18:22:05] https://data.bus-data.dft.gov.uk/timetable/dataset/18510/download/
+[2026-07-20 18:22:10] Total timetables 45511
+[2026-07-20 18:22:11] https://data.bus-data.dft.gov.uk/timetable/dataset/18511/download/
+[2026-07-20 18:22:15] Total timetables 23221
+[2026-07-20 18:22:16] https://data.bus-data.dft.gov.uk/timetable/dataset/18512/download/
+[2026-07-20 18:22:18] Total timetables 8534
+[2026-07-20 18:22:19] https://data.bus-data.dft.gov.uk/timetable/dataset/18513/download/
+[2026-07-20 18:22:22] Total timetables 15594
+[2026-07-20 18:22:23] https://data.bus-data.dft.gov.uk/timetable/dataset/18514/download/
+[2026-07-20 18:22:25] Total timetables 7845
+[2026-07-20 18:22:26] https://data.bus-data.dft.gov.uk/timetable/dataset/18577/download/
+[2026-07-20 18:22:26] Total timetables 2
+[2026-07-20 18:22:27] https://data.bus-data.dft.gov.uk/timetable/dataset/18578/download/
+[2026-07-20 18:22:27] Total timetables 2
+[2026-07-20 18:22:28] https://data.bus-data.dft.gov.uk/timetable/dataset/18583/download/
+[2026-07-20 18:22:28] Total timetables 2
+[2026-07-20 18:22:29] https://data.bus-data.dft.gov.uk/timetable/dataset/18598/download/
+[2026-07-20 18:22:29] Total timetables 112
+[2026-07-20 18:22:30] https://data.bus-data.dft.gov.uk/timetable/dataset/18602/download/
+[2026-07-20 18:22:31] Total timetables 233
+[2026-07-20 18:22:32] https://data.bus-data.dft.gov.uk/timetable/dataset/18603/download/
+[2026-07-20 18:22:32] Total timetables 85
+[2026-07-20 18:22:33] https://data.bus-data.dft.gov.uk/timetable/dataset/18643/download/
+[2026-07-20 18:22:33] Total timetables 2
+[2026-07-20 18:22:34] https://data.bus-data.dft.gov.uk/timetable/dataset/18648/download/
+[2026-07-20 18:22:34] Total timetables 355
+[2026-07-20 18:22:35] https://data.bus-data.dft.gov.uk/timetable/dataset/18671/download/
+[2026-07-20 18:22:36] Total timetables 34
+[2026-07-20 18:22:37] https://data.bus-data.dft.gov.uk/timetable/dataset/18673/download/
+[2026-07-20 18:22:37] Total timetables 311
+[2026-07-20 18:22:38] https://data.bus-data.dft.gov.uk/timetable/dataset/18676/download/
+[2026-07-20 18:22:38] Total timetables 222
+[2026-07-20 18:22:39] https://data.bus-data.dft.gov.uk/timetable/dataset/18677/download/
+[2026-07-20 18:22:39] Total timetables 178
+[2026-07-20 18:22:40] https://data.bus-data.dft.gov.uk/timetable/dataset/18916/download/
+[2026-07-20 18:22:40] Total timetables 33
+[2026-07-20 18:22:41] https://data.bus-data.dft.gov.uk/timetable/dataset/18931/download/
+[2026-07-20 18:22:42] Total timetables 132
+[2026-07-20 18:22:43] https://data.bus-data.dft.gov.uk/timetable/dataset/18932/download/
+[2026-07-20 18:22:44] Total timetables 49
+[2026-07-20 18:22:45] https://data.bus-data.dft.gov.uk/timetable/dataset/18947/download/
+[2026-07-20 18:22:45] Total timetables 19
+[2026-07-20 18:22:46] https://data.bus-data.dft.gov.uk/timetable/dataset/18948/download/
+[2026-07-20 18:22:46] Total timetables 3
+[2026-07-20 18:22:47] https://data.bus-data.dft.gov.uk/timetable/dataset/18966/download/
+[2026-07-20 18:22:47] Total timetables 18
+[2026-07-20 18:22:48] https://data.bus-data.dft.gov.uk/timetable/dataset/18971/download/
+[2026-07-20 18:22:48] Total timetables 18
+[2026-07-20 18:22:49] https://data.bus-data.dft.gov.uk/timetable/dataset/19012/download/
+[2026-07-20 18:22:50] Total timetables 134
+[2026-07-20 18:22:51] https://data.bus-data.dft.gov.uk/timetable/dataset/19024/download/
+[2026-07-20 18:22:51] Total timetables 92
+[2026-07-20 18:22:52] https://data.bus-data.dft.gov.uk/timetable/dataset/19026/download/
+[2026-07-20 18:22:52] Total timetables 205
+[2026-07-20 18:22:53] https://data.bus-data.dft.gov.uk/timetable/dataset/19027/download/
+[2026-07-20 18:22:53] Total timetables 6
+[2026-07-20 18:22:54] https://data.bus-data.dft.gov.uk/timetable/dataset/19029/download/
+[2026-07-20 18:22:54] Total timetables 6
+[2026-07-20 18:22:55] https://data.bus-data.dft.gov.uk/timetable/dataset/19031/download/
+[2026-07-20 18:22:55] Total timetables 6
+[2026-07-20 18:22:56] https://data.bus-data.dft.gov.uk/timetable/dataset/19032/download/
+[2026-07-20 18:22:56] Total timetables 2
+[2026-07-20 18:22:57] https://data.bus-data.dft.gov.uk/timetable/dataset/19033/download/
+[2026-07-20 18:22:58] Total timetables 66
+[2026-07-20 18:22:59] https://data.bus-data.dft.gov.uk/timetable/dataset/19200/download/
+[2026-07-20 18:22:59] Total timetables 37
+[2026-07-20 18:23:00] https://data.bus-data.dft.gov.uk/timetable/dataset/19206/download/
+[2026-07-20 18:23:00] Total timetables 8
+[2026-07-20 18:23:01] https://data.bus-data.dft.gov.uk/timetable/dataset/19287/download/
+[2026-07-20 18:23:01] Total timetables 81
+[2026-07-20 18:23:02] https://data.bus-data.dft.gov.uk/timetable/dataset/19327/download/
+[2026-07-20 18:23:02] Total timetables 20
+[2026-07-20 18:23:03] https://data.bus-data.dft.gov.uk/timetable/dataset/19434/download/
+[2026-07-20 18:23:03] Total timetables 2
+[2026-07-20 18:23:04] https://data.bus-data.dft.gov.uk/timetable/dataset/19473/download/
+[2026-07-20 18:23:05] Total timetables 11
+[2026-07-20 18:23:06] https://data.bus-data.dft.gov.uk/timetable/dataset/19479/download/
+[2026-07-20 18:23:06] Total timetables 12
+[2026-07-20 18:23:07] https://data.bus-data.dft.gov.uk/timetable/dataset/19499/download/
+[2026-07-20 18:23:07] Total timetables 3
+[2026-07-20 18:23:08] https://data.bus-data.dft.gov.uk/timetable/dataset/19501/download/
+[2026-07-20 18:23:08] Total timetables 11
+[2026-07-20 18:23:09] https://data.bus-data.dft.gov.uk/timetable/dataset/19515/download/
+[2026-07-20 18:23:10] Total timetables 43
+[2026-07-20 18:23:11] https://data.bus-data.dft.gov.uk/timetable/dataset/19526/download/
+[2026-07-20 18:23:11] Total timetables 81
+[2026-07-20 18:23:12] https://data.bus-data.dft.gov.uk/timetable/dataset/19527/download/
+[2026-07-20 18:23:12] Total timetables 2
+[2026-07-20 18:23:13] https://data.bus-data.dft.gov.uk/timetable/dataset/19593/download/
+[2026-07-20 18:23:13] Total timetables 50
+[2026-07-20 18:23:14] https://data.bus-data.dft.gov.uk/timetable/dataset/19601/download/
+[2026-07-20 18:23:14] Total timetables 15
+[2026-07-20 18:23:15] https://data.bus-data.dft.gov.uk/timetable/dataset/19650/download/
+[2026-07-20 18:23:15] Total timetables 40
+[2026-07-20 18:23:16] https://data.bus-data.dft.gov.uk/timetable/dataset/19711/download/
+[2026-07-20 18:23:16] Total timetables 2
+[2026-07-20 18:23:17] https://data.bus-data.dft.gov.uk/timetable/dataset/19713/download/
+[2026-07-20 18:23:18] Total timetables 2
+[2026-07-20 18:23:19] https://data.bus-data.dft.gov.uk/timetable/dataset/19731/download/
+[2026-07-20 18:23:19] Total timetables 4
+[2026-07-20 18:23:20] https://data.bus-data.dft.gov.uk/timetable/dataset/19759/download/
+[2026-07-20 18:23:20] Total timetables 10
+[2026-07-20 18:23:21] https://data.bus-data.dft.gov.uk/timetable/dataset/19803/download/
+[2026-07-20 18:23:21] Total timetables 386
+[2026-07-20 18:23:22] https://data.bus-data.dft.gov.uk/timetable/dataset/19805/download/
+[2026-07-20 18:23:22] Total timetables 386
+[2026-07-20 18:23:23] https://data.bus-data.dft.gov.uk/timetable/dataset/19817/download/
+[2026-07-20 18:23:24] Total timetables 461
+[2026-07-20 18:23:25] https://data.bus-data.dft.gov.uk/timetable/dataset/19854/download/
+[2026-07-20 18:23:25] Total timetables 2
+[2026-07-20 18:23:26] https://data.bus-data.dft.gov.uk/timetable/dataset/19855/download/
+[2026-07-20 18:23:26] Total timetables 2
+[2026-07-20 18:23:27] https://data.bus-data.dft.gov.uk/timetable/dataset/19856/download/
+[2026-07-20 18:23:27] Total timetables 2
+[2026-07-20 18:23:28] https://data.bus-data.dft.gov.uk/timetable/dataset/19861/download/
+[2026-07-20 18:23:29] Total timetables 2
+[2026-07-20 18:23:30] https://data.bus-data.dft.gov.uk/timetable/dataset/19898/download/
+[2026-07-20 18:23:30] Total timetables 23
+[2026-07-20 18:23:31] https://data.bus-data.dft.gov.uk/timetable/dataset/19913/download/
+[2026-07-20 18:23:31] Total timetables 216
+[2026-07-20 18:23:32] https://data.bus-data.dft.gov.uk/timetable/dataset/19937/download/
+[2026-07-20 18:23:32] Total timetables 43
+[2026-07-20 18:23:33] https://data.bus-data.dft.gov.uk/timetable/dataset/19941/download/
+[2026-07-20 18:23:34] Total timetables 30
+[2026-07-20 18:23:35] https://data.bus-data.dft.gov.uk/timetable/dataset/19952/download/
+[2026-07-20 18:23:35] Total timetables 4
+[2026-07-20 18:23:36] https://data.bus-data.dft.gov.uk/timetable/dataset/19965/download/
+[2026-07-20 18:23:36] Total timetables 1636
+[2026-07-20 18:23:37] https://data.bus-data.dft.gov.uk/timetable/dataset/19992/download/
+[2026-07-20 18:23:37] Total timetables 18
+[2026-07-20 18:23:38] https://data.bus-data.dft.gov.uk/timetable/dataset/19995/download/
+[2026-07-20 18:23:38] Total timetables 2
+[2026-07-20 18:23:39] https://data.bus-data.dft.gov.uk/timetable/dataset/19996/download/
+[2026-07-20 18:23:40] Total timetables 2
+[2026-07-20 18:23:41] https://data.bus-data.dft.gov.uk/timetable/dataset/20076/download/
+[2026-07-20 18:23:41] Total timetables 10
+[2026-07-20 18:23:42] https://data.bus-data.dft.gov.uk/timetable/dataset/20105/download/
+[2026-07-20 18:23:42] Total timetables 131
+[2026-07-20 18:23:43] https://data.bus-data.dft.gov.uk/timetable/dataset/20211/download/
+[2026-07-20 18:23:43] Total timetables 10
+[2026-07-20 18:23:44] https://data.bus-data.dft.gov.uk/timetable/dataset/20212/download/
+[2026-07-20 18:23:44] Total timetables 20
+[2026-07-20 18:23:45] https://data.bus-data.dft.gov.uk/timetable/dataset/20213/download/
+[2026-07-20 18:23:45] Total timetables 13
+[2026-07-20 18:23:46] https://data.bus-data.dft.gov.uk/timetable/dataset/20215/download/
+[2026-07-20 18:23:47] Total timetables 86
+[2026-07-20 18:23:48] https://data.bus-data.dft.gov.uk/timetable/dataset/20302/download/
+[2026-07-20 18:23:48] Total timetables 16
+[2026-07-20 18:23:49] https://data.bus-data.dft.gov.uk/timetable/dataset/20315/download/
+[2026-07-20 18:23:49] Total timetables 22
+[2026-07-20 18:23:50] https://data.bus-data.dft.gov.uk/timetable/dataset/20441/download/
+[2026-07-20 18:24:01] Total timetables 75213
+[2026-07-20 18:24:02] https://data.bus-data.dft.gov.uk/timetable/dataset/20442/download/
+[2026-07-20 18:24:04] Total timetables 12306
+[2026-07-20 18:24:05] https://data.bus-data.dft.gov.uk/timetable/dataset/20475/download/
+[2026-07-20 18:24:05] Total timetables 58
+[2026-07-20 18:24:06] https://data.bus-data.dft.gov.uk/timetable/dataset/20488/download/
+[2026-07-20 18:24:06] Total timetables 1098
+[2026-07-20 18:24:07] https://data.bus-data.dft.gov.uk/timetable/dataset/20491/download/
+[2026-07-20 18:24:07] Total timetables 58
+[2026-07-20 18:24:08] https://data.bus-data.dft.gov.uk/timetable/dataset/20499/download/
+[2026-07-20 18:24:08] Total timetables 168
+[2026-07-20 18:24:09] https://data.bus-data.dft.gov.uk/timetable/dataset/20531/download/
+[2026-07-20 18:24:10] Total timetables 2
+[2026-07-20 18:24:11] https://data.bus-data.dft.gov.uk/timetable/dataset/20532/download/
+[2026-07-20 18:24:11] Total timetables 10
+[2026-07-20 18:24:12] https://data.bus-data.dft.gov.uk/timetable/dataset/20543/download/
+[2026-07-20 18:24:12] Total timetables 44
+[2026-07-20 18:24:13] https://data.bus-data.dft.gov.uk/timetable/dataset/20596/download/
+[2026-07-20 18:24:13] Total timetables 52
+[2026-07-20 18:24:14] https://data.bus-data.dft.gov.uk/timetable/dataset/20753/download/
+[2026-07-20 18:24:14] Total timetables 165
+[2026-07-20 18:24:15] https://data.bus-data.dft.gov.uk/timetable/dataset/20758/download/
+[2026-07-20 18:24:16] Total timetables 480
+[2026-07-20 18:24:17] https://data.bus-data.dft.gov.uk/timetable/dataset/20760/download/
+[2026-07-20 18:24:17] Total timetables 2
+[2026-07-20 18:24:18] https://data.bus-data.dft.gov.uk/timetable/dataset/20762/download/
+[2026-07-20 18:24:18] Total timetables 2
+[2026-07-20 18:24:19] https://data.bus-data.dft.gov.uk/timetable/dataset/20771/download/
+[2026-07-20 18:24:19] Total timetables 106
+[2026-07-20 18:24:20] https://data.bus-data.dft.gov.uk/timetable/dataset/20800/download/
+[2026-07-20 18:24:20] Total timetables 71
+[2026-07-20 18:24:21] https://data.bus-data.dft.gov.uk/timetable/dataset/20830/download/
+[2026-07-20 18:24:22] Total timetables 276
+[2026-07-20 18:24:23] https://data.bus-data.dft.gov.uk/timetable/dataset/20833/download/
+[2026-07-20 18:24:23] Total timetables 4
+[2026-07-20 18:24:24] https://data.bus-data.dft.gov.uk/timetable/dataset/20836/download/
+[2026-07-20 18:24:24] Total timetables 8
+[2026-07-20 18:24:25] https://data.bus-data.dft.gov.uk/timetable/dataset/20837/download/
+[2026-07-20 18:24:25] Total timetables 4
+[2026-07-20 18:24:26] https://data.bus-data.dft.gov.uk/timetable/dataset/20920/download/
+[2026-07-20 18:24:26] Total timetables 432
+[2026-07-20 18:24:27] https://data.bus-data.dft.gov.uk/timetable/dataset/20951/download/
+[2026-07-20 18:24:27] Total timetables 432
+[2026-07-20 18:24:28] https://data.bus-data.dft.gov.uk/timetable/dataset/21004/download/
+[2026-07-20 18:24:29] Total timetables 14
+[2026-07-20 18:24:30] https://data.bus-data.dft.gov.uk/timetable/dataset/21006/download/
+[2026-07-20 18:24:30] Total timetables 29
+[2026-07-20 18:24:31] https://data.bus-data.dft.gov.uk/timetable/dataset/21007/download/
+[2026-07-20 18:24:31] Total timetables 2
+[2026-07-20 18:24:32] https://data.bus-data.dft.gov.uk/timetable/dataset/21058/download/
+[2026-07-20 18:24:32] Total timetables 361
+[2026-07-20 18:24:33] https://data.bus-data.dft.gov.uk/timetable/dataset/21059/download/
+[2026-07-20 18:24:34] Total timetables 1756
+[2026-07-20 18:24:35] https://data.bus-data.dft.gov.uk/timetable/dataset/21060/download/
+[2026-07-20 18:24:35] Total timetables 434
+[2026-07-20 18:24:36] https://data.bus-data.dft.gov.uk/timetable/dataset/21061/download/
+[2026-07-20 18:24:37] Total timetables 281
+[2026-07-20 18:24:38] https://data.bus-data.dft.gov.uk/timetable/dataset/21062/download/
+[2026-07-20 18:24:38] Total timetables 281
+[2026-07-20 18:24:39] https://data.bus-data.dft.gov.uk/timetable/dataset/21063/download/
+[2026-07-20 18:24:40] Total timetables 292
+[2026-07-20 18:24:41] https://data.bus-data.dft.gov.uk/timetable/dataset/21064/download/
+[2026-07-20 18:24:41] Total timetables 292
+[2026-07-20 18:24:42] https://data.bus-data.dft.gov.uk/timetable/dataset/21065/download/
+[2026-07-20 18:24:42] Total timetables 366
+[2026-07-20 18:24:43] https://data.bus-data.dft.gov.uk/timetable/dataset/21066/download/
+[2026-07-20 18:24:44] Total timetables 648
+[2026-07-20 18:24:45] https://data.bus-data.dft.gov.uk/timetable/dataset/21067/download/
+[2026-07-20 18:24:46] Total timetables 648
+[2026-07-20 18:24:47] https://data.bus-data.dft.gov.uk/timetable/dataset/21068/download/
+[2026-07-20 18:24:47] Total timetables 285
+[2026-07-20 18:24:48] https://data.bus-data.dft.gov.uk/timetable/dataset/21069/download/
+[2026-07-20 18:24:49] Total timetables 291
+[2026-07-20 18:24:50] https://data.bus-data.dft.gov.uk/timetable/dataset/21070/download/
+[2026-07-20 18:24:50] Total timetables 364
+[2026-07-20 18:24:51] https://data.bus-data.dft.gov.uk/timetable/dataset/21071/download/
+[2026-07-20 18:24:51] Total timetables 288
+[2026-07-20 18:24:52] https://data.bus-data.dft.gov.uk/timetable/dataset/21072/download/
+[2026-07-20 18:24:53] Total timetables 356
+[2026-07-20 18:24:54] https://data.bus-data.dft.gov.uk/timetable/dataset/21073/download/
+[2026-07-20 18:24:54] Total timetables 111
+[2026-07-20 18:24:55] https://data.bus-data.dft.gov.uk/timetable/dataset/21074/download/
+[2026-07-20 18:24:55] Total timetables 461
+[2026-07-20 18:24:56] https://data.bus-data.dft.gov.uk/timetable/dataset/21137/download/
+[2026-07-20 18:24:57] Total timetables 4
+[2026-07-20 18:24:58] https://data.bus-data.dft.gov.uk/timetable/dataset/21141/download/
+[2026-07-20 18:24:58] Total timetables 381
+[2026-07-20 18:24:59] https://data.bus-data.dft.gov.uk/timetable/dataset/21153/download/
+[2026-07-20 18:24:59] Total timetables 113
+[2026-07-20 18:25:00] https://data.bus-data.dft.gov.uk/timetable/dataset/21154/download/
+[2026-07-20 18:25:01] Total timetables 151
+[2026-07-20 18:25:02] https://data.bus-data.dft.gov.uk/timetable/dataset/21155/download/
+[2026-07-20 18:25:02] Total timetables 407
+[2026-07-20 18:25:03] https://data.bus-data.dft.gov.uk/timetable/dataset/21156/download/
+[2026-07-20 18:25:04] Total timetables 153
+[2026-07-20 18:25:05] https://data.bus-data.dft.gov.uk/timetable/dataset/21157/download/
+[2026-07-20 18:25:05] Total timetables 153
+[2026-07-20 18:25:06] https://data.bus-data.dft.gov.uk/timetable/dataset/21173/download/
+[2026-07-20 18:25:06] Total timetables 562
+[2026-07-20 18:25:07] https://data.bus-data.dft.gov.uk/timetable/dataset/21205/download/
+[2026-07-20 18:25:07] 
+<Operators> element not found.
+
+[2026-07-20 18:25:07] Total timetables 0
+[2026-07-20 18:25:08] https://data.bus-data.dft.gov.uk/timetable/dataset/21207/download/
+[2026-07-20 18:25:09] Total timetables 14
+[2026-07-20 18:25:10] https://data.bus-data.dft.gov.uk/timetable/dataset/21223/download/
+[2026-07-20 18:25:10] Total timetables 2
+[2026-07-20 18:25:11] https://data.bus-data.dft.gov.uk/timetable/dataset/21229/download/
+[2026-07-20 18:25:11] Total timetables 300
+[2026-07-20 18:25:12] https://data.bus-data.dft.gov.uk/timetable/dataset/21267/download/
+[2026-07-20 18:25:12] Total timetables 5826
+[2026-07-20 18:25:13] https://data.bus-data.dft.gov.uk/timetable/dataset/21278/download/
+[2026-07-20 18:25:14] Total timetables 225
+[2026-07-20 18:25:15] https://data.bus-data.dft.gov.uk/timetable/dataset/21305/download/
+[2026-07-20 18:25:15] Total timetables 6184
+[2026-07-20 18:25:16] https://data.bus-data.dft.gov.uk/timetable/dataset/21306/download/
+[2026-07-20 18:25:17] Total timetables 444
+[2026-07-20 18:25:18] https://data.bus-data.dft.gov.uk/timetable/dataset/21331/download/
+[2026-07-20 18:25:18] Total timetables 105
+[2026-07-20 18:25:19] https://data.bus-data.dft.gov.uk/timetable/dataset/21370/download/
+[2026-07-20 18:25:19] Total timetables 199
+[2026-07-20 18:25:20] https://data.bus-data.dft.gov.uk/timetable/dataset/21379/download/
+[2026-07-20 18:25:20] Total timetables 75
+[2026-07-20 18:25:21] https://data.bus-data.dft.gov.uk/timetable/dataset/21403/download/
+[2026-07-20 18:25:22] Total timetables 2
+[2026-07-20 18:25:23] https://data.bus-data.dft.gov.uk/timetable/dataset/21435/download/
+[2026-07-20 18:25:23] Total timetables 32
+[2026-07-20 18:25:24] https://data.bus-data.dft.gov.uk/timetable/dataset/21510/download/
+[2026-07-20 18:25:24] Total timetables 136
+[2026-07-20 18:25:25] https://data.bus-data.dft.gov.uk/timetable/dataset/21514/download/
+[2026-07-20 18:25:25] Total timetables 27
+[2026-07-20 18:25:26] https://data.bus-data.dft.gov.uk/timetable/dataset/21520/download/
+[2026-07-20 18:25:27] Total timetables 74
+[2026-07-20 18:25:28] https://data.bus-data.dft.gov.uk/timetable/dataset/21521/download/
+[2026-07-20 18:25:29] Total timetables 48
+[2026-07-20 18:25:30] https://data.bus-data.dft.gov.uk/timetable/dataset/21522/download/
+[2026-07-20 18:25:30] Total timetables 56
+[2026-07-20 18:25:31] https://data.bus-data.dft.gov.uk/timetable/dataset/21523/download/
+[2026-07-20 18:25:31] Total timetables 30
+[2026-07-20 18:25:32] https://data.bus-data.dft.gov.uk/timetable/dataset/21524/download/
+[2026-07-20 18:25:33] Total timetables 16
+[2026-07-20 18:25:34] https://data.bus-data.dft.gov.uk/timetable/dataset/21526/download/
+[2026-07-20 18:25:34] Total timetables 16
+[2026-07-20 18:25:35] https://data.bus-data.dft.gov.uk/timetable/dataset/21610/download/
+[2026-07-20 18:25:35] Total timetables 68
+[2026-07-20 18:25:36] https://data.bus-data.dft.gov.uk/timetable/dataset/21632/download/
+[2026-07-20 18:25:37] Total timetables 112
+[2026-07-20 18:25:38] https://data.bus-data.dft.gov.uk/timetable/dataset/21635/download/
+[2026-07-20 18:25:38] Total timetables 78
+[2026-07-20 18:25:39] https://data.bus-data.dft.gov.uk/timetable/dataset/21645/download/
+[2026-07-20 18:25:40] Total timetables 1456
+[2026-07-20 18:25:41] https://data.bus-data.dft.gov.uk/timetable/dataset/21646/download/
+[2026-07-20 18:25:44] Total timetables 29513
+[2026-07-20 18:25:45] https://data.bus-data.dft.gov.uk/timetable/dataset/21647/download/
+[2026-07-20 18:25:45] Total timetables 40
+[2026-07-20 18:25:46] https://data.bus-data.dft.gov.uk/timetable/dataset/21771/download/
+[2026-07-20 18:25:47] Total timetables 24
+[2026-07-20 18:25:48] https://data.bus-data.dft.gov.uk/timetable/dataset/21774/download/
+[2026-07-20 18:25:48] Total timetables 3
+[2026-07-20 18:25:49] https://data.bus-data.dft.gov.uk/timetable/dataset/21777/download/
+[2026-07-20 18:25:49] Total timetables 792
+[2026-07-20 18:25:50] https://data.bus-data.dft.gov.uk/timetable/dataset/21789/download/
+[2026-07-20 18:25:51] Total timetables 2
+[2026-07-20 18:25:52] https://data.bus-data.dft.gov.uk/timetable/dataset/21790/download/
+[2026-07-20 18:25:52] Total timetables 3
+[2026-07-20 18:25:53] https://data.bus-data.dft.gov.uk/timetable/dataset/21823/download/
+[2026-07-20 18:25:53] Total timetables 4
+[2026-07-20 18:25:54] https://data.bus-data.dft.gov.uk/timetable/dataset/21826/download/
+[2026-07-20 18:25:54] Total timetables 163
+[2026-07-20 18:25:55] https://data.bus-data.dft.gov.uk/timetable/dataset/21838/download/
+[2026-07-20 18:25:55] Total timetables 48
+[2026-07-20 18:25:56] https://data.bus-data.dft.gov.uk/timetable/dataset/21868/download/
+[2026-07-20 18:25:57] Total timetables 22
+[2026-07-20 18:25:58] https://data.bus-data.dft.gov.uk/timetable/dataset/21871/download/
+[2026-07-20 18:25:58] Total timetables 12
+[2026-07-20 18:25:59] https://data.bus-data.dft.gov.uk/timetable/dataset/21935/download/
+[2026-07-20 18:25:59] Total timetables 5
+[2026-07-20 18:26:00] https://data.bus-data.dft.gov.uk/timetable/dataset/21959/download/
+[2026-07-20 18:26:00] Total timetables 3
+[2026-07-20 18:26:01] https://data.bus-data.dft.gov.uk/timetable/dataset/21996/download/
+[2026-07-20 18:26:02] Total timetables 4
+[2026-07-20 18:26:03] https://data.bus-data.dft.gov.uk/timetable/dataset/22039/download/
+[2026-07-20 18:26:03] Total timetables 34
+[2026-07-20 18:26:04] https://data.bus-data.dft.gov.uk/timetable/dataset/22123/download/
+[2026-07-20 18:26:04] Total timetables 16
+[2026-07-20 18:26:05] https://data.bus-data.dft.gov.uk/timetable/dataset/22173/download/
+[2026-07-20 18:26:05] Total timetables 401
+[2026-07-20 18:26:06] https://data.bus-data.dft.gov.uk/timetable/dataset/22210/download/
+[2026-07-20 18:26:06] Total timetables 5
+[2026-07-20 18:26:07] https://data.bus-data.dft.gov.uk/timetable/dataset/22213/download/
+[2026-07-20 18:26:08] Total timetables 156
+[2026-07-20 18:26:09] https://data.bus-data.dft.gov.uk/timetable/dataset/22236/download/
+[2026-07-20 18:26:09] Total timetables 12
+[2026-07-20 18:26:10] https://data.bus-data.dft.gov.uk/timetable/dataset/22237/download/
+[2026-07-20 18:26:10] Total timetables 355
+[2026-07-20 18:26:11] https://data.bus-data.dft.gov.uk/timetable/dataset/22248/download/
+[2026-07-20 18:26:11] Total timetables 81
+[2026-07-20 18:26:12] https://data.bus-data.dft.gov.uk/timetable/dataset/22256/download/
+[2026-07-20 18:26:13] Total timetables 75
+[2026-07-20 18:26:14] https://data.bus-data.dft.gov.uk/timetable/dataset/22281/download/
+[2026-07-20 18:26:14] Total timetables 2
+[2026-07-20 18:26:15] https://data.bus-data.dft.gov.uk/timetable/dataset/22282/download/
+[2026-07-20 18:26:15] Total timetables 48
+[2026-07-20 18:26:16] https://data.bus-data.dft.gov.uk/timetable/dataset/22283/download/
+[2026-07-20 18:26:17] Total timetables 20
+[2026-07-20 18:26:18] https://data.bus-data.dft.gov.uk/timetable/dataset/22306/download/
+[2026-07-20 18:26:18] Total timetables 2
+[2026-07-20 18:26:19] https://data.bus-data.dft.gov.uk/timetable/dataset/22339/download/
+[2026-07-20 18:26:19] Total timetables 22
+[2026-07-20 18:26:20] https://data.bus-data.dft.gov.uk/timetable/dataset/22343/download/
+[2026-07-20 18:26:20] Total timetables 67
+[2026-07-20 18:26:21] https://data.bus-data.dft.gov.uk/timetable/dataset/22353/download/
+[2026-07-20 18:26:22] Total timetables 19
+[2026-07-20 18:26:23] https://data.bus-data.dft.gov.uk/timetable/dataset/22354/download/
+[2026-07-20 18:26:23] Total timetables 6
+[2026-07-20 18:26:24] https://data.bus-data.dft.gov.uk/timetable/dataset/22355/download/
+[2026-07-20 18:26:24] Total timetables 48
+[2026-07-20 18:26:25] https://data.bus-data.dft.gov.uk/timetable/dataset/22356/download/
+[2026-07-20 18:26:25] Total timetables 22
+[2026-07-20 18:26:26] https://data.bus-data.dft.gov.uk/timetable/dataset/22357/download/
+[2026-07-20 18:26:27] Total timetables 24
+[2026-07-20 18:26:28] https://data.bus-data.dft.gov.uk/timetable/dataset/22358/download/
+[2026-07-20 18:26:28] Total timetables 24
+[2026-07-20 18:26:29] https://data.bus-data.dft.gov.uk/timetable/dataset/22359/download/
+[2026-07-20 18:26:29] Total timetables 15
+[2026-07-20 18:26:30] https://data.bus-data.dft.gov.uk/timetable/dataset/22360/download/
+[2026-07-20 18:26:30] Total timetables 22
+[2026-07-20 18:26:31] https://data.bus-data.dft.gov.uk/timetable/dataset/22361/download/
+[2026-07-20 18:26:32] Total timetables 24
+[2026-07-20 18:26:33] https://data.bus-data.dft.gov.uk/timetable/dataset/22362/download/
+[2026-07-20 18:26:34] Total timetables 48
+[2026-07-20 18:26:35] https://data.bus-data.dft.gov.uk/timetable/dataset/22363/download/
+[2026-07-20 18:26:35] Total timetables 72
+[2026-07-20 18:26:36] https://data.bus-data.dft.gov.uk/timetable/dataset/22364/download/
+[2026-07-20 18:26:37] Total timetables 6
+[2026-07-20 18:26:38] https://data.bus-data.dft.gov.uk/timetable/dataset/22365/download/
+[2026-07-20 18:26:38] Total timetables 4
+[2026-07-20 18:26:39] https://data.bus-data.dft.gov.uk/timetable/dataset/22366/download/
+[2026-07-20 18:26:39] Total timetables 24
+[2026-07-20 18:26:40] https://data.bus-data.dft.gov.uk/timetable/dataset/22367/download/
+[2026-07-20 18:26:40] Total timetables 180
+[2026-07-20 18:26:41] https://data.bus-data.dft.gov.uk/timetable/dataset/22369/download/
+[2026-07-20 18:26:42] Total timetables 27
+[2026-07-20 18:26:43] https://data.bus-data.dft.gov.uk/timetable/dataset/22384/download/
+[2026-07-20 18:26:43] Total timetables 52
+[2026-07-20 18:26:44] https://data.bus-data.dft.gov.uk/timetable/dataset/22388/download/
+[2026-07-20 18:26:44] Total timetables 10
+[2026-07-20 18:26:45] https://data.bus-data.dft.gov.uk/timetable/dataset/22449/download/
+[2026-07-20 18:26:45] Total timetables 24
+[2026-07-20 18:26:46] https://data.bus-data.dft.gov.uk/timetable/dataset/22470/download/
+[2026-07-20 18:26:46] Total timetables 12
+[2026-07-20 18:26:48] https://data.bus-data.dft.gov.uk/timetable/dataset/22472/download/
+[2026-07-20 18:26:48] Total timetables 785
+[2026-07-20 18:26:49] https://data.bus-data.dft.gov.uk/timetable/dataset/22482/download/
+[2026-07-20 18:26:49] Total timetables 50
+[2026-07-20 18:26:50] https://data.bus-data.dft.gov.uk/timetable/dataset/22523/download/
+[2026-07-20 18:26:50] Total timetables 232
+[2026-07-20 18:26:51] https://data.bus-data.dft.gov.uk/timetable/dataset/22528/download/
+[2026-07-20 18:26:52] Total timetables 4557
+[2026-07-20 18:26:53] https://data.bus-data.dft.gov.uk/timetable/dataset/22530/download/
+[2026-07-20 18:26:54] Total timetables 10317
+[2026-07-20 18:26:55] https://data.bus-data.dft.gov.uk/timetable/dataset/22531/download/
+[2026-07-20 18:26:55] Total timetables 9275
+[2026-07-20 18:26:56] https://data.bus-data.dft.gov.uk/timetable/dataset/22533/download/
+[2026-07-20 18:26:57] Total timetables 9434
+[2026-07-20 18:26:58] https://data.bus-data.dft.gov.uk/timetable/dataset/22535/download/
+[2026-07-20 18:26:58] Total timetables 2344
+[2026-07-20 18:26:59] https://data.bus-data.dft.gov.uk/timetable/dataset/22537/download/
+[2026-07-20 18:27:00] Total timetables 5336
+[2026-07-20 18:27:01] https://data.bus-data.dft.gov.uk/timetable/dataset/22542/download/
+[2026-07-20 18:27:01] Total timetables 196
+[2026-07-20 18:27:02] https://data.bus-data.dft.gov.uk/timetable/dataset/22569/download/
+[2026-07-20 18:27:03] Total timetables 230
+[2026-07-20 18:27:04] https://data.bus-data.dft.gov.uk/timetable/dataset/22587/download/
+[2026-07-20 18:27:04] Total timetables 6
+[2026-07-20 18:27:05] https://data.bus-data.dft.gov.uk/timetable/dataset/22590/download/
+[2026-07-20 18:27:05] Total timetables 27
+[2026-07-20 18:27:06] https://data.bus-data.dft.gov.uk/timetable/dataset/22591/download/
+[2026-07-20 18:27:06] Total timetables 18
+[2026-07-20 18:27:07] https://data.bus-data.dft.gov.uk/timetable/dataset/22602/download/
+[2026-07-20 18:27:07] Total timetables 10
+[2026-07-20 18:27:08] https://data.bus-data.dft.gov.uk/timetable/dataset/22604/download/
+[2026-07-20 18:27:08] Total timetables 20
+[2026-07-20 18:27:09] https://data.bus-data.dft.gov.uk/timetable/dataset/22638/download/
+[2026-07-20 18:27:10] Total timetables 36
+[2026-07-20 18:27:11] https://data.bus-data.dft.gov.uk/timetable/dataset/22698/download/
+[2026-07-20 18:27:11] Total timetables 8
+[2026-07-20 18:27:12] https://data.bus-data.dft.gov.uk/timetable/dataset/22733/download/
+[2026-07-20 18:27:12] Total timetables 27
+[2026-07-20 18:27:13] https://data.bus-data.dft.gov.uk/timetable/dataset/22734/download/
+[2026-07-20 18:27:13] Total timetables 2
+[2026-07-20 18:27:14] https://data.bus-data.dft.gov.uk/timetable/dataset/22735/download/
+[2026-07-20 18:27:14] Total timetables 1650
+[2026-07-20 18:27:15] https://data.bus-data.dft.gov.uk/timetable/dataset/22740/download/
+[2026-07-20 18:27:15] Total timetables 221
+[2026-07-20 18:27:16] https://data.bus-data.dft.gov.uk/timetable/dataset/22762/download/
+[2026-07-20 18:27:17] Total timetables 14
+[2026-07-20 18:27:18] https://data.bus-data.dft.gov.uk/timetable/dataset/22777/download/
+[2026-07-20 18:27:18] Total timetables 11
+[2026-07-20 18:27:19] https://data.bus-data.dft.gov.uk/timetable/dataset/22782/download/
+[2026-07-20 18:27:19] Total timetables 4
+[2026-07-20 18:27:20] https://data.bus-data.dft.gov.uk/timetable/dataset/22783/download/
+[2026-07-20 18:27:20] Total timetables 2
+[2026-07-20 18:27:21] https://data.bus-data.dft.gov.uk/timetable/dataset/22784/download/
+[2026-07-20 18:27:22] Total timetables 2
+[2026-07-20 18:27:23] https://data.bus-data.dft.gov.uk/timetable/dataset/22785/download/
+[2026-07-20 18:27:23] Total timetables 332
+[2026-07-20 18:27:24] https://data.bus-data.dft.gov.uk/timetable/dataset/22800/download/
+[2026-07-20 18:27:24] Total timetables 2
+[2026-07-20 18:27:25] https://data.bus-data.dft.gov.uk/timetable/dataset/22801/download/
+[2026-07-20 18:27:25] Total timetables 2
+[2026-07-20 18:27:26] https://data.bus-data.dft.gov.uk/timetable/dataset/22802/download/
+[2026-07-20 18:27:26] Total timetables 205
+[2026-07-20 18:27:27] https://data.bus-data.dft.gov.uk/timetable/dataset/22803/download/
+[2026-07-20 18:27:28] Total timetables 160
+[2026-07-20 18:27:29] https://data.bus-data.dft.gov.uk/timetable/dataset/22804/download/
+[2026-07-20 18:27:29] Total timetables 101
+[2026-07-20 18:27:30] https://data.bus-data.dft.gov.uk/timetable/dataset/22805/download/
+[2026-07-20 18:27:30] Total timetables 2532
+[2026-07-20 18:27:31] https://data.bus-data.dft.gov.uk/timetable/dataset/22806/download/
+[2026-07-20 18:27:31] Total timetables 191
+[2026-07-20 18:27:32] https://data.bus-data.dft.gov.uk/timetable/dataset/22807/download/
+[2026-07-20 18:27:33] Total timetables 30
+[2026-07-20 18:27:34] https://data.bus-data.dft.gov.uk/timetable/dataset/22808/download/
+[2026-07-20 18:27:34] Total timetables 1168
+[2026-07-20 18:27:35] https://data.bus-data.dft.gov.uk/timetable/dataset/22809/download/
+[2026-07-20 18:27:35] Total timetables 205
+[2026-07-20 18:27:36] https://data.bus-data.dft.gov.uk/timetable/dataset/22810/download/
+[2026-07-20 18:27:36] Total timetables 60
+[2026-07-20 18:27:37] https://data.bus-data.dft.gov.uk/timetable/dataset/22811/download/
+[2026-07-20 18:28:07] Total timetables 3
+[2026-07-20 18:28:08] https://data.bus-data.dft.gov.uk/timetable/dataset/22812/download/
+[2026-07-20 18:28:09] Total timetables 55
+[2026-07-20 18:28:10] https://data.bus-data.dft.gov.uk/timetable/dataset/22866/download/
+[2026-07-20 18:28:10] Total timetables 22
+[2026-07-20 18:28:11] https://data.bus-data.dft.gov.uk/timetable/dataset/22895/download/
+[2026-07-20 18:28:11] Total timetables 110
+[2026-07-20 18:28:12] https://data.bus-data.dft.gov.uk/timetable/dataset/22903/download/
+[2026-07-20 18:28:12] Total timetables 234
+[2026-07-20 18:28:13] https://data.bus-data.dft.gov.uk/timetable/dataset/22953/download/
+[2026-07-20 18:28:13] Total timetables 89
+[2026-07-20 18:28:14] https://data.bus-data.dft.gov.uk/timetable/dataset/22956/download/
+[2026-07-20 18:28:15] Total timetables 1128
+[2026-07-20 18:28:16] https://data.bus-data.dft.gov.uk/timetable/dataset/22957/download/
+[2026-07-20 18:28:16] Total timetables 6
+[2026-07-20 18:28:17] https://data.bus-data.dft.gov.uk/timetable/dataset/22958/download/
+[2026-07-20 18:28:17] Total timetables 177
+[2026-07-20 18:28:18] https://data.bus-data.dft.gov.uk/timetable/dataset/22969/download/
+[2026-07-20 18:28:18] Total timetables 2581
+[2026-07-20 18:28:19] https://data.bus-data.dft.gov.uk/timetable/dataset/22973/download/
+[2026-07-20 18:28:20] Total timetables 2
+[2026-07-20 18:28:21] https://data.bus-data.dft.gov.uk/timetable/dataset/22986/download/
+[2026-07-20 18:28:21] Total timetables 208
+[2026-07-20 18:28:22] https://data.bus-data.dft.gov.uk/timetable/dataset/22987/download/
+[2026-07-20 18:28:22] Total timetables 427
+[2026-07-20 18:28:23] https://data.bus-data.dft.gov.uk/timetable/dataset/22988/download/
+[2026-07-20 18:28:23] Total timetables 297
+[2026-07-20 18:28:24] https://data.bus-data.dft.gov.uk/timetable/dataset/23003/download/
+[2026-07-20 18:28:24] Total timetables 1796
+[2026-07-20 18:28:25] https://data.bus-data.dft.gov.uk/timetable/dataset/23053/download/
+[2026-07-20 18:28:26] Total timetables 12
+[2026-07-20 18:28:27] https://data.bus-data.dft.gov.uk/timetable/dataset/23054/download/
+[2026-07-20 18:28:27] Total timetables 19
+[2026-07-20 18:28:28] https://data.bus-data.dft.gov.uk/timetable/dataset/23055/download/
+[2026-07-20 18:28:28] Total timetables 47
+[2026-07-20 18:28:29] https://data.bus-data.dft.gov.uk/timetable/dataset/23056/download/
+[2026-07-20 18:28:29] Total timetables 2
+[2026-07-20 18:28:30] https://data.bus-data.dft.gov.uk/timetable/dataset/23059/download/
+[2026-07-20 18:28:31] Total timetables 71
+[2026-07-20 18:28:32] https://data.bus-data.dft.gov.uk/timetable/dataset/23074/download/
+[2026-07-20 18:28:32] Total timetables 32
+[2026-07-20 18:28:33] https://data.bus-data.dft.gov.uk/timetable/dataset/23084/download/
+[2026-07-20 18:28:33] Total timetables 16
+[2026-07-20 18:28:34] https://data.bus-data.dft.gov.uk/timetable/dataset/23099/download/
+[2026-07-20 18:28:34] Total timetables 313
+[2026-07-20 18:28:35] https://data.bus-data.dft.gov.uk/timetable/dataset/23101/download/
+[2026-07-20 18:28:35] Total timetables 8
+[2026-07-20 18:28:36] https://data.bus-data.dft.gov.uk/timetable/dataset/23102/download/
+[2026-07-20 18:28:37] Total timetables 8
+[2026-07-20 18:28:38] https://data.bus-data.dft.gov.uk/timetable/dataset/23103/download/
+[2026-07-20 18:28:38] Total timetables 4
+[2026-07-20 18:28:39] https://data.bus-data.dft.gov.uk/timetable/dataset/23104/download/
+[2026-07-20 18:28:39] Total timetables 4
+[2026-07-20 18:28:40] https://data.bus-data.dft.gov.uk/timetable/dataset/23149/download/
+[2026-07-20 18:28:40] Total timetables 271
+[2026-07-20 18:28:41] https://data.bus-data.dft.gov.uk/timetable/dataset/23152/download/
+[2026-07-20 18:28:41] Total timetables 9
+[2026-07-20 18:28:42] https://data.bus-data.dft.gov.uk/timetable/dataset/23154/download/
+[2026-07-20 18:28:42] Total timetables 23
+[2026-07-20 18:28:43] https://data.bus-data.dft.gov.uk/timetable/dataset/23177/download/
+[2026-07-20 18:28:44] Total timetables 109
+[2026-07-20 18:28:45] https://data.bus-data.dft.gov.uk/timetable/dataset/23180/download/
+[2026-07-20 18:28:46] Total timetables 39
+[2026-07-20 18:28:47] https://data.bus-data.dft.gov.uk/timetable/dataset/23194/download/
+[2026-07-20 18:28:47] Total timetables 54
+[2026-07-20 18:28:48] https://data.bus-data.dft.gov.uk/timetable/dataset/23199/download/
+[2026-07-20 18:28:48] Total timetables 6
+[2026-07-20 18:28:49] https://data.bus-data.dft.gov.uk/timetable/dataset/23231/download/
+[2026-07-20 18:28:49] Total timetables 28
+[2026-07-20 18:28:50] https://data.bus-data.dft.gov.uk/timetable/dataset/23246/download/
+[2026-07-20 18:28:51] Total timetables 144
+[2026-07-20 18:28:52] https://data.bus-data.dft.gov.uk/timetable/dataset/23282/download/
+[2026-07-20 18:28:52] Total timetables 10
+[2026-07-20 18:28:53] https://data.bus-data.dft.gov.uk/timetable/dataset/23286/download/
+[2026-07-20 18:28:53] Total timetables 165
+[2026-07-20 18:28:54] https://data.bus-data.dft.gov.uk/timetable/dataset/23287/download/
+[2026-07-20 18:28:54] Total timetables 953
+[2026-07-20 18:28:55] https://data.bus-data.dft.gov.uk/timetable/dataset/23290/download/
+[2026-07-20 18:28:56] Total timetables 8
+[2026-07-20 18:28:57] https://data.bus-data.dft.gov.uk/timetable/dataset/23325/download/
+[2026-07-20 18:28:57] Total timetables 23
+[2026-07-20 18:28:58] https://data.bus-data.dft.gov.uk/timetable/dataset/23352/download/
+[2026-07-20 18:28:58] Total timetables 20
+[2026-07-20 18:28:59] https://data.bus-data.dft.gov.uk/timetable/dataset/23438/download/
+[2026-07-20 18:28:59] Total timetables 225
+[2026-07-20 18:29:00] https://data.bus-data.dft.gov.uk/timetable/dataset/23446/download/
+[2026-07-20 18:29:00] Total timetables 364
+[2026-07-20 18:29:02] https://data.bus-data.dft.gov.uk/timetable/dataset/23490/download/
+[2026-07-20 18:29:02] Total timetables 107
+[2026-07-20 18:29:03] https://data.bus-data.dft.gov.uk/timetable/dataset/23491/download/
+[2026-07-20 18:29:03] Total timetables 6491
+[2026-07-20 18:29:04] https://data.bus-data.dft.gov.uk/timetable/dataset/23572/download/
+[2026-07-20 18:29:05] Total timetables 1020
+[2026-07-20 18:29:06] https://data.bus-data.dft.gov.uk/timetable/dataset/23582/download/
+[2026-07-20 18:29:06] Total timetables 15
+[2026-07-20 18:29:07] https://data.bus-data.dft.gov.uk/timetable/dataset/23615/download/
+[2026-07-20 18:29:07] Total timetables 60
+[2026-07-20 18:29:08] https://data.bus-data.dft.gov.uk/timetable/dataset/23620/download/
+[2026-07-20 18:29:08] Total timetables 2
+[2026-07-20 18:29:09] https://data.bus-data.dft.gov.uk/timetable/dataset/23625/download/
+[2026-07-20 18:29:09] Total timetables 19
+[2026-07-20 18:29:10] https://data.bus-data.dft.gov.uk/timetable/dataset/23634/download/
+[2026-07-20 18:29:11] Total timetables 67
+[2026-07-20 18:29:12] https://data.bus-data.dft.gov.uk/timetable/dataset/23635/download/
+[2026-07-20 18:29:12] Total timetables 112
+[2026-07-20 18:29:13] https://data.bus-data.dft.gov.uk/timetable/dataset/23637/download/
+[2026-07-20 18:29:14] Total timetables 141
+[2026-07-20 18:29:15] https://data.bus-data.dft.gov.uk/timetable/dataset/23638/download/
+[2026-07-20 18:29:15] Total timetables 111
+[2026-07-20 18:29:16] https://data.bus-data.dft.gov.uk/timetable/dataset/23639/download/
+[2026-07-20 18:29:17] Total timetables 93
+[2026-07-20 18:29:18] https://data.bus-data.dft.gov.uk/timetable/dataset/23640/download/
+[2026-07-20 18:29:18] Total timetables 3
+[2026-07-20 18:29:19] https://data.bus-data.dft.gov.uk/timetable/dataset/23653/download/
+[2026-07-20 18:29:19] Total timetables 10
+[2026-07-20 18:29:20] https://data.bus-data.dft.gov.uk/timetable/dataset/23654/download/
+[2026-07-20 18:29:20] Total timetables 13
+[2026-07-20 18:29:21] https://data.bus-data.dft.gov.uk/timetable/dataset/23655/download/
+[2026-07-20 18:29:21] Total timetables 2
+[2026-07-20 18:29:22] https://data.bus-data.dft.gov.uk/timetable/dataset/23666/download/
+[2026-07-20 18:29:22] Total timetables 6
+[2026-07-20 18:29:23] https://data.bus-data.dft.gov.uk/timetable/dataset/23674/download/
+[2026-07-20 18:29:24] Total timetables 10666
+[2026-07-20 18:29:25] https://data.bus-data.dft.gov.uk/timetable/dataset/23761/download/
+[2026-07-20 18:29:26] Total timetables 141
+[2026-07-20 18:29:27] https://data.bus-data.dft.gov.uk/timetable/dataset/23777/download/
+[2026-07-20 18:29:28] Total timetables 5
+[2026-07-20 18:29:29] https://data.bus-data.dft.gov.uk/timetable/dataset/23788/download/
+[2026-07-20 18:29:29] Total timetables 24
+[2026-07-20 18:29:30] https://data.bus-data.dft.gov.uk/timetable/dataset/23791/download/
+[2026-07-20 18:29:30] Total timetables 2
+[2026-07-20 18:29:31] https://data.bus-data.dft.gov.uk/timetable/dataset/23792/download/
+[2026-07-20 18:29:31] Total timetables 7
+[2026-07-20 18:29:32] https://data.bus-data.dft.gov.uk/timetable/dataset/23800/download/
+[2026-07-20 18:29:33] Total timetables 40
+[2026-07-20 18:29:34] https://data.bus-data.dft.gov.uk/timetable/dataset/23812/download/
+[2026-07-20 18:29:34] Total timetables 57
+[2026-07-20 18:29:35] https://data.bus-data.dft.gov.uk/timetable/dataset/23816/download/
+[2026-07-20 18:29:35] Total timetables 1195
+[2026-07-20 18:29:36] https://data.bus-data.dft.gov.uk/timetable/dataset/23819/download/
+[2026-07-20 18:29:36] Total timetables 281
+[2026-07-20 18:29:37] https://data.bus-data.dft.gov.uk/timetable/dataset/23820/download/
+[2026-07-20 18:29:38] Total timetables 75
+[2026-07-20 18:29:39] https://data.bus-data.dft.gov.uk/timetable/dataset/23867/download/
+[2026-07-20 18:29:39] Total timetables 2
+[2026-07-20 18:29:40] https://data.bus-data.dft.gov.uk/timetable/dataset/23908/download/
+[2026-07-20 18:29:40] Total timetables 294
+[2026-07-20 18:29:41] https://data.bus-data.dft.gov.uk/timetable/dataset/23913/download/
+[2026-07-20 18:29:42] Total timetables 75
+[2026-07-20 18:29:43] https://data.bus-data.dft.gov.uk/timetable/dataset/23923/download/
+[2026-07-20 18:29:43] Total timetables 47
+[2026-07-20 18:29:44] https://data.bus-data.dft.gov.uk/timetable/dataset/23978/download/
+[2026-07-20 18:29:44] Total timetables 4
+[2026-07-20 18:29:45] https://data.bus-data.dft.gov.uk/timetable/dataset/23979/download/
+[2026-07-20 18:29:45] Total timetables 2
+[2026-07-20 18:29:46] https://data.bus-data.dft.gov.uk/timetable/dataset/23980/download/
+[2026-07-20 18:29:46] Total timetables 2
+[2026-07-20 18:29:47] https://data.bus-data.dft.gov.uk/timetable/dataset/23995/download/
+[2026-07-20 18:29:48] Total timetables 27
+[2026-07-20 18:29:49] https://data.bus-data.dft.gov.uk/timetable/dataset/24032/download/
+[2026-07-20 18:29:49] 
+<Operators> element not found.
+
+[2026-07-20 18:29:49] Total timetables 0
+[2026-07-20 18:29:50] https://data.bus-data.dft.gov.uk/timetable/dataset/24062/download/
+[2026-07-20 18:29:50] Total timetables 28
+[2026-07-20 18:29:51] https://data.bus-data.dft.gov.uk/timetable/dataset/24093/download/
+[2026-07-20 18:29:51] Total timetables 310
+[2026-07-20 18:29:52] https://data.bus-data.dft.gov.uk/timetable/dataset/24094/download/
+[2026-07-20 18:29:54] Total timetables 10882
+[2026-07-20 18:29:55] https://data.bus-data.dft.gov.uk/timetable/dataset/24095/download/
+[2026-07-20 18:29:57] Total timetables 7422
+[2026-07-20 18:29:58] https://data.bus-data.dft.gov.uk/timetable/dataset/24106/download/
+[2026-07-20 18:29:58] Total timetables 36
+[2026-07-20 18:29:59] https://data.bus-data.dft.gov.uk/timetable/dataset/24107/download/
+[2026-07-20 18:29:59] Total timetables 129
+[2026-07-20 18:30:00] https://data.bus-data.dft.gov.uk/timetable/dataset/24108/download/
+[2026-07-20 18:30:01] Total timetables 201
+[2026-07-20 18:30:02] https://data.bus-data.dft.gov.uk/timetable/dataset/24113/download/
+[2026-07-20 18:30:03] Total timetables 629
+[2026-07-20 18:30:04] https://data.bus-data.dft.gov.uk/timetable/dataset/24114/download/
+[2026-07-20 18:30:04] Total timetables 230
+[2026-07-20 18:30:05] https://data.bus-data.dft.gov.uk/timetable/dataset/24115/download/
+[2026-07-20 18:30:05] Total timetables 153
+[2026-07-20 18:30:06] https://data.bus-data.dft.gov.uk/timetable/dataset/24116/download/
+[2026-07-20 18:30:06] Total timetables 33
+[2026-07-20 18:30:07] https://data.bus-data.dft.gov.uk/timetable/dataset/24127/download/
+[2026-07-20 18:30:07] Total timetables 285
+[2026-07-20 18:30:08] https://data.bus-data.dft.gov.uk/timetable/dataset/24128/download/
+[2026-07-20 18:30:09] Total timetables 291
+[2026-07-20 18:30:10] https://data.bus-data.dft.gov.uk/timetable/dataset/24129/download/
+[2026-07-20 18:30:10] Total timetables 291
+[2026-07-20 18:30:11] https://data.bus-data.dft.gov.uk/timetable/dataset/24130/download/
+[2026-07-20 18:30:11] Total timetables 94
+[2026-07-20 18:30:12] https://data.bus-data.dft.gov.uk/timetable/dataset/24131/download/
+[2026-07-20 18:30:13] Total timetables 27
+[2026-07-20 18:30:14] https://data.bus-data.dft.gov.uk/timetable/dataset/24158/download/
+[2026-07-20 18:30:14] Total timetables 98
+[2026-07-20 18:30:15] https://data.bus-data.dft.gov.uk/timetable/dataset/24167/download/
+[2026-07-20 18:30:16] Total timetables 5049
+[2026-07-20 18:30:17] https://data.bus-data.dft.gov.uk/timetable/dataset/24170/download/
+[2026-07-20 18:30:17] 
+'.', hexadecimal value 0x00, is an invalid character. Line 1, position 1.
+
+[2026-07-20 18:30:17] Total timetables 0
+[2026-07-20 18:30:18] https://data.bus-data.dft.gov.uk/timetable/dataset/24189/download/
+[2026-07-20 18:30:19] Total timetables 9484
+[2026-07-20 18:30:20] https://data.bus-data.dft.gov.uk/timetable/dataset/24201/download/
+[2026-07-20 18:30:21] Total timetables 2554
+[2026-07-20 18:30:22] https://data.bus-data.dft.gov.uk/timetable/dataset/24214/download/
+[2026-07-20 18:30:22] Total timetables 630
+[2026-07-20 18:30:23] https://data.bus-data.dft.gov.uk/timetable/dataset/24231/download/
+[2026-07-20 18:30:23] Total timetables 183
+[2026-07-20 18:30:24] https://data.bus-data.dft.gov.uk/timetable/dataset/24236/download/
+[2026-07-20 18:30:25] Total timetables 6
+[2026-07-20 18:30:26] https://data.bus-data.dft.gov.uk/timetable/dataset/24283/download/
+[2026-07-20 18:30:26] Total timetables 576
+[2026-07-20 18:30:27] https://data.bus-data.dft.gov.uk/timetable/dataset/24319/download/
+[2026-07-20 18:30:27] Total timetables 19
+[2026-07-20 18:30:28] https://data.bus-data.dft.gov.uk/timetable/dataset/24372/download/
+[2026-07-20 18:30:28] Total timetables 22
+[2026-07-20 18:30:29] https://data.bus-data.dft.gov.uk/timetable/dataset/24373/download/
+[2026-07-20 18:30:30] Total timetables 27
+[2026-07-20 18:30:31] https://data.bus-data.dft.gov.uk/timetable/dataset/24394/download/
+[2026-07-20 18:30:31] Total timetables 2004
+[2026-07-20 18:30:32] https://data.bus-data.dft.gov.uk/timetable/dataset/24402/download/
+[2026-07-20 18:30:32] Total timetables 369
+[2026-07-20 18:30:33] https://data.bus-data.dft.gov.uk/timetable/dataset/24405/download/
+[2026-07-20 18:30:33] Total timetables 2
+[2026-07-20 18:30:34] https://data.bus-data.dft.gov.uk/timetable/dataset/24419/download/
+[2026-07-20 18:30:35] Total timetables 2
+[2026-07-20 18:30:36] https://data.bus-data.dft.gov.uk/timetable/dataset/24421/download/
+[2026-07-20 18:30:36] Total timetables 39
+[2026-07-20 18:30:37] https://data.bus-data.dft.gov.uk/timetable/dataset/24422/download/
+[2026-07-20 18:30:37] Total timetables 101
+[2026-07-20 18:30:38] https://data.bus-data.dft.gov.uk/timetable/dataset/24423/download/
+[2026-07-20 18:30:38] Total timetables 96
+[2026-07-20 18:30:39] https://data.bus-data.dft.gov.uk/timetable/dataset/24424/download/
+[2026-07-20 18:30:39] Total timetables 6
+[2026-07-20 18:30:40] https://data.bus-data.dft.gov.uk/timetable/dataset/24427/download/
+[2026-07-20 18:30:41] Total timetables 403
+[2026-07-20 18:30:42] https://data.bus-data.dft.gov.uk/timetable/dataset/24435/download/
+[2026-07-20 18:30:42] Total timetables 30
+[2026-07-20 18:30:43] https://data.bus-data.dft.gov.uk/timetable/dataset/24437/download/
+[2026-07-20 18:30:43] Total timetables 426
+[2026-07-20 18:30:44] https://data.bus-data.dft.gov.uk/timetable/dataset/24438/download/
+[2026-07-20 18:30:44] Total timetables 2
+[2026-07-20 18:30:45] https://data.bus-data.dft.gov.uk/timetable/dataset/24441/download/
+[2026-07-20 18:30:46] Total timetables 141
+[2026-07-20 18:30:47] https://data.bus-data.dft.gov.uk/timetable/dataset/24451/download/
+[2026-07-20 18:30:47] Total timetables 392
+[2026-07-20 18:30:48] https://data.bus-data.dft.gov.uk/timetable/dataset/24452/download/
+[2026-07-20 18:30:48] Total timetables 6
+[2026-07-20 18:30:49] https://data.bus-data.dft.gov.uk/timetable/dataset/24453/download/
+[2026-07-20 18:30:50] Total timetables 6
+[2026-07-20 18:30:51] https://data.bus-data.dft.gov.uk/timetable/dataset/24463/download/
+[2026-07-20 18:30:51] Total timetables 450
+[2026-07-20 18:30:52] https://data.bus-data.dft.gov.uk/timetable/dataset/24464/download/
+[2026-07-20 18:30:52] Total timetables 1053

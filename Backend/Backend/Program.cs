@@ -1,6 +1,10 @@
 using Backend;
 using Backend.Repositories;
 using Backend.Services;
+using System.Text;
+
+// Register legacy code pages (Windows-1252, etc.) before anything parses XML (for bus timetable)
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 

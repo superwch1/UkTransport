@@ -72,8 +72,8 @@ namespace Backend.Extensions
 
         public static decimal? ParseDecimal(this string? value)
         {
-            return decimal.TryParse(value, out decimal result)
-                ? result
+            return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result)
+               ? result
                 : null;
         }
     }
