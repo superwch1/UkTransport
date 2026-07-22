@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/enum/status_code.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
+import 'package:frontend/core/network/response/bus_route_item_response.dart';
 import 'package:frontend/core/network/response/bus_stop_item_response.dart';
 import 'package:frontend/core/network/transport_api_service.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -17,6 +18,7 @@ class BusMapViewModel {
 
   List<BusLocationItemResponse> _busLocations = [];
   List<BusStopItemResponse> _busStops = [];
+  List<BusRouteItemResponse> _busRoutes = [];
 
   bool _layerReady = false;
 
@@ -28,6 +30,14 @@ class BusMapViewModel {
   static const _busStopSourceId = 'bus-stop-source';
   static const _busStopLayerId = 'bus-stop-layer';
   static const _busStopSymbolBackground = 'bus-stop-symbol-background';
+
+  static const _busRouteSourceId = 'bus-route-source';
+  static const _busRouteLayerId = 'bus-route-layer';
+  static const _busRouteSymbolBackground = 'bus-route-symbol-background';
+
+  // bus route symbol geometry
+  static const _routeRadius = 12.0;
+  static const _routeBorderWidth = 1.5;
 
 
   // bus stop symbol geometry
@@ -92,14 +102,21 @@ class BusMapViewModel {
       _busLocations = _busLocations.where((bus) => bus.id == id).toList();
       selectedBusLocationNotifier.value = busLocation;
       _busStops = [];
+
+      final response = await transportApiService.getBusRoute(busLocation.id);
+      if (response.statusCode == StatusCode.ok && response.data != null) {
+        _busRoutes = response.data!.busRoutes;
+      } 
+      
     }
     else if (source == _busStopSourceId){
-      print(id);
+      //TODO
     }
 
     
     await _mapController!.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
     await _mapController!.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
+    await _mapController!.setGeoJsonSource(_busRouteSourceId, _buildBusRouteFeature());
   }
 
 
@@ -111,6 +128,7 @@ class BusMapViewModel {
 
     await controller.addGeoJsonSource(_busLocationSourceId, _emptyCollection);
     await controller.addGeoJsonSource(_busStopSourceId, _emptyCollection);
+    await controller.addGeoJsonSource(_busRouteSourceId, _emptyCollection);
 
     // generate the bus location symbol image and add layer into the map
     final busLocationSymbolData = await _generateBusLocationSymbol();
@@ -119,8 +137,12 @@ class BusMapViewModel {
     final busStopSymbolData = await _generateBusStopSymbol();
     await controller.addImage(_busStopSymbolBackground, busStopSymbolData);
 
+    final busRouteSymbolData = await _generateBusRouteSymbol();
+    await controller.addImage(_busRouteSymbolBackground, busRouteSymbolData);
+
     await _addBusLocationLayer(controller);
     await _addBusStopLayer(controller);
+    await _addBusRouteLayer(controller);
 
     _layerReady = true;
     await refreshMapSymbols();
@@ -171,10 +193,31 @@ class BusMapViewModel {
       } else {
         _busStops = [];
       } 
+
+      _busRoutes = [];
     }
 
     await controller.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
     await controller.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
+    await controller.setGeoJsonSource(_busRouteSourceId, _buildBusRouteFeature());
+  }
+
+  Map<String, dynamic> _buildBusRouteFeature() {
+    return {
+      'type': 'FeatureCollection',
+      'features': [
+        for (final busRoute in _busRoutes) {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [busRoute.longitude, busRoute.latitude],
+          },
+          'properties': {
+            'sequence': busRoute.sequence
+          },
+        },
+      ],
+    };
   }
 
   Map<String, dynamic> _buildBusLocationFeature() {
@@ -197,7 +240,6 @@ class BusMapViewModel {
     };
   }
 
-
   Map<String, dynamic> _buildBusStopFeature() {
     return {
       'type': 'FeatureCollection',
@@ -215,6 +257,29 @@ class BusMapViewModel {
         },
       ],
     };
+  }
+
+
+  Future<void> _addBusRouteLayer(MapLibreMapController controller) async {
+    await controller.addSymbolLayer(
+      _busRouteSourceId,
+      _busRouteLayerId,
+      SymbolLayerProperties(
+        iconImage: _busRouteSymbolBackground,
+        iconSize: 1.0,
+        iconRotationAlignment: 'map',
+
+        // map-rendered text
+        textField: ['get', 'sequence'],
+        textFont: _textFont,
+        textSize: _fontSize,
+        textColor: _textColor,
+        textRotationAlignment: 'map',
+
+        iconAllowOverlap: true,
+        textAllowOverlap: true,
+      ),
+    );
   }
 
 
@@ -357,6 +422,35 @@ class BusMapViewModel {
         ..style = PaintingStyle.stroke
         ..strokeWidth = _stopBorderWidth
         ..strokeJoin = StrokeJoin.round,
+    );
+
+    final image = await recorder.endRecording().toImage(size.ceil(), size.ceil());
+    final data = await image.toByteData(format: ImageByteFormat.png);
+    return data!.buffer.asUint8List();
+  }
+
+
+  static Future<Uint8List> _generateBusRouteSymbol() async {
+    final pad = _routeBorderWidth;
+    final size = _routeRadius * 2 + pad * 2;
+    final center = Offset(size / 2, size / 2);
+
+    final circlePath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: _routeRadius));
+
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    // white fill
+    canvas.drawPath(circlePath, Paint()..color = Colors.white);
+
+    // black outline
+    canvas.drawPath(
+      circlePath,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _routeBorderWidth,
     );
 
     final image = await recorder.endRecording().toImage(size.ceil(), size.ceil());

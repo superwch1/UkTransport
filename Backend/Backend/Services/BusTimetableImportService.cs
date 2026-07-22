@@ -1,6 +1,7 @@
 ﻿using Backend.Enumerations;
 using Backend.Extensions;
 using Backend.Models;
+using Backend.Repositories;
 using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
@@ -29,10 +30,12 @@ namespace Backend.Services
         private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(24);
 
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory scopeFactory)
         {
             _httpClientFactory = httpClientFactory;
+            _scopeFactory = scopeFactory;
             _apiKey = configuration["ApiKey"] ?? throw new InvalidOperationException("ApiKey is not configured.");
         }
 
@@ -44,8 +47,8 @@ namespace Backend.Services
                 foreach (int datasetId in datasetIds)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    await DownloadDataset(datasetId, cancellationToken);
 
+                    await DownloadDataset(datasetId, cancellationToken);
                     await Task.Delay(DelayBetweenDownloads, cancellationToken);
                 }
 
@@ -96,9 +99,9 @@ namespace Backend.Services
             }
         }
 
-        private async Task<List<BusTimetable>> DownloadDataset(int datasetId, CancellationToken cancellationToken)
+        private async Task DownloadDataset(int datasetId, CancellationToken cancellationToken)
         {
-            string url = string.Format(DownloadUrlFormat, 24170);
+            string url = string.Format(DownloadUrlFormat, datasetId);
 
             try
             {
@@ -125,14 +128,12 @@ namespace Backend.Services
                     && header[0] == 0x50 && header[1] == 0x4B   // 'P' 'K'
                     && header[2] == 0x03 && header[3] == 0x04;
 
-                List<BusTimetable> busTimetables = [];
-
                 if (!isZip)
                 {
                     // Single XML dataset — parse the buffer directly.
                     try
                     {
-                        busTimetables.AddRange(ParseTimetables(buffered));
+                        await ImportTimetables(buffered);
                     }
                     catch (Exception ex)
                     {
@@ -157,7 +158,7 @@ namespace Backend.Services
                         try
                         {
                             using Stream xmlStream = await entry.OpenAsync(cancellationToken);
-                            busTimetables.AddRange(ParseTimetables(xmlStream));
+                            await ImportTimetables(xmlStream);
                         }
                         catch (Exception ex)
                         {
@@ -166,21 +167,16 @@ namespace Backend.Services
                         }
                     }
                 }
-
-                Console.WriteLine($"Total timetables {busTimetables.Count} \n\n");
-                LogMessage($"Total timetables {busTimetables.Count}");
-                return busTimetables;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 LogException(ex.Message);
-                return [];
             }
         }
 
 
-        public IReadOnlyList<BusTimetable> ParseTimetables(Stream xmlStream)
+        public async Task ImportTimetables(Stream xmlStream)
         {
             // Injectable "today" so the EndDate fallback is deterministic and testable.
             DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -245,12 +241,23 @@ namespace Backend.Services
                 string operatorRef = service.Value(Txc, "RegisteredOperatorRef") ?? throw new InvalidDataException("RegisteredOperatorRef not found.");
 
                 // fix the problem with <RegisteredOperatorRef>regHRSC</RegisteredOperatorRef> not matching <OperatorCode>HRSC</OperatorCode>  
+                // so choose the first one if the dataset only consist one code
                 // https://data.bus-data.dft.gov.uk/timetable/dataset/13088/download/
-                if (operatorRef.StartsWith("reg"))
-                    operatorRef = operatorRef[3..];
 
-                if (!operators.TryGetValue(operatorRef, out string? operatorCode) || operatorCode == null)
+                string operatorCode;
+                if (operators.Count == 1)
+                {
+                    operatorCode = operators.Values.First();
+                }
+                else if (operators.TryGetValue(operatorRef, out string? code) && code is not null)
+                {
+                    operatorCode = code;
+                }
+                else
+                {
                     throw new InvalidDataException("Operator code not found.");
+                }
+                    
 
                 XElement? period = service.Element(Txc + "OperatingPeriod");
                 DateOnly validFrom = period.Value(Txc, "StartDate").ParseDateOnly() ?? throw new InvalidDataException("OperatingPeriod/StartDate not found.");
@@ -318,8 +325,9 @@ namespace Backend.Services
                         ?? vehicleJourney.Attribute("id")?.Value
                         ?? $"{serviceCode}-{jpRef}-{departure.Value.Time:HHmmss}+{departure.Value.DayOffset}";
 
-                    string timetableId = $"{operatorCode}-{vehicleJourneyId}";
-                    List<BusCallingPoint> stops = BuildStops(links, departure.Value.Time, departure.Value.DayOffset, timetableId);
+                    string timetableId = Guid.NewGuid().ToString(); // $"{operatorCode}-{vehicleJourneyId}";
+                    Dictionary<string, XElement> overrides = CollectTimingOverrides(vehicleJourney, journeysByCode);
+                    List<BusCallingPoint> stops = BuildStops(links, overrides, departure.Value.Time, departure.Value.DayOffset, timetableId);
 
                     busTimetables.Add(new BusTimetable
                     {
@@ -346,13 +354,42 @@ namespace Backend.Services
                 }
             }
 
-            return busTimetables;
+            using var scope = _scopeFactory.CreateScope();
+            BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+            await busRepository.CreateBusTimetables(busTimetables);
         }
 
-        // ---------------------------------------------------------------------
-        // Resolves an element on a vehicle journey, following the
-        // <VehicleJourneyRef> inheritance chain (with cycle protection).
-        // ---------------------------------------------------------------------
+
+        private static Dictionary<string, XElement> CollectTimingOverrides(XElement vehicleJourney, Dictionary<string, XElement> journeysByCode)
+        {
+            XElement? current = vehicleJourney;
+            HashSet<string> visited = [];
+
+            while (current is not null)
+            {
+                List<XElement> list = current.Elements(Txc + "VehicleJourneyTimingLink").ToList();
+                if (list.Count > 0)
+                {
+                    Dictionary<string, XElement> map = [];
+                    foreach (XElement l in list)
+                    {
+                        string? linkRef = l.Value(Txc, "JourneyPatternTimingLinkRef");
+                        if (linkRef is not null)
+                            map[linkRef] = l;
+                    }
+                    return map;
+                }
+
+                string? parentRef = current.Value(Txc, "VehicleJourneyRef");
+                if (parentRef is null || !visited.Add(parentRef))
+                    break;
+                journeysByCode.TryGetValue(parentRef, out current);
+            }
+
+            return [];
+        }
+
+
         private static XElement? ResolveInherited(XElement vehicleJourney, Dictionary<string, XElement> journeysByCode, string localName)
         {
             XElement? current = vehicleJourney;
@@ -375,24 +412,28 @@ namespace Backend.Services
         }
 
 
-        private static List<BusCallingPoint> BuildStops(List<XElement> links, TimeOnly firstDeparture, int startDayOffset, string timetableId)
+        private static List<BusCallingPoint> BuildStops(List<XElement> links, Dictionary<string, XElement> overrides, TimeOnly firstDeparture, int startDayOffset, string timetableId)
         {
             List<BusCallingPoint> stops = new(links.Count + 1);
             int sequence = 1;
             int dayOffset = startDayOffset;
 
-            // Origin stop: departure only
             XElement? firstFrom = links[0].Element(Txc + "From");
-            stops.Add(MakeStop(sequence++, firstFrom, timetableId, arrival: null, arrivalDayOffset: null, departure: firstDeparture, departureDayOffset: dayOffset));
+            stops.Add(MakeStop(sequence++, firstFrom, timetableId,
+                arrival: null, arrivalDayOffset: null,
+                departure: firstDeparture, departureDayOffset: dayOffset));
 
             TimeOnly current = firstDeparture;
 
             for (int i = 0; i < links.Count; i++)
             {
                 XElement link = links[i];
+                XElement? ovr = GetOverride(link, overrides);
                 XElement? to = link.Element(Txc + "To");
 
-                TimeSpan runTime = ParseDuration(link.Value(Txc, "RunTime"));
+                // Override RunTime wins; fall back to the pattern link's.
+                TimeSpan runTime = ParseDuration(
+                    ovr?.Value(Txc, "RunTime") ?? link.Value(Txc, "RunTime"));
                 current = current.Add(runTime, out int runWraps);
                 dayOffset += runWraps;
 
@@ -402,22 +443,42 @@ namespace Backend.Services
                 bool isLast = i == links.Count - 1;
                 if (isLast)
                 {
-                    // Terminus: arrival only.
-                    stops.Add(MakeStop(sequence++, to, timetableId, arrival: arrival, arrivalDayOffset: arrivalDayOffset, departure: null, departureDayOffset: null));
+                    stops.Add(MakeStop(sequence++, to, timetableId,
+                        arrival: arrival, arrivalDayOffset: arrivalDayOffset,
+                        departure: null, departureDayOffset: null));
                     break;
                 }
 
-                // Dwell = wait on this link's <To> + wait on the next link's <From>
-                // (the next link's From is the same physical stop). Waits can also
-                // push a stop past midnight, so accumulate their wraps too.
-                XElement? nextFrom = links[i + 1].Element(Txc + "From");
-                current = AddWait(current, to, ref dayOffset);
-                current = AddWait(current, nextFrom, ref dayOffset);
+                XElement nextLink = links[i + 1];
+                XElement? nextOvr = GetOverride(nextLink, overrides);
 
-                stops.Add(MakeStop(sequence++, to, timetableId, arrival: arrival, arrivalDayOffset: arrivalDayOffset, departure: current, departureDayOffset: dayOffset));
+                current = AddWait(current, ovr?.Element(Txc + "To"), to, ref dayOffset);
+                current = AddWait(current, nextOvr?.Element(Txc + "From"), nextLink.Element(Txc + "From"), ref dayOffset);
+
+                stops.Add(MakeStop(sequence++, to, timetableId,
+                    arrival: arrival, arrivalDayOffset: arrivalDayOffset,
+                    departure: current, departureDayOffset: dayOffset));
             }
 
             return stops;
+        }
+
+        private static XElement? GetOverride(XElement link, Dictionary<string, XElement> overrides)
+        {
+            string? id = link.Attribute("id")?.Value;
+            return id is not null && overrides.TryGetValue(id, out XElement? o) ? o : null;
+        }
+
+        // Wait time: override usage wins, then pattern usage.
+        private static TimeOnly AddWait(TimeOnly time, XElement? overrideUsage, XElement? patternUsage, ref int dayOffset)
+        {
+            string? wait = overrideUsage?.Value(Txc, "WaitTime") ?? patternUsage?.Value(Txc, "WaitTime");
+            if (string.IsNullOrWhiteSpace(wait))
+                return time;
+
+            TimeOnly result = time.Add(ParseDuration(wait), out int wraps);
+            dayOffset += wraps;
+            return result;
         }
 
         private static BusCallingPoint MakeStop(int sequence, XElement? usage, string timetableId,

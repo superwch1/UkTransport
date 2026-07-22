@@ -1,11 +1,19 @@
-﻿namespace Backend.Models
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Backend.Models
 {
-    public class BusCallingPoint
+    [Index(nameof(BusStopId))]
+    public record BusCallingPoint
     {
-        public long Id { get; init; }   
+        [Key]
+        public long Id { get; init; }
 
         // Foreign key back to the parent journey — this is the shared key.
+        [ForeignKey(nameof(BusTimetable))]
         public required string BusTimetableId { get; init; }
+        public virtual BusTimetable? BusTimetable { get; init; }
 
         public required int Sequence { get; init; }     
         public required string BusStopId { get; init; }  

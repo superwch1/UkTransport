@@ -1,9 +1,14 @@
 ﻿using Backend.Enumerations;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models
 {
+    [Index(nameof(LineName))]
+    [Index(nameof(OperatorRef))]
     public record BusTimetable
     {
+        [Key]
         // Stable id, e.g. "{NationalOperatorCode}-{VehicleJourney @id}".
         public required string Id { get; init; }
 
@@ -29,6 +34,6 @@ namespace Backend.Models
 
         public required bool RunsOnBankHolidays { get; init; }
 
-        public required IReadOnlyList<BusCallingPoint> BusCallingPoints { get; init; }
+        public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
     }
 }

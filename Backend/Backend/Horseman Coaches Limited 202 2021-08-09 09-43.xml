@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TransXChange xmlns="http://www.transxchange.org.uk/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:apd="http://www.govtalk.gov.uk/people/AddressAndPersonalDetails" xsi:schemaLocation="http://www.transxchange.org.uk/ http://www.transxchange.org.uk/schema/2.4/TransXChange_registration.xsd" CreationDateTime='2021-08-09T09:45:20' ModificationDateTime='2021-08-09T09:45:20' Modification='new' RevisionNumber='0' FileName="Horseman Coaches Limited 202 2021-08-09 09-43.xml" SchemaVersion="2.4" RegistrationDocument="false">
+
+<StopPoints>
+<AnnotatedStopPointRef><StopPointRef>035075240002</StopPointRef><CommonName>Winnersh Cross Roads</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035077220001</StopPointRef><CommonName>The Swan</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035077280002</StopPointRef><CommonName>Rickman Close</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035077580001</StopPointRef><CommonName>The Bull</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075400002</StopPointRef><CommonName>Broad Street</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035076200001</StopPointRef><CommonName>Two Poplars</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035076340001</StopPointRef><CommonName>Ratepayers Hall</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035078660002</StopPointRef><CommonName>Longwater Lane</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>1900HA060348</StopPointRef><CommonName>The Chequers</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>1900HA060354</StopPointRef><CommonName>Eversley School</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035078580003</StopPointRef><CommonName>The Tally Ho</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035080320002</StopPointRef><CommonName>The Crown</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035080420002</StopPointRef><CommonName>The Bull</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035080220002</StopPointRef><CommonName>Post Office</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035080140002</StopPointRef><CommonName>Three Mile Cross Post Office</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>039027320002</StopPointRef><CommonName>St Marys Butts</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035090640002</StopPointRef><CommonName>Station Road</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>039025920004</StopPointRef><CommonName>Kings Road</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>039025390002</StopPointRef><CommonName>Buckland Road Junction</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035080260001</StopPointRef><CommonName>Lambs Lane</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075400001</StopPointRef><CommonName>Broad Street</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075540001</StopPointRef><CommonName>Corfield Green</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075360001</StopPointRef><CommonName>Holt Lane</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075220001</StopPointRef><CommonName>Hunters Court</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035075140001</StopPointRef><CommonName>Loddon Bridge Roundabout</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035082260001</StopPointRef><CommonName>Sindlesham Mill</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035084280001</StopPointRef><CommonName>Hawkedon Way</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035082180001</StopPointRef><CommonName>Marefield</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035081080001</StopPointRef><CommonName>Hilbury Road</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035082120002</StopPointRef><CommonName>Chatton Close Asda</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035060080002</StopPointRef><CommonName>Beeston Way</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>035084560001</StopPointRef><CommonName>Foster Wheeler</CommonName></AnnotatedStopPointRef>
+<AnnotatedStopPointRef><StopPointRef>039026010001</StopPointRef><CommonName>Engineers Court</CommonName></AnnotatedStopPointRef></StopPoints>
+
+<RouteSections>
+<RouteSection id='routeSection_12' CreationDateTime='2021-08-09T09:21:46' ModificationDateTime='2021-08-09T09:21:46' Modification='new' RevisionNumber='0'>
+<RouteLink id='routeSection_12_1'><From><StopPointRef>035075400001</StopPointRef></From><To><StopPointRef>035075540001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_2'><From><StopPointRef>035075540001</StopPointRef></From><To><StopPointRef>035075360001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_3'><From><StopPointRef>035075360001</StopPointRef></From><To><StopPointRef>035075220001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_4'><From><StopPointRef>035075220001</StopPointRef></From><To><StopPointRef>035075140001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_5'><From><StopPointRef>035075140001</StopPointRef></From><To><StopPointRef>035082260001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_6'><From><StopPointRef>035082260001</StopPointRef></From><To><StopPointRef>035084280001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_7'><From><StopPointRef>035084280001</StopPointRef></From><To><StopPointRef>035082180001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_8'><From><StopPointRef>035082180001</StopPointRef></From><To><StopPointRef>035081080001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_9'><From><StopPointRef>035081080001</StopPointRef></From><To><StopPointRef>035082120002</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_10'><From><StopPointRef>035082120002</StopPointRef></From><To><StopPointRef>035060080002</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_11'><From><StopPointRef>035060080002</StopPointRef></From><To><StopPointRef>035084560001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_12_12'><From><StopPointRef>035084560001</StopPointRef></From><To><StopPointRef>039026010001</StopPointRef></To></RouteLink>
+</RouteSection>
+<RouteSection id='routeSection_13' CreationDateTime='2021-08-09T09:22:05' ModificationDateTime='2021-08-09T09:22:05' Modification='new' RevisionNumber='0'>
+<RouteLink id='routeSection_13_1'><From><StopPointRef>039026010001</StopPointRef></From><To><StopPointRef>035084560001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_2'><From><StopPointRef>035084560001</StopPointRef></From><To><StopPointRef>035060080002</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_3'><From><StopPointRef>035060080002</StopPointRef></From><To><StopPointRef>035082120002</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_4'><From><StopPointRef>035082120002</StopPointRef></From><To><StopPointRef>035081080001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_5'><From><StopPointRef>035081080001</StopPointRef></From><To><StopPointRef>035082180001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_6'><From><StopPointRef>035082180001</StopPointRef></From><To><StopPointRef>035084280001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_7'><From><StopPointRef>035084280001</StopPointRef></From><To><StopPointRef>035082260001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_8'><From><StopPointRef>035082260001</StopPointRef></From><To><StopPointRef>035075140001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_9'><From><StopPointRef>035075140001</StopPointRef></From><To><StopPointRef>035075220001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_10'><From><StopPointRef>035075220001</StopPointRef></From><To><StopPointRef>035075540001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_11'><From><StopPointRef>035075540001</StopPointRef></From><To><StopPointRef>035075360001</StopPointRef></To></RouteLink>
+<RouteLink id='routeSection_13_12'><From><StopPointRef>035075360001</StopPointRef></From><To><StopPointRef>035075400001</StopPointRef></To></RouteLink>
+</RouteSection>
+</RouteSections>
+
+<Routes>
+<Route id='route_13' CreationDateTime='2021-08-09T09:21:46' ModificationDateTime='2021-08-09T09:21:46' Modification='new' RevisionNumber='0'><Description>Broad Street - Engineers Court</Description><RouteSectionRef>routeSection_12</RouteSectionRef></Route>
+<Route id='route_14' CreationDateTime='2021-08-09T09:22:05' ModificationDateTime='2021-08-09T09:22:05' Modification='new' RevisionNumber='0'><Description>Engineers Court - Broad Street</Description><RouteSectionRef>routeSection_13</RouteSectionRef></Route>
+</Routes>
+
+<JourneyPatternSections>
+<JourneyPatternSection id='JPS_13' CreationDateTime='2021-08-09T09:45:20' ModificationDateTime='2021-08-09T09:45:20' Modification='new' RevisionNumber='0'>
+
+<JourneyPatternTimingLink id='JPS_13_1'>
+<From SequenceNumber='1'><Activity>pickUp</Activity><StopPointRef>035075400001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='2'><Activity>pickUp</Activity><StopPointRef>035075540001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_1</RouteLinkRef><RunTime>PT180S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_2'>
+<From SequenceNumber='2'><Activity>pickUp</Activity><StopPointRef>035075540001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='3'><Activity>pickUp</Activity><StopPointRef>035075360001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_2</RouteLinkRef><RunTime>PT300S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_3'>
+<From SequenceNumber='3'><Activity>pickUp</Activity><StopPointRef>035075360001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='4'><Activity>setDown</Activity><StopPointRef>035075220001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_3</RouteLinkRef><RunTime>PT780S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_4'>
+<From SequenceNumber='4'><Activity>setDown</Activity><StopPointRef>035075220001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='5'><Activity>setDown</Activity><StopPointRef>035075140001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_4</RouteLinkRef><RunTime>PT240S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_5'>
+<From SequenceNumber='5'><Activity>setDown</Activity><StopPointRef>035075140001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='6'><Activity>setDown</Activity><StopPointRef>035082260001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_5</RouteLinkRef><RunTime>PT240S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_6'>
+<From SequenceNumber='6'><Activity>setDown</Activity><StopPointRef>035082260001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='7'><Activity>setDown</Activity><StopPointRef>035084280001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_6</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_7'>
+<From SequenceNumber='7'><Activity>setDown</Activity><StopPointRef>035084280001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='8'><Activity>setDown</Activity><StopPointRef>035082180001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_7</RouteLinkRef><RunTime>PT60S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_8'>
+<From SequenceNumber='8'><Activity>setDown</Activity><StopPointRef>035082180001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='9'><Activity>setDown</Activity><StopPointRef>035081080001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_8</RouteLinkRef><RunTime>PT60S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_9'>
+<From SequenceNumber='9'><Activity>setDown</Activity><StopPointRef>035081080001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='10'><Activity>setDown</Activity><StopPointRef>035082120002</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_9</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_10'>
+<From SequenceNumber='10'><Activity>setDown</Activity><StopPointRef>035082120002</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='11'><Activity>setDown</Activity><StopPointRef>035060080002</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_10</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_11'>
+<From SequenceNumber='11'><Activity>setDown</Activity><StopPointRef>035060080002</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='12'><Activity>setDown</Activity><StopPointRef>035084560001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_11</RouteLinkRef><RunTime>PT180S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_13_12'>
+<From SequenceNumber='12'><Activity>setDown</Activity><StopPointRef>035084560001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='13'><Activity>setDown</Activity><StopPointRef>039026010001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_12_12</RouteLinkRef><RunTime>PT300S</RunTime>
+</JourneyPatternTimingLink>
+</JourneyPatternSection>
+
+<JourneyPatternSection id='JPS_14' CreationDateTime='2021-08-09T09:45:20' ModificationDateTime='2021-08-09T09:45:20' Modification='new' RevisionNumber='0'>
+
+<JourneyPatternTimingLink id='JPS_14_1'>
+<From SequenceNumber='1'><Activity>pickUp</Activity><StopPointRef>039026010001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='2'><Activity>pickUp</Activity><StopPointRef>035084560001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_1</RouteLinkRef><RunTime>PT360S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_2'>
+<From SequenceNumber='2'><Activity>pickUp</Activity><StopPointRef>035084560001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='3'><Activity>pickUp</Activity><StopPointRef>035060080002</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_2</RouteLinkRef><RunTime>PT180S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_3'>
+<From SequenceNumber='3'><Activity>pickUp</Activity><StopPointRef>035060080002</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='4'><Activity>pickUp</Activity><StopPointRef>035082120002</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_3</RouteLinkRef><RunTime>PT240S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_4'>
+<From SequenceNumber='4'><Activity>pickUp</Activity><StopPointRef>035082120002</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='5'><Activity>pickUp</Activity><StopPointRef>035081080001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_4</RouteLinkRef><RunTime>PT180S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_5'>
+<From SequenceNumber='5'><Activity>pickUp</Activity><StopPointRef>035081080001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='6'><Activity>pickUp</Activity><StopPointRef>035082180001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_5</RouteLinkRef><RunTime>PT60S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_6'>
+<From SequenceNumber='6'><Activity>pickUp</Activity><StopPointRef>035082180001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='7'><Activity>pickUp</Activity><StopPointRef>035084280001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_6</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_7'>
+<From SequenceNumber='7'><Activity>pickUp</Activity><StopPointRef>035084280001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='8'><Activity>pickUp</Activity><StopPointRef>035082260001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_7</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_8'>
+<From SequenceNumber='8'><Activity>pickUp</Activity><StopPointRef>035082260001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='9'><Activity>pickUp</Activity><StopPointRef>035075140001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_8</RouteLinkRef><RunTime>PT300S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_9'>
+<From SequenceNumber='9'><Activity>pickUp</Activity><StopPointRef>035075140001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='10'><Activity>pickUp</Activity><StopPointRef>035075220001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_9</RouteLinkRef><RunTime>PT60S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_10'>
+<From SequenceNumber='10'><Activity>pickUp</Activity><StopPointRef>035075220001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='11'><Activity>setDown</Activity><StopPointRef>035075540001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_10</RouteLinkRef><RunTime>PT660S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_11'>
+<From SequenceNumber='11'><Activity>setDown</Activity><StopPointRef>035075540001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='12'><Activity>setDown</Activity><StopPointRef>035075360001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_11</RouteLinkRef><RunTime>PT300S</RunTime>
+</JourneyPatternTimingLink>
+<JourneyPatternTimingLink id='JPS_14_12'>
+<From SequenceNumber='12'><Activity>setDown</Activity><StopPointRef>035075360001</StopPointRef><TimingStatus>PTP</TimingStatus></From>
+<To SequenceNumber='13'><Activity>setDown</Activity><StopPointRef>035075400001</StopPointRef><TimingStatus>PTP</TimingStatus></To><RouteLinkRef>routeSection_13_12</RouteLinkRef><RunTime>PT120S</RunTime>
+</JourneyPatternTimingLink>
+</JourneyPatternSection>
+</JourneyPatternSections>
+
+<Operators><Operator id="OId_HRSC"><NationalOperatorCode>HRSC</NationalOperatorCode><OperatorCode>HRSC</OperatorCode><OperatorShortName>Horseman Coaches Limited</OperatorShortName><LicenceNumber>PH0005860</LicenceNumber></Operator></Operators>
+
+<Services>
+<Service CreationDateTime='2021-08-09T09:45:20' ModificationDateTime='2021-08-09T09:45:20' Modification='new' RevisionNumber='0'>
+<ServiceCode>PH0005860:15</ServiceCode><Lines><Line id="HRSC:PH0005860:15:202"><LineName>202</LineName><OutboundDescription><Origin>Broad Street</Origin><Destination>Engineers Court</Destination><Description>Broad Street - Engineers Court</Description></OutboundDescription><InboundDescription><Origin>Engineers Court</Origin><Destination>Broad Street</Destination><Description>Engineers Court - Broad Street</Description></InboundDescription></Line></Lines>
+<OperatingPeriod><StartDate>2021-06-10</StartDate><EndDate>2022-06-09</EndDate></OperatingPeriod>
+
+<RegisteredOperatorRef>regHRSC</RegisteredOperatorRef>
+
+<StopRequirements>
+<NoNewStopsRequired/>
+</StopRequirements>
+
+<Mode>bus</Mode><PublicUse>1</PublicUse><Description>Engineers Court - Broad Street</Description>
+
+<StandardService>
+<Origin>Engineers Court</Origin>
+<Destination>Broad Street</Destination>
+<JourneyPattern id='JP_13'><DestinationDisplay>Engineers Court</DestinationDisplay><OperatorRef>OId_HRSC</OperatorRef><Direction>outbound</Direction><RouteRef>route_13</RouteRef><JourneyPatternSectionRefs>JPS_13</JourneyPatternSectionRefs></JourneyPattern>
+<JourneyPattern id='JP_14'><DestinationDisplay>Broad Street</DestinationDisplay><OperatorRef>OId_HRSC</OperatorRef><Direction>inbound</Direction><RouteRef>route_14</RouteRef><JourneyPatternSectionRefs>JPS_14</JourneyPatternSectionRefs></JourneyPattern>
+
+</StandardService>
+</Service>
+
+</Services>
+
+<VehicleJourneys>
+<VehicleJourney CreationDateTime='2021-08-09T09:21:46' ModificationDateTime='2021-08-09T09:21:46' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Monday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-19</StartDate><EndDate>2021-07-19</EndDate></DateRange><DateRange><StartDate>2021-07-26</StartDate><EndDate>2021-07-26</EndDate></DateRange><DateRange><StartDate>2021-08-09</StartDate><EndDate>2021-08-09</EndDate></DateRange><DateRange><StartDate>2021-08-16</StartDate><EndDate>2021-08-16</EndDate></DateRange><DateRange><StartDate>2021-08-23</StartDate><EndDate>2021-08-23</EndDate></DateRange><DateRange><StartDate>2021-10-18</StartDate><EndDate>2021-10-18</EndDate></DateRange><DateRange><StartDate>2021-12-20</StartDate><EndDate>2021-12-20</EndDate></DateRange><DateRange><StartDate>2022-02-21</StartDate><EndDate>2022-02-21</EndDate></DateRange><DateRange><StartDate>2022-04-04</StartDate><EndDate>2022-04-04</EndDate></DateRange><DateRange><StartDate>2022-04-11</StartDate><EndDate>2022-04-11</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_18</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_13</JourneyPatternRef>
+<DepartureTime>15:30:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:21:47' ModificationDateTime='2021-08-09T09:21:47' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Tuesday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-20</StartDate><EndDate>2021-07-20</EndDate></DateRange><DateRange><StartDate>2021-07-27</StartDate><EndDate>2021-07-27</EndDate></DateRange><DateRange><StartDate>2021-08-03</StartDate><EndDate>2021-08-03</EndDate></DateRange><DateRange><StartDate>2021-08-10</StartDate><EndDate>2021-08-10</EndDate></DateRange><DateRange><StartDate>2021-08-17</StartDate><EndDate>2021-08-17</EndDate></DateRange><DateRange><StartDate>2021-08-24</StartDate><EndDate>2021-08-24</EndDate></DateRange><DateRange><StartDate>2021-08-31</StartDate><EndDate>2021-08-31</EndDate></DateRange><DateRange><StartDate>2021-10-19</StartDate><EndDate>2021-10-19</EndDate></DateRange><DateRange><StartDate>2021-12-21</StartDate><EndDate>2021-12-21</EndDate></DateRange><DateRange><StartDate>2022-02-22</StartDate><EndDate>2022-02-22</EndDate></DateRange><DateRange><StartDate>2022-04-05</StartDate><EndDate>2022-04-05</EndDate></DateRange><DateRange><StartDate>2022-04-12</StartDate><EndDate>2022-04-12</EndDate></DateRange><DateRange><StartDate>2022-05-31</StartDate><EndDate>2022-05-31</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+<DaysOfOperation><StAndrewsDay/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/></DaysOfOperation>
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_19</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_13</JourneyPatternRef>
+<DepartureTime>15:30:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:21:48' ModificationDateTime='2021-08-09T09:21:48' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Wednesday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-21</StartDate><EndDate>2021-07-21</EndDate></DateRange><DateRange><StartDate>2021-07-28</StartDate><EndDate>2021-07-28</EndDate></DateRange><DateRange><StartDate>2021-08-04</StartDate><EndDate>2021-08-04</EndDate></DateRange><DateRange><StartDate>2021-08-11</StartDate><EndDate>2021-08-11</EndDate></DateRange><DateRange><StartDate>2021-08-18</StartDate><EndDate>2021-08-18</EndDate></DateRange><DateRange><StartDate>2021-08-25</StartDate><EndDate>2021-08-25</EndDate></DateRange><DateRange><StartDate>2021-09-01</StartDate><EndDate>2021-09-01</EndDate></DateRange><DateRange><StartDate>2021-10-20</StartDate><EndDate>2021-10-20</EndDate></DateRange><DateRange><StartDate>2021-12-22</StartDate><EndDate>2021-12-22</EndDate></DateRange><DateRange><StartDate>2021-12-29</StartDate><EndDate>2021-12-29</EndDate></DateRange><DateRange><StartDate>2022-02-23</StartDate><EndDate>2022-02-23</EndDate></DateRange><DateRange><StartDate>2022-04-06</StartDate><EndDate>2022-04-06</EndDate></DateRange><DateRange><StartDate>2022-04-13</StartDate><EndDate>2022-04-13</EndDate></DateRange><DateRange><StartDate>2022-06-01</StartDate><EndDate>2022-06-01</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_20</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_13</JourneyPatternRef>
+<DepartureTime>15:30:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:21:50' ModificationDateTime='2021-08-09T09:21:50' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Thursday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-22</StartDate><EndDate>2021-07-22</EndDate></DateRange><DateRange><StartDate>2021-07-29</StartDate><EndDate>2021-07-29</EndDate></DateRange><DateRange><StartDate>2021-08-05</StartDate><EndDate>2021-08-05</EndDate></DateRange><DateRange><StartDate>2021-08-12</StartDate><EndDate>2021-08-12</EndDate></DateRange><DateRange><StartDate>2021-08-19</StartDate><EndDate>2021-08-19</EndDate></DateRange><DateRange><StartDate>2021-08-26</StartDate><EndDate>2021-08-26</EndDate></DateRange><DateRange><StartDate>2021-09-02</StartDate><EndDate>2021-09-02</EndDate></DateRange><DateRange><StartDate>2021-10-21</StartDate><EndDate>2021-10-21</EndDate></DateRange><DateRange><StartDate>2021-12-23</StartDate><EndDate>2021-12-23</EndDate></DateRange><DateRange><StartDate>2021-12-30</StartDate><EndDate>2021-12-30</EndDate></DateRange><DateRange><StartDate>2022-02-24</StartDate><EndDate>2022-02-24</EndDate></DateRange><DateRange><StartDate>2022-04-07</StartDate><EndDate>2022-04-07</EndDate></DateRange><DateRange><StartDate>2022-04-14</StartDate><EndDate>2022-04-14</EndDate></DateRange><DateRange><StartDate>2022-06-02</StartDate><EndDate>2022-06-02</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_21</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_13</JourneyPatternRef>
+<DepartureTime>15:30:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:21:51' ModificationDateTime='2021-08-09T09:21:51' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Friday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-23</StartDate><EndDate>2021-07-23</EndDate></DateRange><DateRange><StartDate>2021-07-30</StartDate><EndDate>2021-07-30</EndDate></DateRange><DateRange><StartDate>2021-08-06</StartDate><EndDate>2021-08-06</EndDate></DateRange><DateRange><StartDate>2021-08-13</StartDate><EndDate>2021-08-13</EndDate></DateRange><DateRange><StartDate>2021-08-20</StartDate><EndDate>2021-08-20</EndDate></DateRange><DateRange><StartDate>2021-08-27</StartDate><EndDate>2021-08-27</EndDate></DateRange><DateRange><StartDate>2021-09-03</StartDate><EndDate>2021-09-03</EndDate></DateRange><DateRange><StartDate>2021-10-22</StartDate><EndDate>2021-10-22</EndDate></DateRange><DateRange><StartDate>2022-02-25</StartDate><EndDate>2022-02-25</EndDate></DateRange><DateRange><StartDate>2022-04-08</StartDate><EndDate>2022-04-08</EndDate></DateRange><DateRange><StartDate>2022-06-03</StartDate><EndDate>2022-06-03</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_22</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_13</JourneyPatternRef>
+<DepartureTime>15:30:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:22:05' ModificationDateTime='2021-08-09T09:22:05' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Monday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-19</StartDate><EndDate>2021-07-19</EndDate></DateRange><DateRange><StartDate>2021-07-26</StartDate><EndDate>2021-07-26</EndDate></DateRange><DateRange><StartDate>2021-08-09</StartDate><EndDate>2021-08-09</EndDate></DateRange><DateRange><StartDate>2021-08-16</StartDate><EndDate>2021-08-16</EndDate></DateRange><DateRange><StartDate>2021-08-23</StartDate><EndDate>2021-08-23</EndDate></DateRange><DateRange><StartDate>2021-10-18</StartDate><EndDate>2021-10-18</EndDate></DateRange><DateRange><StartDate>2021-12-20</StartDate><EndDate>2021-12-20</EndDate></DateRange><DateRange><StartDate>2022-02-21</StartDate><EndDate>2022-02-21</EndDate></DateRange><DateRange><StartDate>2022-04-04</StartDate><EndDate>2022-04-04</EndDate></DateRange><DateRange><StartDate>2022-04-11</StartDate><EndDate>2022-04-11</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_23</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_14</JourneyPatternRef>
+<DepartureTime>07:17:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:22:06' ModificationDateTime='2021-08-09T09:22:06' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Tuesday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-20</StartDate><EndDate>2021-07-20</EndDate></DateRange><DateRange><StartDate>2021-07-27</StartDate><EndDate>2021-07-27</EndDate></DateRange><DateRange><StartDate>2021-08-03</StartDate><EndDate>2021-08-03</EndDate></DateRange><DateRange><StartDate>2021-08-10</StartDate><EndDate>2021-08-10</EndDate></DateRange><DateRange><StartDate>2021-08-17</StartDate><EndDate>2021-08-17</EndDate></DateRange><DateRange><StartDate>2021-08-24</StartDate><EndDate>2021-08-24</EndDate></DateRange><DateRange><StartDate>2021-08-31</StartDate><EndDate>2021-08-31</EndDate></DateRange><DateRange><StartDate>2021-10-19</StartDate><EndDate>2021-10-19</EndDate></DateRange><DateRange><StartDate>2021-12-21</StartDate><EndDate>2021-12-21</EndDate></DateRange><DateRange><StartDate>2022-02-22</StartDate><EndDate>2022-02-22</EndDate></DateRange><DateRange><StartDate>2022-04-05</StartDate><EndDate>2022-04-05</EndDate></DateRange><DateRange><StartDate>2022-04-12</StartDate><EndDate>2022-04-12</EndDate></DateRange><DateRange><StartDate>2022-05-31</StartDate><EndDate>2022-05-31</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+<DaysOfOperation><StAndrewsDay/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/></DaysOfOperation>
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_24</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_14</JourneyPatternRef>
+<DepartureTime>07:17:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:22:07' ModificationDateTime='2021-08-09T09:22:07' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Wednesday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-21</StartDate><EndDate>2021-07-21</EndDate></DateRange><DateRange><StartDate>2021-07-28</StartDate><EndDate>2021-07-28</EndDate></DateRange><DateRange><StartDate>2021-08-04</StartDate><EndDate>2021-08-04</EndDate></DateRange><DateRange><StartDate>2021-08-11</StartDate><EndDate>2021-08-11</EndDate></DateRange><DateRange><StartDate>2021-08-18</StartDate><EndDate>2021-08-18</EndDate></DateRange><DateRange><StartDate>2021-08-25</StartDate><EndDate>2021-08-25</EndDate></DateRange><DateRange><StartDate>2021-09-01</StartDate><EndDate>2021-09-01</EndDate></DateRange><DateRange><StartDate>2021-10-20</StartDate><EndDate>2021-10-20</EndDate></DateRange><DateRange><StartDate>2021-12-22</StartDate><EndDate>2021-12-22</EndDate></DateRange><DateRange><StartDate>2021-12-29</StartDate><EndDate>2021-12-29</EndDate></DateRange><DateRange><StartDate>2022-02-23</StartDate><EndDate>2022-02-23</EndDate></DateRange><DateRange><StartDate>2022-04-06</StartDate><EndDate>2022-04-06</EndDate></DateRange><DateRange><StartDate>2022-04-13</StartDate><EndDate>2022-04-13</EndDate></DateRange><DateRange><StartDate>2022-06-01</StartDate><EndDate>2022-06-01</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_25</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_14</JourneyPatternRef>
+<DepartureTime>07:17:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:22:08' ModificationDateTime='2021-08-09T09:22:08' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Thursday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-22</StartDate><EndDate>2021-07-22</EndDate></DateRange><DateRange><StartDate>2021-07-29</StartDate><EndDate>2021-07-29</EndDate></DateRange><DateRange><StartDate>2021-08-05</StartDate><EndDate>2021-08-05</EndDate></DateRange><DateRange><StartDate>2021-08-12</StartDate><EndDate>2021-08-12</EndDate></DateRange><DateRange><StartDate>2021-08-19</StartDate><EndDate>2021-08-19</EndDate></DateRange><DateRange><StartDate>2021-08-26</StartDate><EndDate>2021-08-26</EndDate></DateRange><DateRange><StartDate>2021-09-02</StartDate><EndDate>2021-09-02</EndDate></DateRange><DateRange><StartDate>2021-10-21</StartDate><EndDate>2021-10-21</EndDate></DateRange><DateRange><StartDate>2021-12-23</StartDate><EndDate>2021-12-23</EndDate></DateRange><DateRange><StartDate>2021-12-30</StartDate><EndDate>2021-12-30</EndDate></DateRange><DateRange><StartDate>2022-02-24</StartDate><EndDate>2022-02-24</EndDate></DateRange><DateRange><StartDate>2022-04-07</StartDate><EndDate>2022-04-07</EndDate></DateRange><DateRange><StartDate>2022-04-14</StartDate><EndDate>2022-04-14</EndDate></DateRange><DateRange><StartDate>2022-06-02</StartDate><EndDate>2022-06-02</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_26</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_14</JourneyPatternRef>
+<DepartureTime>07:17:00</DepartureTime>
+</VehicleJourney>
+
+<VehicleJourney CreationDateTime='2021-08-09T09:22:09' ModificationDateTime='2021-08-09T09:22:09' Modification='new' RevisionNumber='0'>
+
+
+<OperatorRef>HRSC</OperatorRef>
+<OperatingProfile>
+<RegularDayType><DaysOfWeek><Friday/></DaysOfWeek></RegularDayType>
+<SpecialDaysOperation>
+
+
+<DaysOfNonOperation>
+<DateRange><StartDate>2021-07-23</StartDate><EndDate>2021-07-23</EndDate></DateRange><DateRange><StartDate>2021-07-30</StartDate><EndDate>2021-07-30</EndDate></DateRange><DateRange><StartDate>2021-08-06</StartDate><EndDate>2021-08-06</EndDate></DateRange><DateRange><StartDate>2021-08-13</StartDate><EndDate>2021-08-13</EndDate></DateRange><DateRange><StartDate>2021-08-20</StartDate><EndDate>2021-08-20</EndDate></DateRange><DateRange><StartDate>2021-08-27</StartDate><EndDate>2021-08-27</EndDate></DateRange><DateRange><StartDate>2021-09-03</StartDate><EndDate>2021-09-03</EndDate></DateRange><DateRange><StartDate>2021-10-22</StartDate><EndDate>2021-10-22</EndDate></DateRange><DateRange><StartDate>2022-02-25</StartDate><EndDate>2022-02-25</EndDate></DateRange><DateRange><StartDate>2022-04-08</StartDate><EndDate>2022-04-08</EndDate></DateRange><DateRange><StartDate>2022-06-03</StartDate><EndDate>2022-06-03</EndDate></DateRange>
+</DaysOfNonOperation>
+</SpecialDaysOperation>
+<BankHolidayOperation>
+
+<DaysOfNonOperation><ChristmasDay/><BoxingDay/><GoodFriday/><NewYearsDay/><Jan2ndScotland/><StAndrewsDay/><LateSummerBankHolidayNotScotland/><MayDay/><EasterMonday/><SpringBank/><AugustBankHolidayScotland/><ChristmasDayHoliday/><BoxingDayHoliday/><NewYearsDayHoliday/><Jan2ndScotlandHoliday/><StAndrewsDayHoliday/><ChristmasEve/><NewYearsEve/></DaysOfNonOperation>
+</BankHolidayOperation>
+</OperatingProfile>
+
+<VehicleJourneyCode>VJ_27</VehicleJourneyCode>
+<ServiceRef>PH0005860:15</ServiceRef><LineRef>HRSC:PH0005860:15:202</LineRef>
+<JourneyPatternRef>JP_14</JourneyPatternRef>
+<DepartureTime>07:17:00</DepartureTime>
+</VehicleJourney>
+
+
+</VehicleJourneys>
+</TransXChange>

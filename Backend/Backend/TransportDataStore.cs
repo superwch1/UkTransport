@@ -30,5 +30,13 @@ namespace Backend
         {
             return _busStops;
         }
+
+        public BusStop? GetBusStopById(string busStopId)
+        {
+            if (_busStopsById.TryGetValue(busStopId, out BusStop? busStop) && busStop is not null)
+                return busStop;
+
+            return null;
+        }
     }
 }
