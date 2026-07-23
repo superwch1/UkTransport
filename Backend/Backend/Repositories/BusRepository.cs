@@ -22,46 +22,52 @@ namespace Backend.Repositories
             if (busLocation is null || (busLocation.OriginAimedDepartureTime is null && busLocation.DestinationAimedArrivalTime is null))
                 return [];
 
-            const int toleranceMinutes = 5;
-
-            // Build each window only if that time is provided.
-            TimeOnly? originFrom = busLocation.OriginAimedDepartureTime?.AddMinutes(-toleranceMinutes);
-            TimeOnly? originTo = busLocation.OriginAimedDepartureTime?.AddMinutes(toleranceMinutes);
-            TimeOnly? destFrom = busLocation.DestinationAimedArrivalTime?.AddMinutes(-toleranceMinutes);
-            TimeOnly? destTo = busLocation.DestinationAimedArrivalTime?.AddMinutes(toleranceMinutes);
+            var originTime = busLocation.OriginAimedDepartureTime;
+            var destTime = busLocation.DestinationAimedArrivalTime;
 
             IQueryable<BusTimetable> query = _context.BusCallingPoints
-
-                // find the origin calling point matching bus stop and departure time
+                // origin calling point: matching stop, exact departure time
                 .Where(origin => origin.BusStopId == busLocation.OriginRef &&
-                       (originFrom == null || (origin.DepartureTime >= originFrom && origin.DepartureTime <= originTo)))
+                    (originTime == null || origin.DepartureTime == originTime))
 
-                // join the origin bus timetable id with destination bus time table id
                 .Join(_context.BusCallingPoints,
                     origin => origin.BusTimetableId,
                     destination => destination.BusTimetableId,
                     (origin, destination) => new { origin, destination })
 
-                // find the destination calling point matching bus stop and arrival time
-                .Where(x => x.destination.BusStopId == busLocation.DestinationRef && x.origin.Sequence < x.destination.Sequence &&
-                            (destFrom == null || (x.destination.ArrivalTime >= destFrom && x.destination.ArrivalTime <= destTo)))
+                // destination calling point: matching stop, later in journey, exact arrival time
+                .Where(x => x.destination.BusStopId == busLocation.DestinationRef &&
+                            x.origin.Sequence < x.destination.Sequence &&
+                    (destTime == null || x.destination.ArrivalTime == destTime))
 
-                // join the origin bus time table id with bus time table id
-                .Join(
-                    _context.BusTimetables,
+                .Join(_context.BusTimetables,
                     x => x.origin.BusTimetableId,
                     timetable => timetable.Id,
-                    (x, timetable) => timetable)
+                    (x, timetable) => timetable);
 
-                .Where(timetable => timetable.LineName == busLocation.PublishedLineName);
+            // NOTE: LineName is intentionally NOT filtered. The live feed's PublishedLineName
+            // can differ from the timetable's LineName for the same physical route
+            // (e.g. feed "3" vs timetable "2"), so matching on stop + time + day is more reliable.
 
+            // Runs on the right day / holiday.
             query = ApplyDayFilter(query, now, isHoliday);
 
-            string? timetableId = query.Select(t => t.Id).FirstOrDefault();
+            // Only schedules valid today.
+            var today = DateOnly.FromDateTime(now);
+            query = query.Where(t => t.ValidFrom <= today && t.ValidTo >= today);
+
+            // If several journeys still match, prefer the most recently-started schedule
+            // so repeated taps deterministically resolve to the current timetable version.
+            string? timetableId = query
+                .OrderByDescending(t => t.ValidFrom)
+                .Select(t => t.Id)
+                .FirstOrDefault();
+
             if (timetableId is null)
                 return [];
 
             return _context.BusCallingPoints
+                .AsNoTracking()
                 .Where(x => x.BusTimetableId == timetableId)
                 .OrderBy(x => x.Sequence)
                 .ToList();

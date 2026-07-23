@@ -35,6 +35,12 @@ class BusMapViewModel {
   static const _busRouteLayerId = 'bus-route-layer';
   static const _busRouteSymbolBackground = 'bus-route-symbol-background';
 
+  // ---- route line (added) ----
+  static const _busRouteLineSourceId = 'bus-route-line-source';
+  static const _busRouteLineLayerId = 'bus-route-line-layer';
+  static const _busRouteLineColor = '#5DA9E9'; // light blue
+  static const _busRouteLineWidth = 4.0;
+
   // bus route symbol geometry
   static const _routeRadius = 12.0;
   static const _routeBorderWidth = 1.5;
@@ -117,6 +123,7 @@ class BusMapViewModel {
     await _mapController!.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
     await _mapController!.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
     await _mapController!.setGeoJsonSource(_busRouteSourceId, _buildBusRouteFeature());
+    await _mapController!.setGeoJsonSource(_busRouteLineSourceId, _buildBusRouteLineFeature());
   }
 
 
@@ -129,6 +136,10 @@ class BusMapViewModel {
     await controller.addGeoJsonSource(_busLocationSourceId, _emptyCollection);
     await controller.addGeoJsonSource(_busStopSourceId, _emptyCollection);
     await controller.addGeoJsonSource(_busRouteSourceId, _emptyCollection);
+    await controller.addGeoJsonSource(_busRouteLineSourceId, _emptyCollection);
+
+    // route line added first so it renders UNDER the route/stop/location symbols
+    await _addBusRouteLineLayer(controller);
 
     // generate the bus location symbol image and add layer into the map
     final busLocationSymbolData = await _generateBusLocationSymbol();
@@ -200,6 +211,7 @@ class BusMapViewModel {
     await controller.setGeoJsonSource(_busLocationSourceId, _buildBusLocationFeature());
     await controller.setGeoJsonSource(_busStopSourceId, _buildBusStopFeature());
     await controller.setGeoJsonSource(_busRouteSourceId, _buildBusRouteFeature());
+    await controller.setGeoJsonSource(_busRouteLineSourceId, _buildBusRouteLineFeature());
   }
 
   Map<String, dynamic> _buildBusRouteFeature() {
@@ -216,6 +228,28 @@ class BusMapViewModel {
             'sequence': busRoute.sequence
           },
         },
+      ],
+    };
+  }
+
+  // Builds a single LineString connecting the route points in sequence order.
+  Map<String, dynamic> _buildBusRouteLineFeature() {
+    final ordered = [..._busRoutes]..sort((a, b) => a.sequence.compareTo(b.sequence));
+
+    return {
+      'type': 'FeatureCollection',
+      'features': [
+        if (ordered.length >= 2)
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [
+                for (final busRoute in ordered) [busRoute.longitude, busRoute.latitude],
+              ],
+            },
+            'properties': <String, dynamic>{},
+          },
       ],
     };
   }
@@ -257,6 +291,21 @@ class BusMapViewModel {
         },
       ],
     };
+  }
+
+
+  Future<void> _addBusRouteLineLayer(MapLibreMapController controller) async {
+    await controller.addLineLayer(
+      _busRouteLineSourceId,
+      _busRouteLineLayerId,
+      const LineLayerProperties(
+        lineColor: _busRouteLineColor,
+        lineWidth: _busRouteLineWidth,
+        lineCap: 'round',
+        lineJoin: 'round',
+        lineOpacity: 0.9,
+      ),
+    );
   }
 
 
