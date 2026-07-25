@@ -2,7 +2,7 @@
 {
     public record BusLocation
     {
-        public required string Id { get; init; } // OperatorRef-VehicleRef
+        public required string OriginDepartureKey { get; init; }
         public required DateTime RecordedAtTime { get; init; }
 
 
@@ -20,10 +20,6 @@
         public required string DestinationName { get; init; }
         public required string DestinationRef { get; init; }
         public required TimeOnly? DestinationAimedArrivalTime { get; init; }
-
-
-        // Vehicle metadata
-        public required string VehicleRef { get; init; }
 
 
         // Real-time location

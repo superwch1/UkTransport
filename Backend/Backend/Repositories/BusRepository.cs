@@ -16,34 +16,10 @@ namespace Backend.Repositories
         }
 
 
-        public IReadOnlyList<BusCallingPoint> GetBusRoute(string busLocationId, DateTime now, bool isHoliday)
+        public IReadOnlyList<BusCallingPoint> GetBusRoute(string originDepartureKey, DateTime now, bool isHoliday)
         {
-            BusLocation? busLocation = GetBusLocationById(busLocationId);
-            if (busLocation is null || (busLocation.OriginAimedDepartureTime is null && busLocation.DestinationAimedArrivalTime is null))
-                return [];
-
-            var originTime = busLocation.OriginAimedDepartureTime;
-            var destTime = busLocation.DestinationAimedArrivalTime;
-
-            IQueryable<BusTimetable> query = _context.BusCallingPoints
-                // origin calling point: matching stop, exact departure time
-                .Where(origin => origin.BusStopId == busLocation.OriginRef &&
-                    (originTime == null || origin.DepartureTime == originTime))
-
-                .Join(_context.BusCallingPoints,
-                    origin => origin.BusTimetableId,
-                    destination => destination.BusTimetableId,
-                    (origin, destination) => new { origin, destination })
-
-                // destination calling point: matching stop, later in journey, exact arrival time
-                .Where(x => x.destination.BusStopId == busLocation.DestinationRef &&
-                            x.origin.Sequence < x.destination.Sequence &&
-                    (destTime == null || x.destination.ArrivalTime == destTime))
-
-                .Join(_context.BusTimetables,
-                    x => x.origin.BusTimetableId,
-                    timetable => timetable.Id,
-                    (x, timetable) => timetable);
+            IQueryable<BusTimetable> query = _context.BusTimetables
+                .Where(x => originDepartureKey == null || originDepartureKey == x.OriginDepartureKey);
 
             // NOTE: LineName is intentionally NOT filtered. The live feed's PublishedLineName
             // can differ from the timetable's LineName for the same physical route
@@ -58,6 +34,10 @@ namespace Backend.Repositories
 
             // If several journeys still match, prefer the most recently-started schedule
             // so repeated taps deterministically resolve to the current timetable version.
+            // Resolve the winning id first: ApplyDayFilter concatenates several candidate
+            // queries together, and EF Core cannot translate an Include's correlated
+            // subquery on top of that set operation, so Include must happen in a
+            // separate, plain query keyed on the id.
             string? timetableId = query
                 .OrderByDescending(t => t.ValidFrom)
                 .Select(t => t.Id)
@@ -66,9 +46,15 @@ namespace Backend.Repositories
             if (timetableId is null)
                 return [];
 
-            return _context.BusCallingPoints
+            BusTimetable? timetable = _context.BusTimetables
                 .AsNoTracking()
-                .Where(x => x.BusTimetableId == timetableId)
+                .Include(x => x.BusCallingPoints)
+                .FirstOrDefault(t => t.Id == timetableId);
+
+            if (timetable is null)
+                return [];
+
+            return (timetable.BusCallingPoints ?? [])
                 .OrderBy(x => x.Sequence)
                 .ToList();
         }
@@ -112,37 +98,53 @@ namespace Backend.Repositories
 
         private static IQueryable<BusTimetable> ApplyDayFilter(IQueryable<BusTimetable> query, DateTime now, bool isHoliday)
         {
-            if (isHoliday)
-                return query.Where(t => t.RunsOnBankHolidays);
+            // Build one candidate query per scenario, each pairing a specific
+            // ArrivalDayOffset with the weekday it must have run on:
+            //   offset 0 = journey running today
+            //   offset 1 = overnight journey that departed yesterday, arriving now
+            //   offset 2 = journey that departed two days ago
+            // The offset is passed by value into BuildDayCandidate so each deferred
+            // query captures its own value (0, 1, 2) rather than sharing one loop
+            // variable that would read 3 at execution time and match nothing.
+            return BuildDayCandidate(query, now, 0)
+                .Concat(BuildDayCandidate(query, now, 1))
+                .Concat(BuildDayCandidate(query, now, 2));
+        }
 
-            else
+
+        private static IQueryable<BusTimetable> BuildDayCandidate(IQueryable<BusTimetable> query, DateTime now, int offset)
+        {
+            DayOfWeek operatingDay = now.AddDays(-offset).DayOfWeek;
+            IQueryable<BusTimetable> candidate = query.Where(t => t.ArrivalDayOffset == offset);
+
+            return operatingDay switch
             {
-                return now.DayOfWeek switch
-                {
-                    DayOfWeek.Monday => query.Where(t => t.Monday),
-                    DayOfWeek.Tuesday => query.Where(t => t.Tuesday),
-                    DayOfWeek.Wednesday => query.Where(t => t.Wednesday),
-                    DayOfWeek.Thursday => query.Where(t => t.Thursday),
-                    DayOfWeek.Friday => query.Where(t => t.Friday),
-                    DayOfWeek.Saturday => query.Where(t => t.Saturday),
-                    DayOfWeek.Sunday => query.Where(t => t.Sunday),
-                    _ => query,
-                };
-            }
-                
+                DayOfWeek.Monday => candidate.Where(t => t.Monday),
+                DayOfWeek.Tuesday => candidate.Where(t => t.Tuesday),
+                DayOfWeek.Wednesday => candidate.Where(t => t.Wednesday),
+                DayOfWeek.Thursday => candidate.Where(t => t.Thursday),
+                DayOfWeek.Friday => candidate.Where(t => t.Friday),
+                DayOfWeek.Saturday => candidate.Where(t => t.Saturday),
+                DayOfWeek.Sunday => candidate.Where(t => t.Sunday),
+                _ => candidate,
+            };
         }
 
 
         public BusLocation? GetBusLocationById(string busLocationId)
         {
-            return _transportDataStore.GetBusLocations()
-                .FirstOrDefault(busLocation => busLocation.Id == busLocationId);
+            return _transportDataStore
+                .BusLocationByKey
+                .Values
+                .FirstOrDefault(busLocation => busLocation.OriginDepartureKey == busLocationId);
         }
 
 
         public IReadOnlyList<BusLocation> GetBusLocations(decimal north, decimal south, decimal east, decimal west)
         {
-            return _transportDataStore.GetBusLocations()
+            return _transportDataStore
+                .BusLocationByKey
+                .Values
                 .Where(busLocation => busLocation.Latitude <= north && busLocation.Latitude >= south && busLocation.Longitude <= east && busLocation.Longitude >= west)
                 .ToList();
         }
@@ -150,7 +152,9 @@ namespace Backend.Repositories
 
         public IReadOnlyList<BusStop> GetBusStops(decimal north, decimal south, decimal east, decimal west)
         {
-            return _transportDataStore.GetBusStops()
+            return _transportDataStore
+                .BusStopById
+                .Values
                 .Where(busStop => busStop.Latitude <= north && busStop.Latitude >= south && busStop.Longitude <= east && busStop.Longitude >= west)
                 .ToList();
         }

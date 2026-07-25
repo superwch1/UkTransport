@@ -22,8 +22,10 @@ namespace Backend.Migrations
                     OriginName = table.Column<string>(type: "text", nullable: false),
                     DestinationName = table.Column<string>(type: "text", nullable: false),
                     Direction = table.Column<int>(type: "integer", nullable: false),
+                    ArrivalDayOffset = table.Column<int>(type: "integer", nullable: false),
                     ValidFrom = table.Column<DateOnly>(type: "date", nullable: false),
                     ValidTo = table.Column<DateOnly>(type: "date", nullable: false),
+                    OriginDepartureKey = table.Column<string>(type: "text", nullable: false),
                     Monday = table.Column<bool>(type: "boolean", nullable: false),
                     Tuesday = table.Column<bool>(type: "boolean", nullable: false),
                     Wednesday = table.Column<bool>(type: "boolean", nullable: false),
@@ -47,6 +49,8 @@ namespace Backend.Migrations
                     BusTimetableId = table.Column<string>(type: "text", nullable: false),
                     Sequence = table.Column<int>(type: "integer", nullable: false),
                     BusStopId = table.Column<string>(type: "text", nullable: false),
+                    LineName = table.Column<string>(type: "text", nullable: false),
+                    OperatorRef = table.Column<string>(type: "text", nullable: false),
                     ArrivalTime = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     DepartureTime = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
                     ArrivalDayOffset = table.Column<int>(type: "integer", nullable: true),
@@ -64,9 +68,29 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BusCallingPoints_BusStopId",
+                table: "BusCallingPoints",
+                column: "BusStopId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BusCallingPoints_BusTimetableId",
                 table: "BusCallingPoints",
                 column: "BusTimetableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_LineName",
+                table: "BusTimetables",
+                column: "LineName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_OperatorRef",
+                table: "BusTimetables",
+                column: "OperatorRef");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_OriginDepartureKey",
+                table: "BusTimetables",
+                column: "OriginDepartureKey");
         }
 
         /// <inheritdoc />

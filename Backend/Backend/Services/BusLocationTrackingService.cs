@@ -2,6 +2,7 @@
 using Backend.Extensions;
 using System.IO.Compression;
 using System.Xml.Linq;
+using System.Collections.Frozen;
 
 namespace Backend.Services
 {
@@ -46,7 +47,7 @@ namespace Backend.Services
 
                     using ZipArchive zipArchive = new ZipArchive(archiveStream, ZipArchiveMode.Read);
 
-                    IReadOnlyList<BusLocation> busLocations = await ImportBusLocations(zipArchive, cancellationToken);
+                    FrozenDictionary<string, BusLocation> busLocations = await ImportBusLocations(zipArchive, cancellationToken);
                     _transportDataStore.RefreshBusLocations(busLocations);
                 }
                 catch (Exception ex)
@@ -60,9 +61,9 @@ namespace Backend.Services
             }
         }
 
-        private async Task<IReadOnlyList<BusLocation>> ImportBusLocations(ZipArchive zipArchive, CancellationToken cancellationToken)
+        private async Task<FrozenDictionary<string, BusLocation>> ImportBusLocations(ZipArchive zipArchive, CancellationToken cancellationToken)
         {
-            List<BusLocation> busLocations = [];
+            Dictionary<string, BusLocation> busLocations = [];
 
             foreach (ZipArchiveEntry entry in zipArchive.Entries)
             {
@@ -71,53 +72,57 @@ namespace Backend.Services
                 using Stream entryStream = await entry.OpenAsync(cancellationToken);
                 XDocument document = await XDocument.LoadAsync(entryStream, LoadOptions.None, cancellationToken);
 
-
                 IEnumerable<XElement> activities = document.Descendants(SiriNamespace + "VehicleActivity");
                 foreach (XElement activity in activities)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
                     try
                     {
                         XElement? journey = activity.Element(SiriNamespace + "MonitoredVehicleJourney");
                         XElement? location = journey?.Element(SiriNamespace + "VehicleLocation");
 
-                        string? itemIdentifier = activity.Value(SiriNamespace, "ItemIdentifier");
                         DateTime? recordedAtTime = activity.Value(SiriNamespace, "RecordedAtTime").ParseUkDateTime(_ukTimeZone);
-                        if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(5) > recordedAtTime.Value)
+                        if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
                             continue;
 
                         string? operatorRef = journey.Value(SiriNamespace, "OperatorRef");
                         string? publishedLineName = journey.Value(SiriNamespace, "PublishedLineName");
 
+                        string? originRef = journey.Value(SiriNamespace, "OriginRef");
+                        string? destinationRef = journey.Value(SiriNamespace, "DestinationRef");
+                        if (operatorRef is null || publishedLineName is null || originRef is null || destinationRef is null)
+                            continue;
+
                         string originName = journey.Value(SiriNamespace, "OriginName") ?? UnknownValue;
-                        string originRef = journey.Value(SiriNamespace, "OriginRef") ?? UnknownValue;
-                        string destinationName = journey.Value(SiriNamespace, "DestinationName") ?? UnknownValue;
-                        string destinationRef = journey.Value(SiriNamespace, "DestinationRef") ?? UnknownValue;
+                        string destinationName = journey.Value(SiriNamespace, "DestinationName") ?? UnknownValue;                        
 
                         TimeOnly? originAimedDepartureTime = journey.Value(SiriNamespace, "OriginAimedDepartureTime").ParseUkTimeOnly(_ukTimeZone);
                         TimeOnly? destinationAimedArrivalTime = journey.Value(SiriNamespace, "DestinationAimedArrivalTime").ParseUkTimeOnly(_ukTimeZone);
+
+                        string? rawJourneyCode = activity.ExtensionValue(SiriNamespace, "JourneyCode");
+                        TimeOnly? departureTimeFromJourneyCode = rawJourneyCode == "0000" ? null : rawJourneyCode.ParseTimeOnly(format: ["HHmm", "HH:mm:ss"]); // "0000" is that machine's null sentinel
 
                         TimeOnly? departureTimeFromJourneyRef = journey?
                             .Element(SiriNamespace + "FramedVehicleJourneyRef")
                             .Value(SiriNamespace, "DatedVehicleJourneyRef")
                             .ParseTimeOnly(format: ["HHmm", "HH:mm:ss"]);
 
-                        string? rawJourneyCode = activity.ExtensionValue(SiriNamespace, "JourneyCode");
-                        TimeOnly? departureTimeFromJourneyCode = rawJourneyCode == "0000" ? null : rawJourneyCode.ParseTimeOnly(format: ["HHmm", "HH:mm:ss"]); // "0000" is that machine's null sentinel
-
-                        string? vehicleRef = journey.Value(SiriNamespace, "VehicleRef");
+                        // seems most of the car either do not have do not have arrival time or both arrival and departure time
+                        originAimedDepartureTime = originAimedDepartureTime ?? departureTimeFromJourneyCode ?? departureTimeFromJourneyRef;
+                        if (!originAimedDepartureTime.HasValue)
+                            continue;
 
                         decimal? latitude = location.Value(SiriNamespace, "Latitude").ParseDecimal();
                         decimal? longitude = location.Value(SiriNamespace, "Longitude").ParseDecimal();
                         decimal bearing = journey.Value(SiriNamespace, "Bearing").ParseDecimal() ?? 0;
 
-                        if (itemIdentifier is null || recordedAtTime is null || operatorRef is null || publishedLineName is null || vehicleRef is null || latitude is null || longitude is null)
+                        if (latitude is null || longitude is null)
                             continue;
 
-                        busLocations.Add(new BusLocation
+                        string originDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(originAimedDepartureTime.Value, originRef, destinationRef);
+                        busLocations[originDepartureKey] = new BusLocation
                         {
-                            Id = $"{operatorRef}-{vehicleRef}",
+                            OriginDepartureKey = originDepartureKey,
                             RecordedAtTime = recordedAtTime.Value,
 
                             OperatorRef = operatorRef,
@@ -125,18 +130,16 @@ namespace Backend.Services
 
                             OriginName = originName,
                             OriginRef = originRef,
-                            OriginAimedDepartureTime = originAimedDepartureTime ?? departureTimeFromJourneyCode ?? departureTimeFromJourneyRef,
+                            OriginAimedDepartureTime = originAimedDepartureTime,
 
                             DestinationName = destinationName,
                             DestinationRef = destinationRef,
                             DestinationAimedArrivalTime = destinationAimedArrivalTime,
 
-                            VehicleRef = vehicleRef,
-
                             Latitude = latitude.Value,
                             Longitude = longitude.Value,
                             Bearing = bearing
-                        });
+                        };
                     }
                     catch (Exception ex)
                     {
@@ -145,7 +148,7 @@ namespace Backend.Services
                 }
             }
 
-            return busLocations;
+            return busLocations.ToFrozenDictionary();
         }
     }
 }

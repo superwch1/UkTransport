@@ -36,7 +36,7 @@ builder.Services.AddDbContext<UkTransportDbContext>(options => options.UseNpgsql
 
 builder.Services.AddHostedService<BusStopImportService>();
 builder.Services.AddHostedService<BusLocationTrackingService>();
-//builder.Services.AddHostedService<BusTimetableImportService>();
+// builder.Services.AddHostedService<BusTimetableImportService>();
 
 builder.Services.AddControllers();
 

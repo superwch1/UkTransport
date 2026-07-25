@@ -12,9 +12,7 @@ namespace Backend.Services
 {
     public class BusTimetableImportService : BackgroundService
     {
-        private static readonly string LogPath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-    "log.txt");
+        private static readonly string LogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "log.txt");
 
         private const string DatasetApiUrl = "https://data.bus-data.dft.gov.uk/api/v1/dataset/";
         private const string DownloadUrlFormat = "https://data.bus-data.dft.gov.uk/timetable/dataset/{0}/download/";
@@ -133,7 +131,7 @@ namespace Backend.Services
                     // Single XML dataset — parse the buffer directly.
                     try
                     {
-                        await ImportTimetables(buffered);
+                        await ImportTimetables(datasetId, buffered);
                     }
                     catch (Exception ex)
                     {
@@ -158,7 +156,7 @@ namespace Backend.Services
                         try
                         {
                             using Stream xmlStream = await entry.OpenAsync(cancellationToken);
-                            await ImportTimetables(xmlStream);
+                            await ImportTimetables(datasetId, xmlStream);
                         }
                         catch (Exception ex)
                         {
@@ -176,7 +174,7 @@ namespace Backend.Services
         }
 
 
-        public async Task ImportTimetables(Stream xmlStream)
+        public async Task ImportTimetables(int datasetId, Stream xmlStream)
         {
             // Injectable "today" so the EndDate fallback is deterministic and testable.
             DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -238,20 +236,20 @@ namespace Backend.Services
                         .FirstOrDefault(n => n is not null)
                     ?? throw new InvalidDataException("LineName not found.");
 
-                string operatorRef = service.Value(Txc, "RegisteredOperatorRef") ?? throw new InvalidDataException("RegisteredOperatorRef not found.");
+                string registeredOperatorRef = service.Value(Txc, "RegisteredOperatorRef") ?? throw new InvalidDataException("RegisteredOperatorRef not found.");
 
                 // fix the problem with <RegisteredOperatorRef>regHRSC</RegisteredOperatorRef> not matching <OperatorCode>HRSC</OperatorCode>  
                 // so choose the first one if the dataset only consist one code
                 // https://data.bus-data.dft.gov.uk/timetable/dataset/13088/download/
 
-                string operatorCode;
+                string operatorRef;
                 if (operators.Count == 1)
                 {
-                    operatorCode = operators.Values.First();
+                    operatorRef = operators.Values.First();
                 }
-                else if (operators.TryGetValue(operatorRef, out string? code) && code is not null)
+                else if (operators.TryGetValue(registeredOperatorRef, out string? code) && code is not null)
                 {
-                    operatorCode = code;
+                    operatorRef = code;
                 }
                 else
                 {
@@ -264,6 +262,8 @@ namespace Backend.Services
 
                 // EndDate is legitimately absent in some files; deterministic fallback.
                 DateOnly validTo = period.Value(Txc, "EndDate").ParseDateOnly() ?? today.AddDays(180);
+                if (DateOnly.FromDateTime(DateTime.Now) > validTo)
+                    continue;
 
                 XElement? serviceProfile = service.Element(Txc + "OperatingProfile");
 
@@ -290,12 +290,20 @@ namespace Backend.Services
                     // resolve JourneyPatternRef through the VehicleJourneyRef inheritance chain instead of only looking at the journey itself.
                     string? jpRef = ResolveInherited(vehicleJourney, journeysByCode, "JourneyPatternRef")?.Value.Trim();
                     if (jpRef is null || !patterns.TryGetValue(jpRef, out var pattern))
+                    {
+                        LogException($"jpRef is null, datasetId - {datasetId}, lineName - {lineName}");
                         continue;
+                    }
+                        
 
                     // DepartureTime is mandatory on each VehicleJourney (not inherited).
                     (TimeOnly Time, int DayOffset)? departure = ParseJourneyTime(vehicleJourney.Value(Txc, "DepartureTime"));
                     if (departure is null)
+                    {
+                        LogException($"departure is null, datasetId - {datasetId}, lineName - {lineName}");
                         continue;
+                    }
+                        
 
                     // journey-level profile (own or inherited) replaces the service default wholesale — no merging, per TXC semantics.
                     XElement? profile = ResolveInherited(vehicleJourney, journeysByCode, "OperatingProfile") ?? serviceProfile;
@@ -307,35 +315,46 @@ namespace Backend.Services
                     // which stitches non-adjacent sections into one wrong chain of
                     // stops/times. Skip the whole journey instead.
                     if (pattern.SectionRefs.Any(r => !sections.ContainsKey(r)))
+                    {
+                        LogException($"pattern.SectionRefs.Any(r => !sections.ContainsKey(r), datasetId - {datasetId}, lineName - {lineName}");
                         continue;
+                    }
+                        
 
                     List<XElement> links = pattern.SectionRefs
                         .SelectMany(r => sections[r])
                         .ToList();
 
                     if (links.Count == 0)
+                    {
+                        LogException($"links.Count == 0, datasetId - {datasetId}, lineName - {lineName}");
+                        continue;
+                    }
+                        
+
+                    string timetableId = Guid.NewGuid().ToString(); 
+                    Dictionary<string, XElement> overrides = CollectTimingOverrides(vehicleJourney, journeysByCode);
+                    List<BusCallingPoint> stops = BuildStops(links, overrides, departure.Value.Time, departure.Value.DayOffset, timetableId, lineName, operatorRef);          
+                    if (stops.Count < 1)
                         continue;
 
-                    // FIX: VehicleJourney has no 'id' attribute in TXC; its identity
-                    // is <VehicleJourneyCode>. Fallback chain is now deterministic —
-                    // no Guid.NewGuid(), so ids are stable across runs (safe upserts).
-                    string vehicleJourneyId =
-                        vehicleJourney.Value(Txc, "VehicleJourneyCode")
-                        ?? vehicleJourney.Value(Txc, "PrivateCode")
-                        ?? vehicleJourney.Attribute("id")?.Value
-                        ?? $"{serviceCode}-{jpRef}-{departure.Value.Time:HHmmss}+{departure.Value.DayOffset}";
-
-                    string timetableId = Guid.NewGuid().ToString(); // $"{operatorCode}-{vehicleJourneyId}";
-                    Dictionary<string, XElement> overrides = CollectTimingOverrides(vehicleJourney, journeysByCode);
-                    List<BusCallingPoint> stops = BuildStops(links, overrides, departure.Value.Time, departure.Value.DayOffset, timetableId);
+                    BusCallingPoint firstCallingPoint = stops[0];
+                    BusCallingPoint lastCallingPoint = stops[stops.Count - 1];
+                    if (firstCallingPoint.DepartureTime is null || lastCallingPoint.ArrivalTime is null)
+                    {
+                        LogException($"firstCallingPoint.DepartureTime is null || lastCallingPoint.ArrivalTime is null, datasetId - {datasetId}, lineName - {lineName}");
+                        continue;
+                    }
+                        
 
                     busTimetables.Add(new BusTimetable
                     {
                         Id = timetableId,
-                        OperatorRef = operatorCode,
+                        OperatorRef = operatorRef,
                         LineName = lineName,
                         OriginName = origin,
                         DestinationName = destination,
+                        OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(firstCallingPoint.DepartureTime.Value, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                         Direction = string.Equals(pattern.Direction, "inbound", StringComparison.OrdinalIgnoreCase)
                             ? Direction.Inbound
                             : Direction.Outbound,
@@ -349,7 +368,8 @@ namespace Backend.Services
                         Saturday = sat,
                         Sunday = sun,
                         RunsOnBankHolidays = runsBankHols,
-                        BusCallingPoints = stops
+                        BusCallingPoints = stops,
+                        ArrivalDayOffset = lastCallingPoint.ArrivalDayOffset is null ? 0 : lastCallingPoint.ArrivalDayOffset.Value
                     });
                 }
             }
@@ -412,14 +432,14 @@ namespace Backend.Services
         }
 
 
-        private static List<BusCallingPoint> BuildStops(List<XElement> links, Dictionary<string, XElement> overrides, TimeOnly firstDeparture, int startDayOffset, string timetableId)
+        private static List<BusCallingPoint> BuildStops(List<XElement> links, Dictionary<string, XElement> overrides, TimeOnly firstDeparture, int startDayOffset, string timetableId, string lineName, string operatorRef)
         {
             List<BusCallingPoint> stops = new(links.Count + 1);
             int sequence = 1;
             int dayOffset = startDayOffset;
 
             XElement? firstFrom = links[0].Element(Txc + "From");
-            stops.Add(MakeStop(sequence++, firstFrom, timetableId,
+            stops.Add(MakeStop(sequence++, firstFrom, timetableId, lineName, operatorRef,
                 arrival: null, arrivalDayOffset: null,
                 departure: firstDeparture, departureDayOffset: dayOffset));
 
@@ -443,7 +463,7 @@ namespace Backend.Services
                 bool isLast = i == links.Count - 1;
                 if (isLast)
                 {
-                    stops.Add(MakeStop(sequence++, to, timetableId,
+                    stops.Add(MakeStop(sequence++, to, timetableId, lineName, operatorRef,
                         arrival: arrival, arrivalDayOffset: arrivalDayOffset,
                         departure: null, departureDayOffset: null));
                     break;
@@ -455,10 +475,12 @@ namespace Backend.Services
                 current = AddWait(current, ovr?.Element(Txc + "To"), to, ref dayOffset);
                 current = AddWait(current, nextOvr?.Element(Txc + "From"), nextLink.Element(Txc + "From"), ref dayOffset);
 
-                stops.Add(MakeStop(sequence++, to, timetableId,
+                stops.Add(MakeStop(sequence++, to, timetableId, lineName, operatorRef,
                     arrival: arrival, arrivalDayOffset: arrivalDayOffset,
                     departure: current, departureDayOffset: dayOffset));
             }
+
+            stops = stops.OrderBy(x => x.Sequence).ToList();
 
             return stops;
         }
@@ -481,7 +503,7 @@ namespace Backend.Services
             return result;
         }
 
-        private static BusCallingPoint MakeStop(int sequence, XElement? usage, string timetableId,
+        private static BusCallingPoint MakeStop(int sequence, XElement? usage, string timetableId, string lineName, string operatorRef,
             TimeOnly? arrival, int? arrivalDayOffset, TimeOnly? departure, int? departureDayOffset)
         {
             string stopRef = usage.Value(Txc, "StopPointRef")
@@ -490,6 +512,8 @@ namespace Backend.Services
             return new BusCallingPoint
             {
                 BusTimetableId = timetableId, 
+                LineName = lineName,
+                OperatorRef = operatorRef,
                 Sequence = sequence,
                 BusStopId = stopRef,
                 ArrivalTime = arrival,
@@ -583,17 +607,6 @@ namespace Backend.Services
 
                 return TimeSpan.Zero; 
             } // malformed durations degrade to zero; consider logging
-        }
-
-        private static TimeOnly AddWait(TimeOnly time, XElement? usage, ref int dayOffset)
-        {
-            string? wait = usage?.Value(Txc, "WaitTime");
-            if (string.IsNullOrWhiteSpace(wait))
-                return time;
-
-            TimeOnly result = time.Add(ParseDuration(wait), out int wraps);
-            dayOffset += wraps;
-            return result;
         }
 
         // Parses a TransXChange departure/time string into a time-of-day plus a

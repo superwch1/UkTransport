@@ -16,7 +16,11 @@ namespace Backend.Models
         public virtual BusTimetable? BusTimetable { get; init; }
 
         public required int Sequence { get; init; }     
-        public required string BusStopId { get; init; }  
+        public required string BusStopId { get; init; }
+
+        // allow to group by line name and operator ref to find bus stop timetable
+        public required string LineName { get; init; }
+        public required string OperatorRef { get; init; }
 
         // A stop can have both; intermediate stops often only one.
         public TimeOnly? ArrivalTime { get; init; }

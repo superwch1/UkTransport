@@ -83,7 +83,7 @@ class BusMapViewModel {
     String layerId, String featureId, Annotation? annotation) async {
     final features = await _mapController!.queryRenderedFeaturesInRect(
       Rect.fromCenter(center: Offset(point.x, point.y), width: 44, height: 44),
-      [_busLocationLayerId, _busStopLayerId],
+      [_busLocationLayerId],
       null,
     );
 
@@ -97,19 +97,19 @@ class BusMapViewModel {
       return;
     }
 
-    String? id = props['id'] as String?;
+    String? originDepartureKey = props['originDepartureKey'] as String?;
     final source = map?['source'];   
     if (source == _busLocationSourceId) {
-      final busLocation = _busLocations.where((bus) => bus.id == id).firstOrNull;
+      final busLocation = _busLocations.where((bus) => bus.originDepartureKey == originDepartureKey).firstOrNull;
       if (busLocation == null) {
         return;
       }
 
-      _busLocations = _busLocations.where((bus) => bus.id == id).toList();
+      _busLocations = _busLocations.where((bus) => bus.originDepartureKey == originDepartureKey).toList();
       selectedBusLocationNotifier.value = busLocation;
       _busStops = [];
 
-      final response = await transportApiService.getBusRoute(busLocation.id);
+      final response = await transportApiService.getBusRoute(busLocation.originDepartureKey);
       if (response.statusCode == StatusCode.ok && response.data != null) {
         _busRoutes = response.data!.busRoutes;
       } 
@@ -169,7 +169,7 @@ class BusMapViewModel {
     // If a bus is selected, refresh only that bus's location
     final selectedBus = selectedBusLocationNotifier.value;
     if (selectedBus != null) {
-      final response = await transportApiService.getBusLocation(selectedBus.id);
+      final response = await transportApiService.getBusLocation(selectedBus.originDepartureKey);
       if (response.statusCode == StatusCode.ok && response.data != null) {
         _busLocations = [ response.data! ];
         selectedBusLocationNotifier.value = response.data!;
@@ -265,7 +265,7 @@ class BusMapViewModel {
             'coordinates': [busLocation.longitude, busLocation.latitude],
           },
           'properties': {
-            'id': busLocation.id,
+            'originDepartureKey': busLocation.originDepartureKey,
             'lineName': busLocation.publishedLineName,
             'bearing': busLocation.bearing
           },

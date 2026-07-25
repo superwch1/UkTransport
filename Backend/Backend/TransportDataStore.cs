@@ -5,38 +5,27 @@ namespace Backend
 {
     public class TransportDataStore
     {
-        private IReadOnlyList<BusLocation> _busLocations = [];
-
-        private IReadOnlyList<BusStop> _busStops = [];
+        private FrozenDictionary<string, BusLocation> _busLocationByKey = FrozenDictionary.Create<string, BusLocation>();
         private FrozenDictionary<string, BusStop> _busStopsById = FrozenDictionary.Create<string, BusStop>();
 
-        public void RefreshBusLocations(IReadOnlyList<BusLocation> busLocations)
+        public void RefreshBusLocations(FrozenDictionary<string, BusLocation> busLocationByKey)
         {
-            Interlocked.Exchange(ref _busLocations, busLocations);
+            Interlocked.Exchange(ref _busLocationByKey, busLocationByKey);
         }
 
-        public IReadOnlyList<BusLocation> GetBusLocations()
+        public FrozenDictionary<string, BusLocation> BusLocationByKey
         {
-            return _busLocations;
+            get { return _busLocationByKey; }
         }
 
         public void SetBusStops(Dictionary<string, BusStop> busStops)
         {
-            Interlocked.Exchange(ref _busStops, busStops.Values.ToList());
-            Interlocked.Exchange(ref _busStopsById, busStops.ToFrozenDictionary());
+            Interlocked.Exchange(ref _busStopsById, busStops.Values.ToFrozenDictionary(x => x.Id, x => x));
         }
 
-        public IReadOnlyList<BusStop> GetBusStops()
+        public FrozenDictionary<string, BusStop> BusStopById
         {
-            return _busStops;
-        }
-
-        public BusStop? GetBusStopById(string busStopId)
-        {
-            if (_busStopsById.TryGetValue(busStopId, out BusStop? busStop) && busStop is not null)
-                return busStop;
-
-            return null;
+            get { return _busStopsById; }
         }
     }
 }

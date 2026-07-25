@@ -30,25 +30,25 @@ namespace Backend.Controllers
         public IActionResult BusStops([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {
             IReadOnlyList<BusStop> busStops = _busRepository.GetBusStops(north, south, east, west);
-            if (busStops.Count > 100)
+            if (busStops.Count > 300)
                 return Success(StatusCodes.Status200OK, response: Array.Empty<BusStop>().ToBusStopsResponse(), message: "Zoom in to show bus stops");
 
             return Success(StatusCodes.Status200OK, response: busStops.ToBusStopsResponse());
         }
 
 
-        [HttpGet("[controller]/bus/{busLocationId}/route")]
-        public IActionResult BusRoute(string busLocationId)
+        [HttpGet("[controller]/bus/{originDepartureKey}/route")]
+        public IActionResult BusRoute(string originDepartureKey)
         {
-            IReadOnlyList<BusCallingPoint> callingPoints = _busRepository.GetBusRoute(busLocationId, DateTime.Now, false);
-            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.GetBusStopById));
+            IReadOnlyList<BusCallingPoint> callingPoints = _busRepository.GetBusRoute(originDepartureKey, DateTime.Now, false);
+            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.BusStopById));
         }
 
 
-        [HttpGet("[controller]/bus/{busLocationId}/location/")]
-        public IActionResult BusLocation(string busLocationId)
+        [HttpGet("[controller]/bus/{originDepartureKey}/location/")]
+        public IActionResult BusLocation(string originDepartureKey)
         {
-            var busLocation = _busRepository.GetBusLocationById(busLocationId);
+            var busLocation = _busRepository.GetBusLocationById(originDepartureKey);
             if (busLocation == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 
@@ -60,7 +60,7 @@ namespace Backend.Controllers
         public IActionResult BusLocations([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {
             var busLocations = _busRepository.GetBusLocations(north, south, east, west);
-            if (busLocations.Count > 100)
+            if (busLocations.Count > 300)
                 return Success(StatusCodes.Status200OK, response: Array.Empty<BusLocation>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
 
             return Success(StatusCodes.Status200OK, response: busLocations.ToBusLocationsResponse());

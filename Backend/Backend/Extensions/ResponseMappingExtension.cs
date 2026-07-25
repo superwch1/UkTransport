@@ -1,4 +1,5 @@
 ﻿using Backend.Models;
+using System.Collections.Frozen;
 
 namespace Backend.Extensions
 {
@@ -8,7 +9,7 @@ namespace Backend.Extensions
         {
             return new BusLocationItemResponse()
             {
-                Id = busLocation.Id,
+                OriginDepartureKey = busLocation.OriginDepartureKey,
                 RecordedAtTime = busLocation.RecordedAtTime,
                 OperatorRef = busLocation.OperatorRef,
                 PublishedLineName = busLocation.PublishedLineName,
@@ -18,7 +19,6 @@ namespace Backend.Extensions
                 DestinationName = busLocation.DestinationName,
                 DestinationRef = busLocation.DestinationRef,
                 DestinationAimedArrivalTime = busLocation.DestinationAimedArrivalTime,
-                VehicleRef = busLocation.VehicleRef,
                 Latitude = busLocation.Latitude,
                 Longitude = busLocation.Longitude,
                 Bearing = busLocation.Bearing
@@ -53,12 +53,14 @@ namespace Backend.Extensions
         }
 
 
-        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, Func<string, BusStop?> getBusStopById)
+        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, FrozenDictionary<string, BusStop> busStopById)
         {
             List<BusRouteItemResponse> items = new List<BusRouteItemResponse>();
             foreach (BusCallingPoint busCallingPoint in busCallingPoints)
             {
-                BusStop? busStop = getBusStopById(busCallingPoint.BusStopId);
+                if (!busStopById.TryGetValue(busCallingPoint.BusStopId, out BusStop? busStop) || busStop is null)
+                    continue;
+
                 TimeOnly? scheduledTime = busCallingPoint.ArrivalTime ?? busCallingPoint.DepartureTime;
                 if (busStop is null || scheduledTime is null)
                     continue;

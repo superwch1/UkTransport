@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260720230008_Initial1")]
+    [Migration("20260725185934_Initial1")]
     partial class Initial1
     {
         /// <inheritdoc />
@@ -53,10 +53,20 @@ namespace Backend.Migrations
                     b.Property<TimeOnly?>("DepartureTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<string>("LineName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatorRef")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusStopId");
 
                     b.HasIndex("BusTimetableId");
 
@@ -67,6 +77,9 @@ namespace Backend.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<int>("ArrivalDayOffset")
+                        .HasColumnType("integer");
 
                     b.Property<string>("DestinationName")
                         .IsRequired()
@@ -86,6 +99,10 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("OperatorRef")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OriginDepartureKey")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -118,6 +135,12 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LineName");
+
+                    b.HasIndex("OperatorRef");
+
+                    b.HasIndex("OriginDepartureKey");
 
                     b.ToTable("BusTimetables");
                 });

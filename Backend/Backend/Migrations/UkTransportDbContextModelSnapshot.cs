@@ -50,6 +50,14 @@ namespace Backend.Migrations
                     b.Property<TimeOnly?>("DepartureTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<string>("LineName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatorRef")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
 
@@ -66,6 +74,9 @@ namespace Backend.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<int>("ArrivalDayOffset")
+                        .HasColumnType("integer");
 
                     b.Property<string>("DestinationName")
                         .IsRequired()
@@ -85,6 +96,10 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("OperatorRef")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OriginDepartureKey")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -121,6 +136,8 @@ namespace Backend.Migrations
                     b.HasIndex("LineName");
 
                     b.HasIndex("OperatorRef");
+
+                    b.HasIndex("OriginDepartureKey");
 
                     b.ToTable("BusTimetables");
                 });
