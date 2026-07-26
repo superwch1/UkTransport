@@ -44,6 +44,7 @@ class BusPanel extends StatelessWidget {
             _field(context, 'Origin', bus.originName),
             _field(context, 'Destination', bus.destinationName),
             _field(context, 'Recorded at', _formatTime(bus.recordedAtTime)),
+            _field(context, 'Delay', bus.estimatedScheduleOffset.toString()),
           ],
         ),
       ),

@@ -1,5 +1,4 @@
 ﻿using Backend.Models;
-using System.IO.Compression;
 using System.Xml.Linq;
 
 namespace Backend.Extensions

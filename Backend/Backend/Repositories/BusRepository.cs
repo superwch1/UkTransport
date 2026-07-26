@@ -111,10 +111,10 @@ namespace Backend.Repositories
         }
 
 
-        public IReadOnlyList<BusStop> GetBusStops(decimal north, decimal south, decimal east, decimal west)
+        public IReadOnlyList<Stop> GetBusStops(decimal north, decimal south, decimal east, decimal west)
         {
             return _transportDataStore
-                .BusStopById
+                .StopById
                 .Values
                 .Where(busStop => busStop.Latitude <= north && busStop.Latitude >= south && busStop.Longitude <= east && busStop.Longitude >= west)
                 .ToList();

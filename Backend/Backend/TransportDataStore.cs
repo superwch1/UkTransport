@@ -1,5 +1,4 @@
 ﻿using Backend.Models;
-using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Threading.Channels;
 
@@ -11,8 +10,8 @@ namespace Backend
         public FrozenDictionary<string, BusLocation> BusLocationByKey => _busLocationByKey;
 
 
-        private FrozenDictionary<string, BusStop> _busStopsById = FrozenDictionary.Create<string, BusStop>();
-        public FrozenDictionary<string, BusStop> BusStopById => _busStopsById;
+        private FrozenDictionary<string, Stop> _stopsById = FrozenDictionary.Create<string, Stop>();
+        public FrozenDictionary<string, Stop> StopById => _stopsById;
 
 
         private FrozenDictionary<string, BusScheduleEstimate> _busScheduleEstimatetByKey = FrozenDictionary.Create<string, BusScheduleEstimate>();
@@ -38,9 +37,9 @@ namespace Backend
             await _busLocationByKeyChannel.Writer.WriteAsync(busLocationByKey);
         }
 
-        public void SetBusStops(Dictionary<string, BusStop> busStops)
+        public void RefreshStops(Dictionary<string, Stop> stops)
         {
-            Interlocked.Exchange(ref _busStopsById, busStops.Values.ToFrozenDictionary(x => x.Id, x => x));
+            Interlocked.Exchange(ref _stopsById, stops.Values.ToFrozenDictionary(x => x.Id, x => x));
         }
 
         public void RefreshBusScheduleEstimate(FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)

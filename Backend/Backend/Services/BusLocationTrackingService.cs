@@ -1,7 +1,8 @@
-﻿using Backend.Models;
-using Backend.Extensions;
-using System.Xml.Linq;
+﻿using Backend.Extensions;
+using Backend.Models;
 using System.Collections.Frozen;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace Backend.Services
 {
@@ -18,7 +19,7 @@ namespace Backend.Services
         private readonly TimeService _timeService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly TransportDataStore _transportDataStore;
-        private readonly ILogger _logger;
+        private readonly ILogger<BusLocationTrackingService> _logger;
 
         private readonly IReadOnlyDictionary<string, string> _apiKeyBySource;
         private readonly IReadOnlyDictionary<string, string> _locationDataUrlBySource;
@@ -48,6 +49,7 @@ namespace Backend.Services
 
                 try
                 {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     foreach ((string source, string locationDataUrl) in _locationDataUrlBySource)
                     {
                         using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, locationDataUrl);
@@ -75,6 +77,7 @@ namespace Backend.Services
                     }
 
                     await _transportDataStore.RefreshBusLocations(busLocations.ToFrozenDictionary());
+                    _logger.LogInformation("Bus location tracking completed in {Elapsed}s", stopwatch.Elapsed.TotalSeconds);
                 }
                 catch (Exception ex)
                 {

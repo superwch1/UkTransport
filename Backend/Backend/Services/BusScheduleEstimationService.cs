@@ -33,39 +33,42 @@ namespace Backend.Services
                 try
                 {
                     FrozenDictionary<string, BusLocation> busLocationByKey = await _transportDataStore.ReadBusLocationAsync();
+
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     foreach (BusLocation[] batch in busLocationByKey.Values.Chunk(_batchSize))
                     {
-                        using var scope = _serviceScopeFactory.CreateScope();
+                        using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                         var busRouteByKey = await busRepository.GetBusRoutes(batch.Select(x => x.OriginDepartureKey));
-                        if (busRouteByKey.Count == 0)
-                            continue;
-
                         foreach ((string originDepartureKey, IReadOnlyList<BusCallingPoint> callingPoints) in busRouteByKey)
                         {
                             if (!busLocationByKey.TryGetValue(originDepartureKey, out BusLocation? busLocation) || busLocation is null)
                                 continue;
 
                             // skip the first bus stop since the bus is there but not departure yet
+                            // reason not checking is time greater than schedule is because 1:00 is after 23:00 but TimeOnly thinks different
                             IReadOnlyList<BusCallingPoint> remainingCallingPoints = callingPoints
                                 .Where(x => x.Sequence != 0)
                                 .ToList();
 
+                            // if the server start after the bus departure, it is possible that keep stuck at early stop and cannot update to new stop
                             if (_scheduleEstimateByKey.TryGetValue(originDepartureKey, out BusScheduleEstimate? previousEstimate) && previousEstimate is not null)
-                                remainingCallingPoints = callingPoints.Where(x => x.Sequence >= previousEstimate.Sequence).ToList();
+                                remainingCallingPoints = callingPoints
+                                    .Where(x => x.Sequence >= previousEstimate.Sequence && previousEstimate.Sequence + 5 >= x.Sequence) // prevent sequence jump from 5 to 40 cause it is a round trip
+                                    .ToList();
 
-                            foreach (var callingPoint in remainingCallingPoints)
+                            foreach (BusCallingPoint callingPoint in remainingCallingPoints)
                             {
-                                if (!_transportDataStore.BusStopById.TryGetValue(callingPoint.BusStopId, out BusStop? busStop) || busStop is null)
+                                if (!_transportDataStore.StopById.TryGetValue(callingPoint.BusStopId, out Stop? busStop) || busStop is null)
                                     continue;
 
                                 TimeOnly? scheduledTime = callingPoint.ArrivalTime ?? callingPoint.DepartureTime;
                                 if (scheduledTime is null)
                                     continue;
 
-                                // ~100 m radius
-                                if (Math.Abs(busStop.Latitude - busLocation.Latitude) < 0.0009m && Math.Abs(busStop.Longitude - busLocation.Longitude) < 0.0013m)
+                                // ~50 m radius
+                                if (Math.Abs(busStop.Latitude - busLocation.Latitude) < 0.00045m && Math.Abs(busStop.Longitude - busLocation.Longitude) < 0.00065m)
                                 {
                                     // prevent wrap around in TimeOnly data structure (18:05 - 18:07 = 23h58m = 1438 minutes)
                                     int scheduleOffsetMinutes = Math.Abs((_timeService.UkNowTimeOnly.ToTimeSpan() - scheduledTime.Value.ToTimeSpan()).Minutes);
@@ -94,7 +97,9 @@ namespace Backend.Services
                     {
                         _scheduleEstimateByKey.Remove(key);
                     }
+
                     _transportDataStore.RefreshBusScheduleEstimate(_scheduleEstimateByKey.ToFrozenDictionary());
+                    _logger.LogInformation("Bus schedule estimation completed in {Elapsed}s", stopwatch.Elapsed.TotalSeconds);
                 }
                 catch (Exception ex)
                 {

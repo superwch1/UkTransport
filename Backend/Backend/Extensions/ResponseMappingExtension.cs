@@ -40,10 +40,10 @@ namespace Backend.Extensions
             return new BusLocationsResponse() { BusLocations = items };
         }
 
-        public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<BusStop> busStops)
+        public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<Stop> busStops)
         {
             List<BusStopItemResponse> items = new List<BusStopItemResponse>();
-            foreach (BusStop busStop in busStops)
+            foreach (Stop busStop in busStops)
             {
                 items.Add(new BusStopItemResponse()
                 {
@@ -58,12 +58,12 @@ namespace Backend.Extensions
         }
 
 
-        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, FrozenDictionary<string, BusStop> busStopById)
+        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, FrozenDictionary<string, Stop> busStopById)
         {
             List<BusRouteItemResponse> items = new List<BusRouteItemResponse>();
             foreach (BusCallingPoint busCallingPoint in busCallingPoints)
             {
-                if (!busStopById.TryGetValue(busCallingPoint.BusStopId, out BusStop? busStop) || busStop is null)
+                if (!busStopById.TryGetValue(busCallingPoint.BusStopId, out Stop? busStop) || busStop is null)
                     continue;
 
                 TimeOnly? scheduledTime = busCallingPoint.ArrivalTime ?? busCallingPoint.DepartureTime;

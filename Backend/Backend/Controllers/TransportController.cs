@@ -29,9 +29,9 @@ namespace Backend.Controllers
         [HttpGet("[controller]/bus/stops")]
         public IActionResult BusStops([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {
-            IReadOnlyList<BusStop> busStops = _busRepository.GetBusStops(north, south, east, west);
+            IReadOnlyList<Stop> busStops = _busRepository.GetBusStops(north, south, east, west);
             if (busStops.Count > 300)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusStop>().ToBusStopsResponse(), message: "Zoom in to show bus stops");
+                return Success(StatusCodes.Status200OK, response: Array.Empty<Stop>().ToBusStopsResponse(), message: "Zoom in to show bus stops");
 
             return Success(StatusCodes.Status200OK, response: busStops.ToBusStopsResponse());
         }
@@ -41,7 +41,7 @@ namespace Backend.Controllers
         public async Task<IActionResult> BusRoute(string originDepartureKey)
         {
             IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(originDepartureKey);
-            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.BusStopById));
+            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.StopById));
         }
 
 

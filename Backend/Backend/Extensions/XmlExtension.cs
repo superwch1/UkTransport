@@ -106,7 +106,7 @@ namespace Backend.Extensions
         public static decimal? ParseDecimal(this string? value)
         {
             return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result)
-               ? result
+                ? result
                 : null;
         }
     }
