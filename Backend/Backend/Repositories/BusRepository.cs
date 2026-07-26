@@ -1,4 +1,5 @@
 ﻿using Backend.Models;
+using Backend.Services;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,57 +9,54 @@ namespace Backend.Repositories
     {
         private readonly UkTransportDbContext _context;
         private readonly TransportDataStore _transportDataStore;
+        private readonly TimeService _timeService;
 
-        public BusRepository(UkTransportDbContext context, TransportDataStore transportDataStore)
+        public BusRepository(UkTransportDbContext context, TransportDataStore transportDataStore, TimeService timeService)
         {
             _context = context;
             _transportDataStore = transportDataStore;
+            _timeService = timeService;
         }
 
 
-        public IReadOnlyList<BusCallingPoint> GetBusRoute(string originDepartureKey, DateTime now, bool isHoliday)
+        public async Task<IReadOnlyList<BusCallingPoint>> GetBusRoute(string originDepartureKey)
         {
-            IQueryable<BusTimetable> query = _context.BusTimetables
-                .Where(x => originDepartureKey == null || originDepartureKey == x.OriginDepartureKey);
-
-            // NOTE: LineName is intentionally NOT filtered. The live feed's PublishedLineName
-            // can differ from the timetable's LineName for the same physical route
-            // (e.g. feed "3" vs timetable "2"), so matching on stop + time + day is more reliable.
-
-            // Runs on the right day / holiday.
-            query = ApplyDayFilter(query, now, isHoliday);
-
-            // Only schedules valid today.
-            var today = DateOnly.FromDateTime(now);
-            query = query.Where(t => t.ValidFrom <= today && t.ValidTo >= today);
-
-            // If several journeys still match, prefer the most recently-started schedule
-            // so repeated taps deterministically resolve to the current timetable version.
-            // Resolve the winning id first: ApplyDayFilter concatenates several candidate
-            // queries together, and EF Core cannot translate an Include's correlated
-            // subquery on top of that set operation, so Include must happen in a
-            // separate, plain query keyed on the id.
-            string? timetableId = query
-                .OrderByDescending(t => t.ValidFrom)
-                .Select(t => t.Id)
-                .FirstOrDefault();
-
-            if (timetableId is null)
-                return [];
-
-            BusTimetable? timetable = _context.BusTimetables
-                .AsNoTracking()
+            // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
+            // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
+            BusTimetable? timetable = await _context.BusTimetables
                 .Include(x => x.BusCallingPoints)
-                .FirstOrDefault(t => t.Id == timetableId);
+                .Where(x => originDepartureKey == x.OriginDepartureKey &&
+                            x.ValidFrom <= _timeService.UkNowDateOnly && x.ValidTo >= _timeService.UkNowDateOnly)
+                .ApplyDayFilter(_timeService.UkNowDateTime, false)
+                .AsNoTracking()
+                .OrderByDescending(x => x.ValidFrom)
+                .FirstOrDefaultAsync();
 
-            if (timetable is null)
+            if (timetable is null || timetable.BusCallingPoints is null)
                 return [];
 
-            return (timetable.BusCallingPoints ?? [])
-                .OrderBy(x => x.Sequence)
-                .ToList();
+            return timetable.BusCallingPoints;
         }
 
+        public async Task<IReadOnlyDictionary<string, IReadOnlyList<BusCallingPoint>>> GetBusRoutes(IEnumerable<string> originDepartureKeys)
+        {
+            // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
+            // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
+            IReadOnlyList<BusTimetable> timetables = await _context.BusTimetables
+                .Include(x => x.BusCallingPoints)
+                .Where(x => originDepartureKeys.Contains(x.OriginDepartureKey) &&
+                            x.ValidFrom <= _timeService.UkNowDateOnly && x.ValidTo >= _timeService.UkNowDateOnly)
+                .ApplyDayFilter(_timeService.UkNowDateTime, false)
+                .AsNoTracking()
+                .GroupBy(x => x.OriginDepartureKey)
+                .Select(x => x.OrderByDescending(x => x.ValidFrom).First())
+                .ToListAsync();
+
+            if (timetables.Count == 0)
+                return new Dictionary<string, IReadOnlyList<BusCallingPoint>>();
+
+            return timetables.ToDictionary(x => x.OriginDepartureKey, x => x.BusCallingPoints ?? []);
+        }
 
         public async Task<IReadOnlyDictionary<string, TimeOnly>> GetBusStopTimetable(string busStopId, DateTime now, bool isHoliday)
         {
@@ -73,10 +71,9 @@ namespace Backend.Repositories
             // Timetables referenced by those calling points.
             IQueryable<BusTimetable> timetables = query
                 .Select(cp => cp.BusTimetable!)
-                .Distinct();
+                .Distinct()
+                .ApplyDayFilter(_timeService.UkNowDateTime, false);
 
-            // Original function, unchanged.
-            timetables = ApplyDayFilter(timetables, now, isHoliday);
 
             // Keep only calling points whose timetable survived the day filter.
             var callingPoints = await query
@@ -94,42 +91,6 @@ namespace Backend.Repositories
                         .Value
                 );
         }
-
-
-        private static IQueryable<BusTimetable> ApplyDayFilter(IQueryable<BusTimetable> query, DateTime now, bool isHoliday)
-        {
-            // Build one candidate query per scenario, each pairing a specific
-            // ArrivalDayOffset with the weekday it must have run on:
-            //   offset 0 = journey running today
-            //   offset 1 = overnight journey that departed yesterday, arriving now
-            //   offset 2 = journey that departed two days ago
-            // The offset is passed by value into BuildDayCandidate so each deferred
-            // query captures its own value (0, 1, 2) rather than sharing one loop
-            // variable that would read 3 at execution time and match nothing.
-            return BuildDayCandidate(query, now, 0)
-                .Concat(BuildDayCandidate(query, now, 1))
-                .Concat(BuildDayCandidate(query, now, 2));
-        }
-
-
-        private static IQueryable<BusTimetable> BuildDayCandidate(IQueryable<BusTimetable> query, DateTime now, int offset)
-        {
-            DayOfWeek operatingDay = now.AddDays(-offset).DayOfWeek;
-            IQueryable<BusTimetable> candidate = query.Where(t => t.ArrivalDayOffset == offset);
-
-            return operatingDay switch
-            {
-                DayOfWeek.Monday => candidate.Where(t => t.Monday),
-                DayOfWeek.Tuesday => candidate.Where(t => t.Tuesday),
-                DayOfWeek.Wednesday => candidate.Where(t => t.Wednesday),
-                DayOfWeek.Thursday => candidate.Where(t => t.Thursday),
-                DayOfWeek.Friday => candidate.Where(t => t.Friday),
-                DayOfWeek.Saturday => candidate.Where(t => t.Saturday),
-                DayOfWeek.Sunday => candidate.Where(t => t.Sunday),
-                _ => candidate,
-            };
-        }
-
 
         public BusLocation? GetBusLocationById(string busLocationId)
         {
@@ -167,6 +128,51 @@ namespace Backend.Repositories
             // since it use bulk insert, it does not also insert the records inside collection in bus timetable
             await _context.BulkInsertAsync(busTimetables.ToList());
             await _context.BulkInsertAsync(callingPoints);
+        }
+    }
+
+    public static class BusRepositoryExtension
+    {
+        public static IQueryable<BusTimetable> ApplyDayFilter(this IQueryable<BusTimetable> query, DateTime now, bool isHoliday)
+        {
+            // Build one candidate query per scenario, each pairing a specific
+            // ArrivalDayOffset with the weekday it must have run on:
+            //   offset 0 = journey running today
+            //   offset 1 = overnight journey that departed yesterday, arriving now
+            //   offset 2 = journey that departed two days ago
+            DayOfWeek today = now.AddDays(0).DayOfWeek;
+            DayOfWeek yesterday = now.AddDays(-1).DayOfWeek;
+            DayOfWeek dayBeforeYesterday = now.AddDays(-2).DayOfWeek;
+
+            return query.Where(t =>
+                (t.ArrivalDayOffset == 0 && (
+                    (today == DayOfWeek.Monday && t.Monday) ||
+                    (today == DayOfWeek.Tuesday && t.Tuesday) ||
+                    (today == DayOfWeek.Wednesday && t.Wednesday) ||
+                    (today == DayOfWeek.Thursday && t.Thursday) ||
+                    (today == DayOfWeek.Friday && t.Friday) ||
+                    (today == DayOfWeek.Saturday && t.Saturday) ||
+                    (today == DayOfWeek.Sunday && t.Sunday)
+                )) ||
+                (t.ArrivalDayOffset == 1 && (
+                    (yesterday == DayOfWeek.Monday && t.Monday) ||
+                    (yesterday == DayOfWeek.Tuesday && t.Tuesday) ||
+                    (yesterday == DayOfWeek.Wednesday && t.Wednesday) ||
+                    (yesterday == DayOfWeek.Thursday && t.Thursday) ||
+                    (yesterday == DayOfWeek.Friday && t.Friday) ||
+                    (yesterday == DayOfWeek.Saturday && t.Saturday) ||
+                    (yesterday == DayOfWeek.Sunday && t.Sunday)
+                )) ||
+                (t.ArrivalDayOffset == 2 && (
+                    (dayBeforeYesterday == DayOfWeek.Monday && t.Monday) ||
+                    (dayBeforeYesterday == DayOfWeek.Tuesday && t.Tuesday) ||
+                    (dayBeforeYesterday == DayOfWeek.Wednesday && t.Wednesday) ||
+                    (dayBeforeYesterday == DayOfWeek.Thursday && t.Thursday) ||
+                    (dayBeforeYesterday == DayOfWeek.Friday && t.Friday) ||
+                    (dayBeforeYesterday == DayOfWeek.Saturday && t.Saturday) ||
+                    (dayBeforeYesterday == DayOfWeek.Sunday && t.Sunday)
+                ))
+            );
         }
     }
 }

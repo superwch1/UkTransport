@@ -1,23 +1,56 @@
 ﻿using System.Globalization;
+using System.IO.Compression;
 using System.Xml.Linq;
 
 namespace Backend.Extensions
 {
     public static class XmlExtension
     {
-        public static string? ExtensionValue(this XElement activity, XNamespace xNamespace, string localName)
+        // Recursively walks a zip (and any nested zips) and invokes the handler for every .xml entry found at any depth
+        // a zip has no real folder hierarchy to traverse and no need to go over each folder
+        public static async Task ProcessXmlStreamsAsync(this Stream stream, Func<Stream, CancellationToken, Task> processXmlStream, CancellationToken cancellationToken)
         {
-            XElement? extensions =
-                activity.Element(xNamespace + "Extensions") ??
-                activity.Element("Extensions");
+            using MemoryStream buffered = new MemoryStream();
+            await stream.CopyToAsync(buffered, cancellationToken);
+            buffered.Position = 0;
 
-            string? value = extensions?
-                .Descendants()
-                .FirstOrDefault(e => e.Name.LocalName == localName)?
-                .Value
-                .Trim();
+            // ZIP local file header magic: 'P' 'K' 0x03 0x04
+            Span<byte> header = stackalloc byte[4];
+            int read = buffered.Read(header);
+            buffered.Position = 0;
 
-            return string.IsNullOrEmpty(value) ? null : value;
+            bool isZip = read == 4 && header[0] == 0x50 && header[1] == 0x4B && header[2] == 0x03 && header[3] == 0x04;
+            if (!isZip)
+            {
+                await processXmlStream(buffered, cancellationToken);
+                return;
+            }
+
+            using ZipArchive archive = new ZipArchive(buffered);
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (entry.FullName.StartsWith("__MACOSX", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (entry.FullName.EndsWith('/'))   // directory entry
+                    continue;
+
+                bool isXml = entry.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase);
+                bool isNestedZip = entry.FullName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
+                if (!isXml && !isNestedZip)
+                    continue;
+
+                using MemoryStream entryBuffered = new MemoryStream();
+                using (Stream entryStream = await entry.OpenAsync(cancellationToken))
+                {
+                    await entryStream.CopyToAsync(entryBuffered, cancellationToken);
+                }
+                entryBuffered.Position = 0;
+
+                await ProcessXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
+            }
         }
 
         public static string? Value(this XElement? parent, XNamespace xNamespace, string elementName)

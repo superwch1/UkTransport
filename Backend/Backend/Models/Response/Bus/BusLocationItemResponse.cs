@@ -17,6 +17,8 @@
         public required string DestinationRef { get; init; }
         public required TimeOnly? DestinationAimedArrivalTime { get; init; }
 
+        public required int EstimatedScheduleOffset { get; init; }
+
 
         public required decimal Latitude { get; init; }
         public required decimal Longitude { get; init; }

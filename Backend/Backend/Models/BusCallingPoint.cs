@@ -18,11 +18,11 @@ namespace Backend.Models
         public required int Sequence { get; init; }     
         public required string BusStopId { get; init; }
 
-        // allow to group by line name and operator ref to find bus stop timetable
+        // allow to group by line name and operator ref to find timetable of a bus stop for each line
         public required string LineName { get; init; }
         public required string OperatorRef { get; init; }
 
-        // A stop can have both; intermediate stops often only one.
+        // A stop can have both, origin stop only have departure, destination stop only have arrival and rest have both
         public TimeOnly? ArrivalTime { get; init; }
         public TimeOnly? DepartureTime { get; init; }
 

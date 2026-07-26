@@ -67,8 +67,8 @@ namespace Backend.Services
                     continue; // skip rows without usable coordinates
 
                 string? bearingRaw = csv.GetField("Bearing")?.Trim();
-                int bearing = bearingRaw is not null && BearingDegrees.TryGetValue(bearingRaw, out int deg)
-                    ? deg
+                int bearing = bearingRaw is not null && BearingDegrees.TryGetValue(bearingRaw, out int degree)
+                    ? degree
                     : 0; // default: N
 
                 busStops[id] = new BusStop()

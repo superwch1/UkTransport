@@ -1,21 +1,41 @@
 ﻿using Backend.Models;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
+using System.Threading.Channels;
 
 namespace Backend
 {
     public class TransportDataStore
     {
         private FrozenDictionary<string, BusLocation> _busLocationByKey = FrozenDictionary.Create<string, BusLocation>();
-        private FrozenDictionary<string, BusStop> _busStopsById = FrozenDictionary.Create<string, BusStop>();
+        public FrozenDictionary<string, BusLocation> BusLocationByKey => _busLocationByKey;
 
-        public void RefreshBusLocations(FrozenDictionary<string, BusLocation> busLocationByKey)
+
+        private FrozenDictionary<string, BusStop> _busStopsById = FrozenDictionary.Create<string, BusStop>();
+        public FrozenDictionary<string, BusStop> BusStopById => _busStopsById;
+
+
+        private FrozenDictionary<string, BusScheduleEstimate> _busScheduleEstimatetByKey = FrozenDictionary.Create<string, BusScheduleEstimate>();
+        public FrozenDictionary<string, BusScheduleEstimate> BusScheduleEstimateByKey => _busScheduleEstimatetByKey;
+
+
+        private readonly Channel<FrozenDictionary<string, BusLocation>> _busLocationByKeyChannel =
+            Channel.CreateBounded<FrozenDictionary<string, BusLocation>>(
+            new BoundedChannelOptions(1)
+            {
+                FullMode = BoundedChannelFullMode.DropOldest,
+                SingleReader = true
+            });
+
+        public async ValueTask<FrozenDictionary<string, BusLocation>> ReadBusLocationAsync()
         {
-            Interlocked.Exchange(ref _busLocationByKey, busLocationByKey);
+            return await _busLocationByKeyChannel.Reader.ReadAsync();
         }
 
-        public FrozenDictionary<string, BusLocation> BusLocationByKey
+        public async Task RefreshBusLocations(FrozenDictionary<string, BusLocation> busLocationByKey)
         {
-            get { return _busLocationByKey; }
+            Interlocked.Exchange(ref _busLocationByKey, busLocationByKey);
+            await _busLocationByKeyChannel.Writer.WriteAsync(busLocationByKey);
         }
 
         public void SetBusStops(Dictionary<string, BusStop> busStops)
@@ -23,9 +43,9 @@ namespace Backend
             Interlocked.Exchange(ref _busStopsById, busStops.Values.ToFrozenDictionary(x => x.Id, x => x));
         }
 
-        public FrozenDictionary<string, BusStop> BusStopById
+        public void RefreshBusScheduleEstimate(FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)
         {
-            get { return _busStopsById; }
+            Interlocked.Exchange(ref _busScheduleEstimatetByKey, busScheduleEstimateByKey);
         }
     }
 }

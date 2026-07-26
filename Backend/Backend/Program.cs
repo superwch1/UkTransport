@@ -18,6 +18,8 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<BusRepository>();
 builder.Services.AddSingleton<TransportDataStore>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<TimeService>();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
 NpgsqlDataSourceBuilder dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
@@ -36,6 +38,7 @@ builder.Services.AddDbContext<UkTransportDbContext>(options => options.UseNpgsql
 
 builder.Services.AddHostedService<BusStopImportService>();
 builder.Services.AddHostedService<BusLocationTrackingService>();
+builder.Services.AddHostedService<BusScheduleEstimationService>();
 // builder.Services.AddHostedService<BusTimetableImportService>();
 
 builder.Services.AddControllers();

@@ -9,12 +9,13 @@
         // Operator and service metadata
         public required string OperatorRef { get; init; }
         public required string PublishedLineName { get; init; }
+        public required string DirectionRef { get; init; }
 
 
         // Origin and destination
         public required string OriginName { get; init; }
         public required string OriginRef { get; init; }
-        public required TimeOnly? OriginAimedDepartureTime { get; init; }
+        public required TimeOnly OriginAimedDepartureTime { get; init; }
 
 
         public required string DestinationName { get; init; }

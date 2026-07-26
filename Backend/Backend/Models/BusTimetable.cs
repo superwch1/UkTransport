@@ -13,7 +13,7 @@ namespace Backend.Models
         public required string Id { get; init; }
 
         public required string OperatorRef { get; init; }
-        public required string LineName { get; init; }          // e.g. "343"
+        public required string LineName { get; init; }     
 
         public required string OriginName { get; init; }
         public required string DestinationName { get; init; }
@@ -35,6 +35,7 @@ namespace Backend.Models
 
 
         // Days this journey runs. (don't change to flag since it is faster per column read instead of reading bit flags)
+        // Consider holiday in UK, Scotland, England, Wales and so many (or maybe not consider matching day yet)
         public required bool Monday { get; init; }
         public required bool Tuesday { get; init; }
         public required bool Wednesday { get; init; }
