@@ -27,6 +27,5 @@ namespace Backend.Models
         public TimeOnly? DepartureTime { get; init; }
 
         public int? ArrivalDayOffset { get; init; } // Day offset relative to the journey's first operating day (0-based).
-        public int? DepartureDayOffset { get; init; }
     }
 }

@@ -65,7 +65,7 @@ namespace Backend.Services
                         await responseStream.CopyToAsync(stream, cancellationToken);
                         stream.Position = 0;
 
-                        await stream.ProcessXmlStreamsAsync(
+                        await stream.ExtractXmlStreamsAsync(
                             async (xmlStream, cancellationToken) =>
                             {
                                 Dictionary<string, BusLocation> entryBusLocations = await xmlStream.ParseBusLocation(_siriNamespace, _unknownPlaceholder, _timeService.UkTimeZone, _logger, cancellationToken);

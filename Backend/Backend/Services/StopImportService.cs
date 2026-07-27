@@ -15,8 +15,6 @@ namespace Backend.Services
         private readonly string _naptanCsvUrl;
         private readonly IReadOnlyList<string> _busStopTypes;
 
-        private static readonly HashSet<string> AllowedStopTypes = new(StringComparer.OrdinalIgnoreCase) { "BCT", "BCS" };
-
         // Compass bearing -> degrees. Anything missing/unknown defaults to N (0).
         private static readonly Dictionary<string, int> BearingDegrees = new(StringComparer.OrdinalIgnoreCase)
         { ["N"] = 0, ["NE"] = 45, ["E"] = 90, ["SE"] = 135, ["S"] = 180, ["SW"] = 225, ["W"] = 270, ["NW"] = 315 };
@@ -68,12 +66,14 @@ namespace Backend.Services
                         cancellationToken.ThrowIfCancellationRequested();
 
                         string? type = csv.GetField("StopType");
-                        if (type is null || !AllowedStopTypes.Contains(type))
+                        if (type is null)
                             continue;
 
-                        StopType stopType = StopType.Unspecified;
+                        StopType stopType;
                         if (_busStopTypes.Any(x => string.Equals(x, type, StringComparison.OrdinalIgnoreCase)))
                             stopType = StopType.Bus;
+                        else
+                            continue;
 
                         string? status = csv.GetField("Status");
                         if (!string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))

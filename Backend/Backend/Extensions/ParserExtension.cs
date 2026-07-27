@@ -20,7 +20,7 @@ namespace Backend.Extensions
                     if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
                         continue;
 
-                    XElement? journey = activity.Element(xmlNamespace + "MonitoredVehicleJourney");
+                    XElement journey = activity.Element(xmlNamespace + "MonitoredVehicleJourney") ?? throw new InvalidDataException("<MonitoredVehicleJourney> element not found.");
 
                     string? operatorRef = journey.Value(xmlNamespace, "OperatorRef");
                     string? publishedLineName = journey.Value(xmlNamespace, "PublishedLineName");

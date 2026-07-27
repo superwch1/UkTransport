@@ -8,7 +8,7 @@ namespace Backend.Extensions
     {
         // Recursively walks a zip (and any nested zips) and invokes the handler for every .xml entry found at any depth
         // a zip has no real folder hierarchy to traverse and no need to go over each folder
-        public static async Task ProcessXmlStreamsAsync(this Stream stream, Func<Stream, CancellationToken, Task> processXmlStream, CancellationToken cancellationToken)
+        public static async Task ExtractXmlStreamsAsync(this Stream stream, Func<Stream, CancellationToken, Task> processXmlStream, CancellationToken cancellationToken)
         {
             using MemoryStream buffered = new MemoryStream();
             await stream.CopyToAsync(buffered, cancellationToken);
@@ -49,7 +49,7 @@ namespace Backend.Extensions
                 }
                 entryBuffered.Position = 0;
 
-                await ProcessXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
+                await ExtractXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
             }
         }
 
