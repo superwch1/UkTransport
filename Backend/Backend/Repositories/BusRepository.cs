@@ -119,7 +119,7 @@ namespace Backend.Repositories
         }
 
 
-        public async Task CreateBusTimetables(IReadOnlyList<BusTimetable> busTimetables)
+        public async Task BulkInsertBusTimetables(IReadOnlyList<BusTimetable> busTimetables)
         {
             List<BusCallingPoint> callingPoints = busTimetables.SelectMany(x => x.BusCallingPoints ?? []).ToList();
 

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260725185934_Initial1")]
+    [Migration("20260727235102_Initial1")]
     partial class Initial1
     {
         /// <inheritdoc />
@@ -33,12 +33,6 @@ namespace Backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<int?>("ArrivalDayOffset")
-                        .HasColumnType("integer");
-
-                    b.Property<TimeOnly?>("ArrivalTime")
-                        .HasColumnType("time without time zone");
-
                     b.Property<string>("BusStopId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -47,12 +41,6 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("DepartureDayOffset")
-                        .HasColumnType("integer");
-
-                    b.Property<TimeOnly?>("DepartureTime")
-                        .HasColumnType("time without time zone");
-
                     b.Property<string>("LineName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -60,6 +48,12 @@ namespace Backend.Migrations
                     b.Property<string>("OperatorRef")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("ScheduledDayOffset")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("ScheduledTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
@@ -78,15 +72,22 @@ namespace Backend.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<int>("ArrivalDayOffset")
+                    b.Property<int>("BankHolidaysOfNonOperation")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BankHolidaysOfOperation")
                         .HasColumnType("integer");
 
                     b.Property<string>("DestinationName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Direction")
-                        .HasColumnType("integer");
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
 
                     b.Property<bool>("Friday")
                         .HasColumnType("boolean");
@@ -110,11 +111,14 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("RunsOnBankHolidays")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("Saturday")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("ScheduledDayOffset")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.Property<bool>("Sunday")
                         .HasColumnType("boolean");
@@ -124,12 +128,6 @@ namespace Backend.Migrations
 
                     b.Property<bool>("Tuesday")
                         .HasColumnType("boolean");
-
-                    b.Property<DateOnly>("ValidFrom")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("ValidTo")
-                        .HasColumnType("date");
 
                     b.Property<bool>("Wednesday")
                         .HasColumnType("boolean");

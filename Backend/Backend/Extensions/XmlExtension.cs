@@ -49,8 +49,6 @@ namespace Backend.Extensions
                     await entryStream.CopyToAsync(entryBuffered, cancellationToken);
                 }
                 entryBuffered.Position = 0;
-
-                Console.WriteLine($"working on {entry.FullName}");
                 await ExtractXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
             }
         }
@@ -58,6 +56,18 @@ namespace Backend.Extensions
         public static string? Value(this XElement? parent, XNamespace xNamespace, string elementName)
         {
             string? value = parent?.Element(xNamespace + elementName)?.Value;
+            return string.IsNullOrWhiteSpace(value)
+                ? null
+                : value.Trim();
+        }
+
+        /// <summary>
+        /// Reads an attribute, trimmed. Ids are matched against element values read by
+        /// <see cref="Value"/>, so both sides have to be trimmed the same way.
+        /// </summary>
+        public static string? AttributeValue(this XElement? element, string attributeName)
+        {
+            string? value = element?.Attribute(attributeName)?.Value;
             return string.IsNullOrWhiteSpace(value)
                 ? null
                 : value.Trim();

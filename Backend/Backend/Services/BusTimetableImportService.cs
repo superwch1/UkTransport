@@ -1,5 +1,8 @@
 ﻿using Backend.Extensions;
 using Backend.Models;
+using Backend.Repositories;
+using System.Data;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -14,9 +17,6 @@ namespace Backend.Services
         private static readonly XNamespace _transXChangeNamespace = "http://www.transxchange.org.uk/";
 
         private const int PageSize = 1000;
-
-        // pause between downloads so we don't flood the server.
-        private static readonly TimeSpan DelayBetweenDownloads = TimeSpan.FromSeconds(1);
 
         // Timetables change slowly; re-run once a day.
         private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(24);
@@ -50,13 +50,23 @@ namespace Backend.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                IReadOnlyList<int> datasetIds = await GetDatasetIds(cancellationToken);
-                foreach (int datasetId in datasetIds)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    IReadOnlyList<int> datasetIds = await GetDatasetIds(cancellationToken);
+                    foreach (int datasetId in datasetIds)
+                    {
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        cancellationToken.ThrowIfCancellationRequested(); 
 
-                    await DownloadDataset(datasetId, cancellationToken);
-                    await Task.Delay(DelayBetweenDownloads, cancellationToken);
+                        using HttpResponseMessage response = await DownloadDataset(datasetId, cancellationToken);
+                        await ExtractAndUpdateTimetable(response, datasetId, cancellationToken);
+
+                        _logger.LogInformation("DatasetId ({DatasetId}) - Bus timetables import takes {Elapsed}s", datasetId, stopwatch.Elapsed.TotalSeconds);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fail to import bus timetable");
                 }
 
                 await Task.Delay(RefreshInterval, cancellationToken);
@@ -65,61 +75,56 @@ namespace Backend.Services
 
         private async Task<IReadOnlyList<int>> GetDatasetIds(CancellationToken cancellationToken)
         {
-            try
+            HttpClient client = _httpClientFactory.CreateClient();
+
+            List<int> datasetIds = [];
+            int offset = 0;
+
+            while (true)
             {
-                HttpClient client = _httpClientFactory.CreateClient();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                List<int> ids = [];
-                int offset = 0;
-
-                while (true)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    string url = $"{DatasetApiUrl}?api_key={_apiKeyBySource["BODS"]}&status=published&limit={PageSize}&offset={offset}";
-
-                    using HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
-                    response.EnsureSuccessStatusCode();
-
-                    await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-                    using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
-
-                    if (!document.RootElement.TryGetProperty("results", out JsonElement results) || results.GetArrayLength() == 0)
-                        break;
-
-                    foreach (JsonElement dataset in results.EnumerateArray())
-                    {
-                        if (dataset.TryGetProperty("id", out JsonElement idElement) && idElement.TryGetInt32(out int id))
-                        {
-                            ids.Add(id);
-                        }
-                    }
-
-                    offset += PageSize;
-                }
-
-                return ids;
-            }
-            catch
-            {
-                return [];
-            }
-        }
-
-        private async Task DownloadDataset(int datasetId, CancellationToken cancellationToken)
-        {
-            string url = string.Format(DownloadUrlFormat, datasetId);
-            _logger.LogInformation($"working on {url}");
-
-            try
-            {
-                HttpClient client = _httpClientFactory.CreateClient();
-
-                LogMessage(url);
+                string url = $"{DatasetApiUrl}?api_key={_apiKeyBySource["BODS"]}&status=published&limit={PageSize}&offset={offset}";
 
                 using HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+
+                if (!document.RootElement.TryGetProperty("results", out JsonElement results) || results.GetArrayLength() == 0)
+                    break;
+
+                foreach (JsonElement dataset in results.EnumerateArray())
+                {
+                    if (dataset.TryGetProperty("id", out JsonElement idElement) && idElement.TryGetInt32(out int datasetId))
+                    {
+                        datasetIds.Add(datasetId);
+                    }
+                }
+
+                offset += PageSize;
+            }
+
+            return datasetIds;
+        }
+
+        private async Task<HttpResponseMessage> DownloadDataset(int datasetId, CancellationToken cancellationToken)
+        {
+            HttpClient client = _httpClientFactory.CreateClient();
+
+            string url = string.Format(DownloadUrlFormat, datasetId);
+
+            HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            return response;
+        }
+
+        private async Task ExtractAndUpdateTimetable(HttpResponseMessage response, int datasetId, CancellationToken cancellationToken)
+        {
+            try
+            {
                 using MemoryStream stream = new MemoryStream();
                 using (Stream source = await response.Content.ReadAsStreamAsync(cancellationToken))
                 {
@@ -130,30 +135,19 @@ namespace Backend.Services
                 await stream.ExtractXmlStreamsAsync(
                     async (xmlStream, cancellationToken) =>
                     {
-                        IReadOnlyList<BusTimetable> entryBusLocations = await xmlStream.ParseBusTimetable(_transXChangeNamespace, _timeService.UkNowDateTime, _logger, cancellationToken);
+                        using var scope = _scopeFactory.CreateScope();
+                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
+                        IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, _timeService.UkNowDateTime, _logger, cancellationToken);
+                        await busRepository.BulkInsertBusTimetables(busTimetables);
                     },
                     cancellationToken
                 );
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                LogException(ex.Message);
+                _logger.LogError(ex, "Fail to extract xml stream from {DatasetId}", datasetId);
             }
-        }
-
-
-        private static void LogMessage(string message)
-        {
-            string entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}";
-            File.AppendAllText(LogPath, entry);
-        }
-
-        private static void LogException(string exceptionMessage)
-        {
-            string entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {Environment.NewLine}{exceptionMessage}{Environment.NewLine}{Environment.NewLine}";
-            File.AppendAllText(LogPath, entry);
         }
     }
 }

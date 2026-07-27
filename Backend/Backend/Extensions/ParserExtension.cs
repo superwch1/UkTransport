@@ -111,11 +111,18 @@ namespace Backend.Extensions
 
             foreach (XElement busOperator in operators.Elements())
             {
-                string operatorId = busOperator.Attribute("id")?.Value ?? throw new InvalidDataException("<id> element not found.");
+                string operatorId = busOperator.AttributeValue("id") ?? throw new InvalidDataException("<id> element not found.");
                 string nationalOperatorCode = busOperator.Value(xmlNamespace, "NationalOperatorCode") ?? throw new InvalidDataException("<NationalOperatorCode> element not found.");
                 string operatorShortName = busOperator.Value(xmlNamespace, "OperatorShortName") ?? throw new InvalidDataException("<OperatorShortName> element not found.");
 
+                // sometimes <id> in operator does not match with <OperatorRef> in <vehicleJourney>
+                // the solution will be applying both operatorId and nationalOperatorCode to hope for at least one match
                 operatordById[operatorId] = (nationalOperatorCode, operatorShortName);
+                operatordById[nationalOperatorCode] = (nationalOperatorCode, operatorShortName);
+
+                string? operatorCode = busOperator.Value(xmlNamespace, "OperatorCode");
+                if (operatorCode is not null)
+                    operatordById[operatorCode] = (nationalOperatorCode, operatorShortName);
             }
 
 
@@ -132,7 +139,7 @@ namespace Backend.Extensions
                 XElement lines = service.Element(xmlNamespace + "Lines") ?? throw new InvalidDataException("<Lines> element not found.");
                 foreach (XElement line in lines.Elements(xmlNamespace + "Line"))
                 {
-                    string lineId = line.Attribute("id")?.Value ?? throw new InvalidDataException("Line 'id' attribute not found.");
+                    string lineId = line.AttributeValue("id") ?? throw new InvalidDataException("Line 'id' attribute not found.");
                     string lineName = line.Value(xmlNamespace, "LineName") ?? throw new InvalidDataException("<LineName> element not found.");
 
                     lineById[lineId] = lineName;
@@ -143,10 +150,8 @@ namespace Backend.Extensions
                 XElement? period = service.Element(xmlNamespace + "OperatingPeriod");
                 DateOnly startDate = period.Value(xmlNamespace, "StartDate").ParseDateOnly() ?? throw new InvalidDataException("<StartDate> element not found.");
 
-                // some does not provide a end date
+                // some does not provide a end date, and even the end date can be before now, if it continue early then the journey cannot be added to timetable
                 DateOnly endDate = period.Value(xmlNamespace, "EndDate").ParseDateOnly() ?? DateOnly.FromDateTime(now.AddDays(180));
-                if (DateOnly.FromDateTime(now) > endDate)
-                    continue;
 
                 XElement? operatingProfile = service.Element(xmlNamespace + "OperatingProfile");
                 serviceById[serviceCode] = (startDate, endDate, ParseDaysOfWeek(operatingProfile, xmlNamespace),
@@ -161,8 +166,7 @@ namespace Backend.Extensions
 
                 foreach (XElement journeyPattern in standardService.Elements(xmlNamespace + "JourneyPattern"))
                 {
-                    string journeyId = journeyPattern.Attribute("id")?.Value ?? throw new InvalidDataException("JourneyPattern 'id' attribute not found.");
-                    // string operatorId = journeyPattern.Value(txc, "OperatorRef") ?? throw new InvalidDataException("<OperatorRef> element not found.");
+                    string journeyId = journeyPattern.AttributeValue("id") ?? throw new InvalidDataException("JourneyPattern 'id' attribute not found.");
                     string direction = journeyPattern.Value(xmlNamespace, "Direction") ?? throw new InvalidDataException("<Direction> element not found.");
 
                     List<string> sectionIds = journeyPattern
@@ -182,7 +186,7 @@ namespace Backend.Extensions
 
             foreach (XElement journeyPatternSection in journeyPatternSections.Elements(xmlNamespace + "JourneyPatternSection"))
             {
-                string sectionId = journeyPatternSection.Attribute("id")?.Value ?? throw new InvalidDataException("JourneyPatternSection 'id' attribute not found.");
+                string sectionId = journeyPatternSection.AttributeValue("id") ?? throw new InvalidDataException("JourneyPatternSection 'id' attribute not found.");
 
                 var stops = new List<(string StopId, int Sequence, double MinutesFromDeparture)>();
 
@@ -230,9 +234,6 @@ namespace Backend.Extensions
                 if (!journeyById.TryGetValue(journeyId, out (IReadOnlyList<string> SectionIds, string direction, string origin, string destination) journey))
                     throw new InvalidDataException($"Journey Id not found {journeyId}");
 
-                if (!stopsBySectionId.TryGetValue(journey.SectionId, out List<(string StopId, int Sequence, double MinutesFromDeparture)>? stops))
-                    throw new InvalidDataException($"Section Id not found {journey.SectionId}");
-
                 string lineId = vehicleJourney.Value(xmlNamespace, "LineRef") ?? throw new InvalidDataException("<LineRef> element not found.");
                 if (!lineById.TryGetValue(lineId, out string? lineName) || lineName == null)
                     throw new InvalidDataException($"Line Id not found {lineId}");
@@ -241,25 +242,51 @@ namespace Backend.Extensions
                 if (!serviceById.TryGetValue(serviceId, out (DateOnly StartDate, DateOnly EndDate, HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) service))
                     throw new InvalidDataException($"Service Id not found {serviceId}");
 
+                if (DateOnly.FromDateTime(now) > service.EndDate)
+                    continue;
+
                 string departure = vehicleJourney.Value(xmlNamespace, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
                 TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
 
                 string timetableId = Guid.NewGuid().ToString();
                 List<BusCallingPoint> busCallingPoints = [];
-                foreach (var stop in stops)
+
+                // The pattern's sections stack on top of each other, each picking up where the
+                // previous one ended.
+                int sequenceOffset = 0;
+                double minutesOffset = 0;
+
+                // the nested for loop in section ids is written because a <JourneyPattern> can have multiple <JourneyPatternSectionRefs>
+                foreach (string sectionId in journey.SectionIds)
                 {
-                    // A journey crossing midnight wraps the clock, so keep the day it lands on.
-                    TimeOnly scheduledTime = departureTime.AddMinutes(stop.MinutesFromDeparture, out int scheduledDayOffset);
-                    busCallingPoints.Add(new BusCallingPoint()
+                    if (!stopsBySectionId.TryGetValue(sectionId, out List<(string StopId, int Sequence, double MinutesFromDeparture)>? stops))
+                        throw new InvalidDataException($"Section Id not found {sectionId}");
+
+                    foreach ((string stopId, int sequence, double minutesFromDeparture) in stops)
                     {
-                        BusTimetableId = timetableId,
-                        Sequence = stop.Sequence,
-                        BusStopId = stop.StopId,
-                        LineName = lineName,
-                        OperatorRef = busOperator.NationalOperatorCode,
-                        ScheduledTime = scheduledTime,
-                        ScheduledDayOffset = scheduledDayOffset
-                    });
+                        // A section's first stop is the previous section's last stop.
+                        if (busCallingPoints.Count > 0 && sequence == 1)
+                            continue;
+
+                        // A journey crossing midnight wraps the clock, so keep the day it lands on.
+                        TimeOnly scheduledTime = departureTime.AddMinutes(minutesFromDeparture + minutesOffset, out int scheduledDayOffset);
+
+                        busCallingPoints.Add(new BusCallingPoint()
+                        {
+                            BusTimetableId = timetableId,
+                            Sequence = sequence + sequenceOffset,
+                            BusStopId = stopId,
+                            LineName = lineName,
+                            OperatorRef = busOperator.NationalOperatorCode,
+                            ScheduledTime = scheduledTime,
+                            ScheduledDayOffset = scheduledDayOffset
+                        });
+                    }
+
+                    // The shared stop counts once, so the next section starts one short of the total.
+                    (string StopId, int Sequence, double MinutesFromDeparture) lastStop = stops[stops.Count - 1];
+                    sequenceOffset += lastStop.Sequence - 1;
+                    minutesOffset += lastStop.MinutesFromDeparture;
                 }
 
                 if (busCallingPoints.Count <= 1)
@@ -369,6 +396,11 @@ namespace Backend.Extensions
                     case "DisplacementHolidays": bankHolidays |= displacementHolidays; break;
                     case "EarlyRunOffDays": bankHolidays |= earlyRunOffDays; break;
 
+                    // ToDo, just skip holiday section for now there are way more holiday then default like 
+                    // <OtherPublicHoliday> is not supported: CoronationOfKingCharlesIII
+                    // <OtherPublicHoliday> is not a known bank holiday value.
+
+                    /*
                     // Carries a Description and an optional Date, so it has no place in a fixed enum.
                     case "OtherPublicHoliday":
                         throw new InvalidDataException($"<OtherPublicHoliday> is not supported: {day.Value(xmlNamespace, "Description")}");
@@ -379,7 +411,7 @@ namespace Backend.Extensions
                             throw new InvalidDataException($"<{day.Name.LocalName}> is not a known bank holiday value.");
 
                         bankHolidays |= holiday;
-                        break;
+                        break;*/
                 }
             }
 

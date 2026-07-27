@@ -21,10 +21,10 @@ namespace Backend.Migrations
                     LineName = table.Column<string>(type: "text", nullable: false),
                     OriginName = table.Column<string>(type: "text", nullable: false),
                     DestinationName = table.Column<string>(type: "text", nullable: false),
-                    Direction = table.Column<int>(type: "integer", nullable: false),
-                    ArrivalDayOffset = table.Column<int>(type: "integer", nullable: false),
-                    ValidFrom = table.Column<DateOnly>(type: "date", nullable: false),
-                    ValidTo = table.Column<DateOnly>(type: "date", nullable: false),
+                    Direction = table.Column<string>(type: "text", nullable: false),
+                    ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     OriginDepartureKey = table.Column<string>(type: "text", nullable: false),
                     Monday = table.Column<bool>(type: "boolean", nullable: false),
                     Tuesday = table.Column<bool>(type: "boolean", nullable: false),
@@ -33,7 +33,8 @@ namespace Backend.Migrations
                     Friday = table.Column<bool>(type: "boolean", nullable: false),
                     Saturday = table.Column<bool>(type: "boolean", nullable: false),
                     Sunday = table.Column<bool>(type: "boolean", nullable: false),
-                    RunsOnBankHolidays = table.Column<bool>(type: "boolean", nullable: false)
+                    BankHolidaysOfOperation = table.Column<int>(type: "integer", nullable: false),
+                    BankHolidaysOfNonOperation = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,10 +52,8 @@ namespace Backend.Migrations
                     BusStopId = table.Column<string>(type: "text", nullable: false),
                     LineName = table.Column<string>(type: "text", nullable: false),
                     OperatorRef = table.Column<string>(type: "text", nullable: false),
-                    ArrivalTime = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
-                    DepartureTime = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
-                    ArrivalDayOffset = table.Column<int>(type: "integer", nullable: true),
-                    DepartureDayOffset = table.Column<int>(type: "integer", nullable: true)
+                    ScheduledTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

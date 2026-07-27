@@ -101,7 +101,7 @@ namespace Backend.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Bus schedule estimation pass failed");
+                    _logger.LogError(ex, "Bus schedule estimation failed");
                 }
             }
         }
