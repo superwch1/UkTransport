@@ -47,10 +47,10 @@ try
     builder.Services.AddDbContext<UkTransportDbContext>(options => options.UseNpgsql(dataSource, npgsql =>
             npgsql.CommandTimeout(300)));
 
-    builder.Services.AddHostedService<StopImportService>();
-    builder.Services.AddHostedService<BusLocationTrackingService>();
-    builder.Services.AddHostedService<BusScheduleEstimationService>();
-    // builder.Services.AddHostedService<BusTimetableImportService>();
+    // builder.Services.AddHostedService<StopImportService>();
+    // builder.Services.AddHostedService<BusLocationTrackingService>();
+    // builder.Services.AddHostedService<BusScheduleEstimationService>();
+    builder.Services.AddHostedService<BusTimetableImportService>();
 
     builder.Services.AddControllers();
 

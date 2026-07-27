@@ -17,17 +17,16 @@ namespace Backend.Models
 
         public required string OriginName { get; init; }
         public required string DestinationName { get; init; }
-        public required Direction Direction { get; init; }
+        public required string Direction { get; init; } 
 
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
         // then query take consideration to yesterday with day offset value 1
-        public required int ArrivalDayOffset { get; init; }
+        public required int ScheduledDayOffset { get; init; }
 
 
-        // Operating period (your filename's 20260719_20310719).
-        public required DateOnly ValidFrom { get; init; }
-        public required DateOnly ValidTo { get; init; }
+        public required DateOnly StartDate { get; init; }
+        public required DateOnly EndDate { get; init; }
 
         // no need line name since there can be changed
         // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
@@ -44,7 +43,9 @@ namespace Backend.Models
         public required bool Saturday { get; init; }
         public required bool Sunday { get; init; }
 
-        public required bool RunsOnBankHolidays { get; init; }
+        public required BankHoliday BankHolidaysOfOperation { get; init; }
+
+        public required BankHoliday BankHolidaysOfNonOperation { get; init; }
 
         public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
     }

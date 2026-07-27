@@ -65,15 +65,11 @@ namespace Backend.Services
                                 if (!_transportDataStore.StopById.TryGetValue(callingPoint.BusStopId, out Stop? busStop) || busStop is null)
                                     continue;
 
-                                TimeOnly? scheduledTime = callingPoint.ArrivalTime ?? callingPoint.DepartureTime;
-                                if (scheduledTime is null)
-                                    continue;
-
                                 // ~50 m radius
                                 if (Math.Abs(busStop.Latitude - busLocation.Latitude) < 0.00045m && Math.Abs(busStop.Longitude - busLocation.Longitude) < 0.00065m)
                                 {
                                     // prevent wrap around in TimeOnly data structure (18:05 - 18:07 = 23h58m = 1438 minutes)
-                                    int scheduleOffsetMinutes = Math.Abs((_timeService.UkNowTimeOnly.ToTimeSpan() - scheduledTime.Value.ToTimeSpan()).Minutes);
+                                    int scheduleOffsetMinutes = Math.Abs((_timeService.UkNowTimeOnly.ToTimeSpan() - callingPoint.ScheduledTime.ToTimeSpan()).Minutes);
                                     _scheduleEstimateByKey[originDepartureKey] = new BusScheduleEstimate
                                     {
                                         Sequence = callingPoint.Sequence,

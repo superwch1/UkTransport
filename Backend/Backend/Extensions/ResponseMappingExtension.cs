@@ -66,8 +66,7 @@ namespace Backend.Extensions
                 if (!busStopById.TryGetValue(busCallingPoint.BusStopId, out Stop? busStop) || busStop is null)
                     continue;
 
-                TimeOnly? scheduledTime = busCallingPoint.ArrivalTime ?? busCallingPoint.DepartureTime;
-                if (busStop is null || scheduledTime is null)
+                if (busStop is null)
                     continue;
 
                 items.Add(new BusRouteItemResponse()
@@ -76,7 +75,7 @@ namespace Backend.Extensions
                     BusStopId = busCallingPoint.BusStopId,
                     Latitude = busStop.Latitude,
                     Longitude = busStop.Longitude,
-                    ScheduledTime = scheduledTime.Value
+                    ScheduledTime = busCallingPoint.ScheduledTime
                 });
             }
             return new BusRoutesResponse() { BusRoutes = items };

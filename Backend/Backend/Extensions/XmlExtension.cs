@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.IO.Compression;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Backend.Extensions
@@ -49,6 +50,7 @@ namespace Backend.Extensions
                 }
                 entryBuffered.Position = 0;
 
+                Console.WriteLine($"working on {entry.FullName}");
                 await ExtractXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
             }
         }
@@ -101,7 +103,6 @@ namespace Backend.Extensions
                 ? result
                 : null;
         }
-    
 
         public static decimal? ParseDecimal(this string? value)
         {
@@ -109,5 +110,14 @@ namespace Backend.Extensions
                 ? result
                 : null;
         }
+
+        public static TimeSpan ParseDuration(this string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return TimeSpan.Zero;
+
+            return XmlConvert.ToTimeSpan(value);
+        }
+
     }
 }

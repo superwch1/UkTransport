@@ -26,10 +26,10 @@ namespace Backend.Repositories
             BusTimetable? timetable = await _context.BusTimetables
                 .Include(x => x.BusCallingPoints)
                 .Where(x => originDepartureKey == x.OriginDepartureKey &&
-                            x.ValidFrom <= _timeService.UkNowDateOnly && x.ValidTo >= _timeService.UkNowDateOnly)
+                            x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .AsNoTracking()
-                .OrderByDescending(x => x.ValidFrom)
+                .OrderByDescending(x => x.StartDate)
                 .FirstOrDefaultAsync();
 
             if (timetable is null || timetable.BusCallingPoints is null)
@@ -45,11 +45,11 @@ namespace Backend.Repositories
             IReadOnlyList<BusTimetable> timetables = await _context.BusTimetables
                 .Include(x => x.BusCallingPoints)
                 .Where(x => originDepartureKeys.Contains(x.OriginDepartureKey) &&
-                            x.ValidFrom <= _timeService.UkNowDateOnly && x.ValidTo >= _timeService.UkNowDateOnly)
+                            x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .AsNoTracking()
                 .GroupBy(x => x.OriginDepartureKey)
-                .Select(x => x.OrderByDescending(x => x.ValidFrom).First())
+                .Select(x => x.OrderByDescending(x => x.StartDate).First())
                 .ToListAsync();
 
             if (timetables.Count == 0)
@@ -65,8 +65,7 @@ namespace Backend.Repositories
             IQueryable<BusCallingPoint> query = _context.BusCallingPoints
                 .Include(cp => cp.BusTimetable)
                 .Where(cp => cp.BusStopId == busStopId)
-                .Where(cp => (cp.DepartureTime != null && cp.DepartureTime >= nowTime) ||
-                             (cp.ArrivalTime != null && cp.ArrivalTime >= nowTime));
+                .Where(cp => (cp.ScheduledTime >= nowTime));
 
             // Timetables referenced by those calling points.
             IQueryable<BusTimetable> timetables = query
@@ -85,10 +84,9 @@ namespace Backend.Repositories
                 .ToDictionary(
                     g => g.Key,
                     g => g
-                        .Select(cp => cp.ArrivalTime ?? cp.DepartureTime)
+                        .Select(cp => cp.ScheduledTime)
                         .OrderBy(x => x)
-                        .First()!
-                        .Value
+                        .First()
                 );
         }
 
@@ -145,7 +143,7 @@ namespace Backend.Repositories
             DayOfWeek dayBeforeYesterday = now.AddDays(-2).DayOfWeek;
 
             return query.Where(t =>
-                (t.ArrivalDayOffset == 0 && (
+                (t.ScheduledDayOffset == 0 && (
                     (today == DayOfWeek.Monday && t.Monday) ||
                     (today == DayOfWeek.Tuesday && t.Tuesday) ||
                     (today == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -154,7 +152,7 @@ namespace Backend.Repositories
                     (today == DayOfWeek.Saturday && t.Saturday) ||
                     (today == DayOfWeek.Sunday && t.Sunday)
                 )) ||
-                (t.ArrivalDayOffset == 1 && (
+                (t.ScheduledDayOffset == 1 && (
                     (yesterday == DayOfWeek.Monday && t.Monday) ||
                     (yesterday == DayOfWeek.Tuesday && t.Tuesday) ||
                     (yesterday == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -163,7 +161,7 @@ namespace Backend.Repositories
                     (yesterday == DayOfWeek.Saturday && t.Saturday) ||
                     (yesterday == DayOfWeek.Sunday && t.Sunday)
                 )) ||
-                (t.ArrivalDayOffset == 2 && (
+                (t.ScheduledDayOffset == 2 && (
                     (dayBeforeYesterday == DayOfWeek.Monday && t.Monday) ||
                     (dayBeforeYesterday == DayOfWeek.Tuesday && t.Tuesday) ||
                     (dayBeforeYesterday == DayOfWeek.Wednesday && t.Wednesday) ||

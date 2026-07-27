@@ -22,10 +22,8 @@ namespace Backend.Models
         public required string LineName { get; init; }
         public required string OperatorRef { get; init; }
 
-        // A stop can have both, origin stop only have departure, destination stop only have arrival and rest have both
-        public TimeOnly? ArrivalTime { get; init; }
-        public TimeOnly? DepartureTime { get; init; }
+        public TimeOnly ScheduledTime { get; init; }
 
-        public int? ArrivalDayOffset { get; init; } // Day offset relative to the journey's first operating day (0-based).
+        public required int ScheduledDayOffset { get; init; } // Day offset relative to the journey's first operating day (0-based).
     }
 }

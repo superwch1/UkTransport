@@ -1,4 +1,6 @@
+/*using Backend.Enumerations;
 using Backend.Extensions;
+using Backend.Models;
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
@@ -35,12 +37,42 @@ foreach (XElement busOperator in operators.Elements())
 }
 
 
-// Journey Section
+// Line Section, Operating Profile Section and Journey Section 
+var lineById = new Dictionary<string, string>();
+var serviceById = new Dictionary<string, (DateOnly StartDate, DateOnly EndDate, HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)>();
 var journeyById = new Dictionary<string, (string SectionId, string direction, string origin, string destination)>();
+
 IEnumerable<XElement> services = root.Element(txc + "Services")?.Elements(txc + "Service") ?? throw new InvalidDataException("<Services> element not found.");
 
 foreach (XElement service in services)
 {
+    // Get line name
+    XElement lines = service.Element(txc + "Lines") ?? throw new InvalidDataException("<Lines> element not found.");
+    foreach (XElement line in lines.Elements(txc + "Line"))
+    {
+        string lineId = line.Attribute("id")?.Value ?? throw new InvalidDataException("Line 'id' attribute not found.");
+        string lineName = line.Value(txc, "LineName") ?? throw new InvalidDataException("<LineName> element not found.");
+
+        lineById[lineId] = lineName;
+    }
+
+    // Get operating profile (Start date, Day of Week, Holiday etc.)
+    string serviceCode = service.Value(txc, "ServiceCode") ?? throw new InvalidDataException("<ServiceCode> element not found.");
+    XElement? period = service.Element(txc + "OperatingPeriod");
+    DateOnly startDate = period.Value(txc, "StartDate").ParseDateOnly() ?? throw new InvalidDataException("<StartDate> element not found.");
+
+    // TODO change to use time provider
+    // some does not provide a end date
+    DateOnly endDate = period.Value(txc, "EndDate").ParseDateOnly() ?? DateOnly.FromDateTime(DateTime.Today.AddDays(180));
+    if (DateOnly.FromDateTime(DateTime.Now) > endDate)
+        continue;
+
+    XElement? operatingProfile = service.Element(txc + "OperatingProfile");
+    serviceById[serviceCode] = (startDate, endDate, ParseDaysOfWeek(operatingProfile), 
+        ParseBankHolidays(operatingProfile, "DaysOfOperation"), ParseBankHolidays(operatingProfile, "DaysOfNonOperation"));
+
+
+    // Get the journey
     XElement standardService = service.Element(txc + "StandardService") ?? throw new InvalidDataException("<StandardService> element not found.");
 
     string origin = standardService.Value(txc, "Origin") ?? throw new InvalidDataException("<Origin> element not found.");
@@ -58,24 +90,6 @@ foreach (XElement service in services)
             .FirstOrDefault() ?? throw new InvalidDataException("<JourneyPatternSectionRefs> element not found.");
 
         journeyById[journeyId] = (sectionId, direction, origin, destination);
-    }
-}
-
-
-
-// Line Section
-var lineById = new Dictionary<string, string>();
-
-foreach (XElement service in services)
-{
-    XElement lines = service.Element(txc + "Lines") ?? throw new InvalidDataException("<Lines> element not found.");
-
-    foreach (XElement line in lines.Elements(txc + "Line"))
-    {
-        string lineId = line.Attribute("id")?.Value ?? throw new InvalidDataException("Line 'id' attribute not found.");
-        string lineName = line.Value(txc, "LineName") ?? throw new InvalidDataException("<LineName> element not found.");
-
-        lineById[lineId] = lineName;
     }
 }
 
@@ -121,66 +135,83 @@ foreach (XElement journeyPatternSection in journeyPatternSections.Elements(txc +
 }
 
 
-
 // Vehicle Journey Section
 XElement vehicleJourneys = root.Element(txc + "VehicleJourneys") ?? throw new InvalidDataException("<VehicleJourneys> element not found.");
 
 foreach (XElement vehicleJourney in vehicleJourneys.Elements(txc + "VehicleJourney"))
 {
     string operatorId = vehicleJourney.Value(txc, "OperatorRef") ?? throw new InvalidDataException("<OperatorRef> element not found.");
-    string journeyId = vehicleJourney.Value(txc, "JourneyPatternRef") ?? throw new InvalidDataException("<JourneyPatternRef> element not found.");
-    string lineId = vehicleJourney.Value(txc, "LineRef") ?? throw new InvalidDataException("<LineRef> element not found.");
-
-    string departure = vehicleJourney.Value(txc, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
-    TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
-
     if (!operatordById.TryGetValue(operatorId, out (string NationalOperatorCode, string ShortName) busOperator))
         throw new InvalidDataException($"Operator Id not found {operatorId}");
 
+    string journeyId = vehicleJourney.Value(txc, "JourneyPatternRef") ?? throw new InvalidDataException("<JourneyPatternRef> element not found.");
     if (!journeyById.TryGetValue(journeyId, out (string SectionId, string direction, string origin, string destination) journey))
         throw new InvalidDataException($"Journey Id not found {journeyId}");
 
     if (!stopsBySectionId.TryGetValue(journey.SectionId, out List<(string StopId, int Sequence, double MinutesFromDeparture)>? stops))
         throw new InvalidDataException($"Section Id not found {journey.SectionId}");
 
+    string lineId = vehicleJourney.Value(txc, "LineRef") ?? throw new InvalidDataException("<LineRef> element not found.");
     if (!lineById.TryGetValue(lineId, out string? lineName) || lineName == null)
         throw new InvalidDataException($"Line Id not found {lineId}");
 
-    Console.WriteLine($"Operator: {busOperator.NationalOperatorCode} - {busOperator.ShortName}");
-    Console.WriteLine($"Origin: {journey.origin}, Destination: {journey.destination}, ({journey.direction})");
-    foreach(var stop in stops)
+    string serviceId = vehicleJourney.Value(txc, "ServiceRef") ?? throw new InvalidDataException("<ServiceRef> element not found.");
+    if (!serviceById.TryGetValue(serviceId, out (DateOnly StartDate, DateOnly EndDate, HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) service))
+        throw new InvalidDataException($"Service Id not found {serviceId}");
+
+    string departure = vehicleJourney.Value(txc, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
+    TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
+
+    string timetableId = Guid.NewGuid().ToString();
+    List<BusCallingPoint> busCallingPoints = [];
+    foreach (var stop in stops)
     {
         // A journey crossing midnight wraps the clock, so keep the day it lands on.
         TimeOnly arrivalTime = departureTime.AddMinutes(stop.MinutesFromDeparture, out int arrivalDayOffset);
-
-        Console.WriteLine($"bus stop Id: {stop.StopId} ({stop.Sequence}) - {arrivalTime} (+{arrivalDayOffset} day)");
+        busCallingPoints.Add(new BusCallingPoint()
+        {
+            BusTimetableId = timetableId,
+            Sequence = stop.Sequence,
+            BusStopId = stop.StopId,
+            LineName = lineName,
+            OperatorRef = busOperator.NationalOperatorCode,
+            ArrivalTime = arrivalTime,
+            ScheduledDayOffset = arrivalDayOffset
+        });
     }
+
+    if (busCallingPoints.Count <= 1)
+        throw new InvalidDataException($"Only have {busCallingPoints.Count} calling points");
+
+    BusCallingPoint firstCallingPoint = busCallingPoints[0];
+    BusCallingPoint lastCallingPoint = busCallingPoints[busCallingPoints.Count - 1];
+
+    BusTimetable timetable = new BusTimetable()
+    {
+        Id = timetableId,
+        OperatorRef = operatorId,
+        LineName = lineName,
+        OriginName = journey.origin,
+        DestinationName = journey.destination,
+        Direction = Backend.Enumerations.BankHoliday.Inbound, //journey.direction,
+        ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset.Value,
+        StartDate = service.StartDate,
+        EndDate = service.EndDate,
+        OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+        Monday = service.Days.Contains(DayOfWeek.Monday),
+        Tuesday = service.Days.Contains(DayOfWeek.Tuesday),
+        Wednesday = service.Days.Contains(DayOfWeek.Wednesday),
+        Thursday = service.Days.Contains(DayOfWeek.Thursday),
+        Friday = service.Days.Contains(DayOfWeek.Friday),
+        Saturday = service.Days.Contains(DayOfWeek.Saturday),
+        Sunday = service.Days.Contains(DayOfWeek.Sunday),
+        BusCallingPoints = busCallingPoints,
+        RunsOnBankHolidays = true,
+    };
+
+    Console.WriteLine($"Operator: {busOperator.NationalOperatorCode} - {busOperator.ShortName}");
+    Console.WriteLine($"Origin: {journey.origin}, Destination: {journey.destination}, ({journey.direction})");  
 }
-
-
-
-// Operating Profile Section
-var profileByServiceCode = new Dictionary<string, (HashSet<DayOfWeek> Days, HashSet<string> BankHolidaysOfOperation, HashSet<string> BankHolidaysOfNonOperation)>();
-
-foreach (XElement service in services)
-{
-    string serviceCode = service.Value(txc, "ServiceCode") ?? throw new InvalidDataException("<ServiceCode> element not found.");
-
-    // A VehicleJourney may carry its own OperatingProfile, which replaces this one wholesale.
-    XElement? operatingProfile = service.Element(txc + "OperatingProfile");
-
-    // Both sides can be present at once: runs on some holidays, not on others.
-    profileByServiceCode[serviceCode] = (
-        ParseDaysOfWeek(operatingProfile),
-        ParseBankHolidays(operatingProfile, "DaysOfOperation"),
-        ParseBankHolidays(operatingProfile, "DaysOfNonOperation"));
-
-    (HashSet<DayOfWeek> days, HashSet<string> alsoRunsOn, HashSet<string> doesNotRunOn) = profileByServiceCode[serviceCode];
-    Console.WriteLine($"Service {serviceCode} runs {string.Join(", ", days)}");
-    Console.WriteLine($"  also runs on: {string.Join(", ", alsoRunsOn)}");
-    Console.WriteLine($"  does not run on: {string.Join(", ", doesNotRunOn)}");
-}
-
 
 
 // <DaysOfWeek> holds one empty element per day, but grouped and negated forms are equally valid.
@@ -231,15 +262,15 @@ HashSet<DayOfWeek> ParseDaysOfWeek(XElement? operatingProfile)
 }
 
 
-HashSet<string> ParseBankHolidays(XElement? operatingProfile, string operation)
+BankHoliday ParseBankHolidays(XElement? operatingProfile, string operation)
 {
-    string[] christmasDays = ["ChristmasDay", "BoxingDay"];
-    string[] otherBankHolidayDays = ["GoodFriday", "NewYearsDay", "Jan2ndScotland", "StAndrewsDay"];
-    string[] holidayMondays = ["LateSummerBankHolidayNotScotland", "MayDay", "EasterMonday", "SpringBank", "AugustBankHolidayScotland"];
-    string[] displacementHolidays = ["ChristmasDayHoliday", "BoxingDayHoliday", "NewYearsDayHoliday", "Jan2ndScotlandHoliday", "StAndrewsDayHoliday"];
-    string[] earlyRunOffDays = ["ChristmasEve", "NewYearsEve"];
+    const BankHoliday christmasDays = BankHoliday.ChristmasDay | BankHoliday.BoxingDay;
+    const BankHoliday otherBankHolidayDays = BankHoliday.GoodFriday | BankHoliday.NewYearsDay | BankHoliday.Jan2ndScotland | BankHoliday.StAndrewsDay;
+    const BankHoliday holidayMondays = BankHoliday.LateSummerBankHolidayNotScotland | BankHoliday.MayDay | BankHoliday.EasterMonday | BankHoliday.SpringBank | BankHoliday.AugustBankHolidayScotland;
+    const BankHoliday displacementHolidays = BankHoliday.ChristmasDayHoliday | BankHoliday.BoxingDayHoliday | BankHoliday.NewYearsDayHoliday | BankHoliday.Jan2ndScotlandHoliday | BankHoliday.StAndrewsDayHoliday;
+    const BankHoliday earlyRunOffDays = BankHoliday.ChristmasEve | BankHoliday.NewYearsEve;
 
-    var bankHolidays = new HashSet<string>();
+    BankHoliday bankHolidays = BankHoliday.None;
 
     XElement? days = operatingProfile?.Element(txc + "BankHolidayOperation")?.Element(txc + operation);
     if (days is null)
@@ -250,39 +281,23 @@ HashSet<string> ParseBankHolidays(XElement? operatingProfile, string operation)
         switch (day.Name.LocalName)
         {
             // Umbrella tags standing in for a whole group of days.
-            case "AllBankHolidays":
-                bankHolidays.UnionWith(christmasDays);
-                bankHolidays.UnionWith(otherBankHolidayDays);
-                bankHolidays.UnionWith(holidayMondays);
-                bankHolidays.UnionWith(displacementHolidays);
-                break;
-            case "Christmas": bankHolidays.UnionWith(christmasDays); break;
-            case "AllHolidaysExceptChristmas":
-                bankHolidays.UnionWith(otherBankHolidayDays);
-                bankHolidays.UnionWith(holidayMondays);
-                break;
-            case "HolidayMondays": bankHolidays.UnionWith(holidayMondays); break;
-            case "DisplacementHolidays": bankHolidays.UnionWith(displacementHolidays); break;
-            case "EarlyRunOffDays": bankHolidays.UnionWith(earlyRunOffDays); break;
+            case "AllBankHolidays": bankHolidays |= christmasDays | otherBankHolidayDays | holidayMondays | displacementHolidays; break;
+            case "Christmas": bankHolidays |= christmasDays; break;
+            case "AllHolidaysExceptChristmas": bankHolidays |= otherBankHolidayDays | holidayMondays; break;
+            case "HolidayMondays": bankHolidays |= holidayMondays; break;
+            case "DisplacementHolidays": bankHolidays |= displacementHolidays; break;
+            case "EarlyRunOffDays": bankHolidays |= earlyRunOffDays; break;
 
-            // Not an empty element: it carries a Description and an optional Date.
+            // Carries a Description and an optional Date, so it has no place in a fixed enum.
             case "OtherPublicHoliday":
-                string description = day.Value(txc, "Description") ?? throw new InvalidDataException("<Description> element not found.");
-                string? date = day.Value(txc, "Date");
-                bankHolidays.Add(date is null ? description : $"{description} ({date})");
-                break;
+                throw new InvalidDataException($"<OtherPublicHoliday> is not supported: {day.Value(txc, "Description")}");
 
+            // The parse is the validation: anything outside the schema vocabulary fails here.
             default:
-                if (!christmasDays.Contains(day.Name.LocalName)
-                    && !otherBankHolidayDays.Contains(day.Name.LocalName)
-                    && !holidayMondays.Contains(day.Name.LocalName)
-                    && !displacementHolidays.Contains(day.Name.LocalName)
-                    && !earlyRunOffDays.Contains(day.Name.LocalName))
-                {
+                if (!Enum.TryParse(day.Name.LocalName, out BankHoliday holiday))
                     throw new InvalidDataException($"<{day.Name.LocalName}> is not a known bank holiday value.");
-                }
 
-                bankHolidays.Add(day.Name.LocalName);
+                bankHolidays |= holiday;
                 break;
         }
     }
@@ -290,10 +305,12 @@ HashSet<string> ParseBankHolidays(XElement? operatingProfile, string operation)
     return bankHolidays;
 }
 
+
 static IEnumerable<DayOfWeek> AllDaysExcept(params DayOfWeek[] excluded)
 {
     return Enum.GetValues<DayOfWeek>().Where(d => !excluded.Contains(d));
 }
+
 
 static TimeSpan ParseDuration(string? value)
 {
@@ -302,3 +319,4 @@ static TimeSpan ParseDuration(string? value)
 
     return XmlConvert.ToTimeSpan(value);
 }
+*/
