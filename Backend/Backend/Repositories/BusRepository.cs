@@ -126,10 +126,12 @@ namespace Backend.Repositories
         public async Task BulkInsertBusTimetables(IReadOnlyList<BusTimetable> busTimetables)
         {
             List<BusCallingPoint> callingPoints = busTimetables.SelectMany(x => x.BusCallingPoints ?? []).ToList();
+            List<BusSpecialDay> specialDays = busTimetables.SelectMany(x => x.BusSpecialDays ?? []).ToList();
 
             // since it use bulk insert, it does not also insert the records inside collection in bus timetable
             await _context.BulkInsertAsync(busTimetables.ToList());
             await _context.BulkInsertAsync(callingPoints);
+            await _context.BulkInsertAsync(specialDays);
         }
     }
 
@@ -146,7 +148,26 @@ namespace Backend.Repositories
             DayOfWeek yesterday = now.AddDays(-1).DayOfWeek;
             DayOfWeek dayBeforeYesterday = now.AddDays(-2).DayOfWeek;
 
+            // Special days are stated as the date the journey departs, so each offset is checked against the date
+            // that offset started on, exactly as the weekdays below are.
+            DateOnly todayDate = DateOnly.FromDateTime(now);
+            DateOnly yesterdayDate = todayDate.AddDays(-1);
+            DateOnly dayBeforeYesterdayDate = todayDate.AddDays(-2);
+
+            // Dates of non-operation outrank everything else: where they conflict with any other rule, including a
+            // date of operation, the journey is taken as not running.
+            query = query.Where(t => !t.BusSpecialDays!.Any(s => !s.IsOperating &&
+                ((t.ScheduledDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
+                 (t.ScheduledDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate) ||
+                 (t.ScheduledDayOffset == 2 && s.StartDate <= dayBeforeYesterdayDate && s.EndDate >= dayBeforeYesterdayDate))));
+
+            // Dates of operation are additive rather than a filter, and hold whatever weekday they land on, so they
+            // are ORed with the regular days instead of narrowing them.
             return query.Where(t =>
+                t.BusSpecialDays!.Any(s => s.IsOperating &&
+                    ((t.ScheduledDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
+                     (t.ScheduledDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate) ||
+                     (t.ScheduledDayOffset == 2 && s.StartDate <= dayBeforeYesterdayDate && s.EndDate >= dayBeforeYesterdayDate))) ||
                 (t.ScheduledDayOffset == 0 && (
                     (today == DayOfWeek.Monday && t.Monday) ||
                     (today == DayOfWeek.Tuesday && t.Tuesday) ||

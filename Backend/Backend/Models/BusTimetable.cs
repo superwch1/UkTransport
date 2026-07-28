@@ -48,6 +48,8 @@ namespace Backend.Models
         public required BankHoliday BankHolidaysOfNonOperation { get; init; }
 
         public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
+
+        public required IReadOnlyList<BusSpecialDay>? BusSpecialDays { get; init; }
     }
 
     public static class BusTimeTableExtension

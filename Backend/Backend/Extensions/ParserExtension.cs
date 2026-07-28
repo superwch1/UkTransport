@@ -180,14 +180,14 @@ namespace Backend.Extensions
 
 
             // Journey Pattern Section
-            var stopsBySectionId = new Dictionary<string, List<(string StopId, int Sequence, double MinutesFromDeparture)>>();
+            var stopsBySectionId = new Dictionary<string, List<SectionStop>>();
             XElement journeyPatternSections = root.Element(xmlNamespace + "JourneyPatternSections") ?? throw new InvalidDataException("<JourneyPatternSections> element not found.");
 
             foreach (XElement journeyPatternSection in journeyPatternSections.Elements(xmlNamespace + "JourneyPatternSection"))
             {
                 string sectionId = journeyPatternSection.AttributeValue("id") ?? throw new InvalidDataException("JourneyPatternSection 'id' attribute not found.");
 
-                var stops = new List<(string StopId, int Sequence, double MinutesFromDeparture)>();
+                var stops = new List<SectionStop>();
 
                 // Minutes are measured from the departure at the first stop of the section.
                 TimeSpan offsetFromDeparture = TimeSpan.Zero;
@@ -203,7 +203,7 @@ namespace Backend.Extensions
                     XElement from = timingLink.Element(xmlNamespace + "From") ?? throw new InvalidDataException("<From> element not found.");
                     string fromStopId = from.Value(xmlNamespace, "StopPointRef") ?? throw new InvalidDataException("<StopPointRef> element not found.");
 
-                    stops.Add((fromStopId, sequence, offsetFromDeparture.TotalMinutes));
+                    stops.Add(new SectionStop(fromStopId, sequence, offsetFromDeparture.TotalMinutes, IsPassedStop(from, xmlNamespace)));
 
                     // A wait at the current stop before moving to the next stop.
                     offsetFromDeparture += from.Value(xmlNamespace, "WaitTime").ParseDuration();
@@ -214,7 +214,7 @@ namespace Backend.Extensions
                 XElement lastTo = timingLinks[timingLinks.Count - 1].Element(xmlNamespace + "To") ?? throw new InvalidDataException("<To> element not found.");
                 string lastStopId = lastTo.Value(xmlNamespace, "StopPointRef") ?? throw new InvalidDataException("<StopPointRef> element not found.");
 
-                stops.Add((lastStopId, sequence, offsetFromDeparture.TotalMinutes));
+                stops.Add(new SectionStop(lastStopId, sequence, offsetFromDeparture.TotalMinutes, IsPassedStop(lastTo, xmlNamespace)));
 
                 stopsBySectionId[sectionId] = stops;
             }
@@ -226,6 +226,7 @@ namespace Backend.Extensions
             // A service- or pattern-level element is shared by many journeys, so each distinct element is parsed once.
             var daysByElement = new Dictionary<XElement, HashSet<DayOfWeek>>();
             var bankHolidaysByElement = new Dictionary<XElement, BankHoliday>();
+            var dateRangesByElement = new Dictionary<XElement, IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>>();
 
             foreach (XElement vehicleJourney in vehicleJourneys.Elements(xmlNamespace + "VehicleJourney"))
             {
@@ -258,10 +259,14 @@ namespace Backend.Extensions
                 XElement? regularDayType = profileLevels.Resolve(xmlNamespace, "RegularDayType");
                 XElement? holidaysOfOperation = profileLevels.Resolve(xmlNamespace, "BankHolidayOperation", "DaysOfOperation");
                 XElement? holidaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "BankHolidayOperation", "DaysOfNonOperation");
+                XElement? specialDaysOfOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfOperation");
+                XElement? specialDaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfNonOperation");
 
                 HashSet<DayOfWeek> days = ResolveDaysOfWeek(regularDayType, xmlNamespace, daysByElement);
                 BankHoliday bankHolidaysOfOperation = ResolveBankHolidays(holidaysOfOperation, xmlNamespace, logger, bankHolidaysByElement);
                 BankHoliday bankHolidaysOfNonOperation = ResolveBankHolidays(holidaysOfNonOperation, xmlNamespace, logger, bankHolidaysByElement);
+                IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> operatingDates = ResolveDateRanges(specialDaysOfOperation, xmlNamespace, dateRangesByElement);
+                IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> nonOperatingDates = ResolveDateRanges(specialDaysOfNonOperation, xmlNamespace, dateRangesByElement);
 
                 string departure = vehicleJourney.Value(xmlNamespace, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
                 TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
@@ -269,30 +274,49 @@ namespace Backend.Extensions
                 string timetableId = Guid.NewGuid().ToString();
                 List<BusCallingPoint> busCallingPoints = [];
 
+                List<BusSpecialDay> busSpecialDays =
+                [
+                    .. operatingDates.Select(x => new BusSpecialDay
+                    {
+                        BusTimetableId = timetableId,
+                        StartDate = x.StartDate,
+                        EndDate = x.EndDate,
+                        IsOperating = true
+                    }),
+                    .. nonOperatingDates.Select(x => new BusSpecialDay
+                    {
+                        BusTimetableId = timetableId,
+                        StartDate = x.StartDate,
+                        EndDate = x.EndDate,
+                        IsOperating = false
+                    }),
+                ];
+
                 // The pattern's sections stack on top of each other, each picking up where the previous one ended.
-                int sequenceOffset = 0;
+                bool isFirstSection = true;
                 double minutesOffset = 0;
 
                 // the nested for loop in section ids is written because a <JourneyPattern> can have multiple <JourneyPatternSectionRefs>
                 foreach (string sectionId in journey.SectionIds)
                 {
-                    if (!stopsBySectionId.TryGetValue(sectionId, out List<(string StopId, int Sequence, double MinutesFromDeparture)>? stops))
+                    if (!stopsBySectionId.TryGetValue(sectionId, out List<SectionStop>? stops))
                         throw new InvalidDataException($"Section Id not found {sectionId}");
 
-                    foreach ((string stopId, int sequence, double minutesFromDeparture) in stops)
+                    foreach (SectionStop stop in stops)
                     {
                         // A section's first stop is the previous section's last stop.
-                        if (busCallingPoints.Count > 0 && sequence == 1)
+                        if (!isFirstSection && stop.Sequence == 1)
                             continue;
 
-                        // A journey crossing midnight wraps the clock, so keep the day it lands on.
-                        TimeOnly scheduledTime = departureTime.AddMinutes(minutesFromDeparture + minutesOffset, out int scheduledDayOffset);
+                        TimeOnly scheduledTime = departureTime.AddMinutes(stop.MinutesFromDeparture + minutesOffset, out int scheduledDayOffset);
+                        if (stop.IsPassed)
+                            continue;
 
                         busCallingPoints.Add(new BusCallingPoint()
                         {
                             BusTimetableId = timetableId,
-                            Sequence = sequence + sequenceOffset,
-                            BusStopId = stopId,
+                            Sequence = busCallingPoints.Count + 1,
+                            BusStopId = stop.StopId,
                             LineName = lineName,
                             OperatorRef = busOperator.NationalOperatorCode,
                             ScheduledTime = scheduledTime,
@@ -300,10 +324,9 @@ namespace Backend.Extensions
                         });
                     }
 
-                    // The shared stop counts once, so the next section starts one short of the total.
-                    (string StopId, int Sequence, double MinutesFromDeparture) lastStop = stops[stops.Count - 1];
-                    sequenceOffset += lastStop.Sequence - 1;
-                    minutesOffset += lastStop.MinutesFromDeparture;
+                    // The next section starts its own clock at the stop this one ended on.
+                    minutesOffset += stops[stops.Count - 1].MinutesFromDeparture;
+                    isFirstSection = false;
                 }
 
                 if (busCallingPoints.Count <= 1)
@@ -334,10 +357,22 @@ namespace Backend.Extensions
                     BankHolidaysOfOperation = bankHolidaysOfOperation,
                     BankHolidaysOfNonOperation = bankHolidaysOfNonOperation,
                     BusCallingPoints = busCallingPoints,
+                    BusSpecialDays = busSpecialDays,
                 });
             }
 
             return busTimetables;
+        }
+
+
+        private sealed record SectionStop(string StopId, int Sequence, double MinutesFromDeparture, bool IsPassed);
+
+
+        // <Activity> is optional and defaults to pickUpAndSetDown, so only an explicit "pass" drops the stop.
+        private static bool IsPassedStop(XElement stopUsage, XNamespace xmlNamespace)
+        {
+            // Permitted values are pickUp, setDown, pickUpAndSetDown and pass.
+            return string.Equals(stopUsage.Value(xmlNamespace, "Activity"), "pass", StringComparison.OrdinalIgnoreCase);
         }
 
 
@@ -375,6 +410,21 @@ namespace Backend.Extensions
             return days;
         }
 
+        private static IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> ResolveDateRanges(XElement? dateRanges, XNamespace xmlNamespace, Dictionary<XElement, IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>> dateRangesByElement)
+        {
+            // can be null in here for special date operation since majority of bus lines does not have this
+            if (dateRanges is null)
+                return [];
+
+            if (!dateRangesByElement.TryGetValue(dateRanges, out IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>? ranges))
+            {
+                ranges = ParseDateRanges(dateRanges, xmlNamespace);
+                dateRangesByElement[dateRanges] = ranges;
+            }
+
+            return ranges;
+        }
+
         private static BankHoliday ResolveBankHolidays(XElement? bankHolidays, XNamespace xmlNamespace, ILogger logger, Dictionary<XElement, BankHoliday> bankHolidaysByElement)
         {
             if (bankHolidays is null)
@@ -387,6 +437,25 @@ namespace Backend.Extensions
             }
 
             return holidays;
+        }
+
+
+        private static IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> ParseDateRanges(XElement dateRanges, XNamespace xmlNamespace)
+        {
+            var ranges = new List<(DateOnly StartDate, DateOnly EndDate)>();
+
+            foreach (XElement dateRange in dateRanges.Elements(xmlNamespace + "DateRange"))
+            {
+                DateOnly? startDate = dateRange.Value(xmlNamespace, "StartDate").ParseDateOnly();
+                if (startDate is null)
+                    continue;
+
+                // Both ends are inclusive, and a range left open at the end covers its start day only.
+                DateOnly endDate = dateRange.Value(xmlNamespace, "EndDate").ParseDateOnly() ?? startDate.Value;
+                ranges.Add((startDate.Value, endDate));
+            }
+
+            return ranges;
         }
 
 

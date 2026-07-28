@@ -88,3 +88,46 @@ Bank holidays — 22 individual values plus 6 umbrella groups (AllBankHolidays, 
 20	FlexibleService	❌ throws, kills file	:161
 21	VehicleJourney/Direction override	❌ pattern only	:169
 22	Bank-holiday columns actually used	❌ stored, never queried	BusRepository.cs:138
+
+
+
+#6 — VehicleJourneyTimingLink is never read ❌
+This is the worst defect in the parser.
+
+What the spec says
+The override applies to timing links exactly as it does to profiles (§3.7, Figure 3-25):
+
+A VehicleJourneyTimingLink may override any common property it shares with a JourneyPatternTimingLink.
+
+§6.8.4.1 on RunTime: "Time taken to traverse link. Defaults to value specified for JourneyPatternTimingLink." Table 3-7 marks RunTime as R (required) at JourneyPattern level and O (optional, otherwise inherited) at VehicleJourney level. §3.7.2 says the same for wait times, resolved "through the VehicleJourneyTimingLink / JourneyPatternTimingLinkRef".
+
+Critically, PTI blesses an encoding style that depends entirely on this. §8.1 describes the two ways files are built in practice:
+
+There is a JourneyPattern, JourneyPatternSection and JourneyPatternTimingLink set for every different combination of link duration, wait time and stop activities…
+There is a single JourneyPattern, JourneyPatternSection and JourneyPatternTimingLink set for each direction, with each link duration and wait time set to zero minutes. This method uses the facilities in the vehicle journey to override the default zero-minute durations for each of the links.
+And §9.2: a VehicleJourney "may override the vehicle timings by providing a complete set of times over all of the links in a journey pattern in a set of VehicleJourneyTimingLink elements."
+
+What your code does
+ParserExtension.cs:182-220 builds stopsBySectionId exclusively from JourneyPatternTimingLink, and the vehicle journey loop at :277-307 looks up that precomputed list by section id. The string VehicleJourneyTimingLink does not appear anywhere in the file.
+
+The failure
+On a method-2 file, every RunTime is PT0M and every WaitTime is absent. So:
+
+every entry in stopsBySectionId gets offset 0
+every BusCallingPoint.ScheduledTime equals the journey's DepartureTime
+ScheduledDayOffset is 0 everywhere
+busCallingPoints.Count > 1, so the guard at :309 doesn't fire
+The import succeeds. Nothing is logged. OriginDepartureKey is still built correctly from the first/last stop and departure time, so the row even joins to live SIRI data — it just claims the bus reaches all forty stops simultaneously. GetBusStopTimetable would then report that time at every stop on the route.
+
+I checked all four sample XMLs in your repo and on the Desktop: zero occurrences of VehicleJourneyTimingLink. So this is entirely latent — it fires the first time a method-2 operator appears in the feed, and it fails silently when it does.
+
+What a fix involves
+Not a small patch, because it cuts against the current design. Today offsets are computed once per section and shared across all journeys using it. VehicleJourney-level timings are per journey, so they need a separate path:
+
+Index JourneyPatternTimingLink by @id — your files do carry them (jptl_1, JPS_36_1), and integrity rule I9 mandates document-wide uniqueness, which is what makes JourneyPatternTimingLinkRef resolvable.
+In the vehicle journey loop, if VehicleJourneyTimingLink children exist, build that journey's stop list from them instead of the cached section list.
+Per link, resolve RunTime as VJTL → referenced JPTL, and WaitTime as VJTL From → JPTL From.
+Take StopPointRef from the referenced JPTL, not the VJTL — PTI §9.4: "The From and To elements do not refer to the stop since this is inherited from the referenced journey pattern."
+PTI §9.4 also guarantees "there must be a one-to-one mapping between the links in a set of VehicleJourneyTimingLink element and the underlying JourneyPattern", so you can assume complete coverage rather than patching partial overrides — on conformant files.
+
+Rough size: an id index plus a second stop-list builder, call it 60–80 lines.

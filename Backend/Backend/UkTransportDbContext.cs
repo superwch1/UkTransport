@@ -8,5 +8,7 @@ namespace Backend
         public DbSet<BusTimetable> BusTimetables { get; set; }
 
         public DbSet<BusCallingPoint> BusCallingPoints { get; set; }
+
+        public DbSet<BusSpecialDay> BusSpecialDays { get; set; }
     }
 }
