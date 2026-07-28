@@ -1,0 +1,90 @@
+﻿using Azure;
+using System.Diagnostics;
+
+Part 1 — The rules, as written
+1.1 Override precedence (§3.18.5, Table 3 - 17)
+
+1 VehicleJourneyInterchange
+2 VehicleJourney
+3 JourneyPatternInterchange
+4 JourneyPattern
+5 Service
+Rule 1 (§3.18.5): "Elements specified for a given profile property at a lower level of discourse completely replace the equivalent element at a higher level."
+
+I need to correct what I told you last turn. The base spec overrides per property, not per whole element. Table 14-5 confirms it: the 33 date rules fall through individually, so a VehicleJourney that specifies RegularDayType but omits BankHolidayOperation still inherits the Service's BankHolidayOperation (rules Sx3/Sx4 are reached).
+
+But PTI §5.3.3.1 overrides this for BODS: a VehicleJourney must have "either (a) no OperatingProfile … or (b) a complete set of OperatingProfile elements which completely replace the default pattern", and §9.1: "complete sets of information shall be overridden, and the systems shall not rely on inheriting only parts of data elements." So your ?? chain is correct for BODS-conformant files and diverges only on legacy/non-conformant ones.
+
+1.2 Day resolution (§14.4, Table 14 - 5)
+Not a flag model — an ordered 33-rule include/exclude walk per date. Highest precedence first, grouped VehicleJourney → JourneyPattern → Service, and within each level:
+
+Order Rule	Effect
+1	Service/OperatingPeriod	                        bounds everything
+2	SpecialDaysOperation/DaysOfNonOperation	        exclude
+3	SpecialDaysOperation/DaysOfOperation	        include
+4	BankHolidayOperation/DaysOfNonOperation	        exclude
+5	BankHolidayOperation/DaysOfOperation	        include
+6	ServicedOrganisationDayType/DaysOfNonOperation	exclude
+7	ServicedOrganisationDayType/DaysOfOperation	    include
+8	ServicedOrganisation ancestors (ParentRef)	    exclude/include
+9	PeriodicDayType/WeekOfMonth	                    exclude
+10	RegularDayType/Days	                            include
+Plus the governing principles (§3.18.5): exceptional overrides regular; exclusion constrains, inclusion adds; non - operation always beats operation; PeriodicDayType and ServicedOrganisationDayType are logically ANDed with RegularDayType (§6.11.1).
+
+1.3 Defaults
+Situation	Spec default
+No OperatingProfile at any level	            Monday–Friday, every day of year (§6.11, Table 3 - 7)
+OperatingProfile present, no RegularDayType	    MondayToSunday (§6.11.1, §3.18.10.2a)
+VehicleJourney/OperatorRef absent	            inherit JourneyPattern → Service/RegisteredOperatorRef (Table 3-7, marked I = always inherited)
+VehicleJourney/Direction absent	                inherit JourneyPattern/Direction
+WaitTime absent	                                zero (§3.7.2.2)
+
+1.4 Timing (§3.7.2)
+
+Arrival(n)   = Departure(n-1) + RunTime(link n-1→n)
+Departure(n) = Arrival(n) + WaitTime
+Two things the schema guide gets wrong and PTI §8.4.3 corrects: "In TXC v2.4, this behaviour fundamentally changed. The schema guidance, unfortunately, did not reflect this… From version 2.4 onwards, the wait time was to be the total wait time and was to be stated identically on both the To element of the incoming link and the From element of the next, outgoing link." So in 2.4+ you take it once; the guide's "add both ends" formula is the pre-2.4 rule.
+
+VehicleJourneyTimingLink overrides JourneyPatternTimingLink for RunTime and WaitTime (§6.8.4.1, Table 3 - 7). PTI §8.1 explicitly blesses two encoding styles:
+
+…a JourneyPatternTimingLink set for every different combination of link duration, wait time and stop activities…
+…a single JourneyPattern…with each link duration and wait time set to zero minutes. This method uses the facilities in the vehicle journey to override the default zero-minute durations for each of the links.
+1.5 Journey linking (§6.8.1)
+VehicleJourney references its pattern by one of:
+
+JourneyPatternRef — normal case, or
+VehicleJourneyRef — "Reuse the VehicleJourneyTimingLink elements of the referenced VehicleJourney, and follow its JourneyPattern"
+Also: Activity ∈ {pickUp, setDown, pickUpAndSetDown, pass} — pass means the bus does not stop. DepartureDayShift ∈ {−1, 0, +1} shifts which operating day a journey belongs to. DeadRun/ShortWorking lets a journey start or end partway along its pattern. Frequency makes one VehicleJourney stand for many departures.
+
+1.6 Vocabulary (from the XSD, not memory)
+DaysOfWeek: Monday…Friday, Saturday, Sunday, MondayToFriday, MondayToSaturday, MondayToSunday, Weekend, NotMonday, NotTuesday, NotWednesday, NotThursday, NotFriday, NotSaturday. There is no NotSunday.
+
+Bank holidays — 22 individual values plus 6 umbrella groups (AllBankHolidays, Christmas, AllHolidaysExceptChristmas, HolidayMondays, DisplacementHolidays, EarlyRunOffDays) and OtherPublicHoliday. PTI §9.3.5: "grouping elements shall not be used, and all bank holidays shall be explicitly stated" — so BODS files use the individual names.
+
+
+
+
+
+#	Rule	Status	Where
+1	VJ → JP → Service profile precedence	✅ correct	ParserExtension.cs:252-254
+2	Per-property fallback (base spec)	⚠️ whole-element; correct under PTI	same
+3	DaysOfWeek vocabulary	✅ complete (NotSunday is dead code)	:362-406
+4	Umbrella bank-holiday groups	✅ correct mapping	:428-433
+5	Individual bank holidays	❌ silently dropped	:435-450
+6	VehicleJourneyTimingLink run/wait override	❌ not read at all	:196-220
+7	WaitTime = total, taken once (2.4 rule)	✅ correct	:209
+8	Multiple JourneyPatternSectionRefs	✅ correct	:270-300
+9	Activity = pass	❌ stop still emitted	:284
+10	SpecialDaysOperation (both directions)	❌ not modelled	schema
+11	ServicedOrganisationDayType	❌ not modelled	schema
+12	PeriodicDayType/WeekOfMonth	❌ not modelled	schema
+13	Non-operation beats operation	❌ no conflict resolution	—
+14	Default M–F when no profile	❌ yields zero days	:346-347
+15	VehicleJourneyRef alternative	❌ throws, kills file	:235
+16	OperatorRef inheritance	❌ throws, kills file	:231
+17	DepartureDayShift	❌ ignored	:258
+18	DeadRun / short working	❌ ignored	—
+19	Frequency journeys	❌ one departure only	—
+20	FlexibleService	❌ throws, kills file	:161
+21	VehicleJourney/Direction override	❌ pattern only	:169
+22	Bank-holiday columns actually used	❌ stored, never queried	BusRepository.cs:138

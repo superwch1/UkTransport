@@ -224,7 +224,8 @@ namespace Backend.Extensions
             XElement vehicleJourneys = root.Element(xmlNamespace + "VehicleJourneys") ?? throw new InvalidDataException("<VehicleJourneys> element not found.");
 
             // A service- or pattern-level element is shared by many journeys, so each distinct element is parsed once.
-            var profileByElement = new Dictionary<XElement, (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)>();
+            var daysByElement = new Dictionary<XElement, HashSet<DayOfWeek>>();
+            var bankHolidaysByElement = new Dictionary<XElement, BankHoliday>();
 
             foreach (XElement vehicleJourney in vehicleJourneys.Elements(xmlNamespace + "VehicleJourney"))
             {
@@ -247,12 +248,20 @@ namespace Backend.Extensions
                 if (DateOnly.FromDateTime(now) > service.EndDate)
                     continue;
 
-                // TransXChange resolves the operating profile most-specific-first: a vehicle journey replaces the journey patterns, which replaces the service's
-                XElement? operatingProfile = vehicleJourney.Element(xmlNamespace + "OperatingProfile")
-                    ?? journey.OperatingProfile
-                    ?? service.OperatingProfile;
+                // TransXChange resolves each profile property on its own, most-specific-first: the lowest level that states a property replaces it outright,
+                // and a level that omits one inherits it from above instead of blanking it. 
+                var profileLevels = new OperatingProfileLevels(
+                    vehicleJourney.Element(xmlNamespace + "OperatingProfile"),
+                    journey.OperatingProfile,
+                    service.OperatingProfile);
 
-                (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) profile = ResolveOperatingProfile(operatingProfile, xmlNamespace, profileByElement);
+                XElement? regularDayType = profileLevels.Resolve(xmlNamespace, "RegularDayType");
+                XElement? holidaysOfOperation = profileLevels.Resolve(xmlNamespace, "BankHolidayOperation", "DaysOfOperation");
+                XElement? holidaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "BankHolidayOperation", "DaysOfNonOperation");
+
+                HashSet<DayOfWeek> days = ResolveDaysOfWeek(regularDayType, xmlNamespace, daysByElement);
+                BankHoliday bankHolidaysOfOperation = ResolveBankHolidays(holidaysOfOperation, xmlNamespace, logger, bankHolidaysByElement);
+                BankHoliday bankHolidaysOfNonOperation = ResolveBankHolidays(holidaysOfNonOperation, xmlNamespace, logger, bankHolidaysByElement);
 
                 string departure = vehicleJourney.Value(xmlNamespace, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
                 TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
@@ -315,15 +324,15 @@ namespace Backend.Extensions
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
-                    Monday = profile.Days.Contains(DayOfWeek.Monday),
-                    Tuesday = profile.Days.Contains(DayOfWeek.Tuesday),
-                    Wednesday = profile.Days.Contains(DayOfWeek.Wednesday),
-                    Thursday = profile.Days.Contains(DayOfWeek.Thursday),
-                    Friday = profile.Days.Contains(DayOfWeek.Friday),
-                    Saturday = profile.Days.Contains(DayOfWeek.Saturday),
-                    Sunday = profile.Days.Contains(DayOfWeek.Sunday),
-                    BankHolidaysOfOperation = profile.BankHolidaysOfOperation,
-                    BankHolidaysOfNonOperation = profile.BankHolidaysOfNonOperation,
+                    Monday = days.Contains(DayOfWeek.Monday),
+                    Tuesday = days.Contains(DayOfWeek.Tuesday),
+                    Wednesday = days.Contains(DayOfWeek.Wednesday),
+                    Thursday = days.Contains(DayOfWeek.Thursday),
+                    Friday = days.Contains(DayOfWeek.Friday),
+                    Saturday = days.Contains(DayOfWeek.Saturday),
+                    Sunday = days.Contains(DayOfWeek.Sunday),
+                    BankHolidaysOfOperation = bankHolidaysOfOperation,
+                    BankHolidaysOfNonOperation = bankHolidaysOfNonOperation,
                     BusCallingPoints = busCallingPoints,
                 });
             }
@@ -331,43 +340,65 @@ namespace Backend.Extensions
             return busTimetables;
         }
 
-        /// <summary>
-        /// Parses the days and bank holiday rules out of a single resolved &lt;OperatingProfile&gt;, reusing the
-        /// result when the same element is shared by several vehicle journeys. A null element means the journey
-        /// carries no profile at any level, which leaves it running on no day at all.
-        /// </summary>
-        private static (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) ResolveOperatingProfile(
-            XElement? operatingProfile,
-            XNamespace xmlNamespace,
-            Dictionary<XElement, (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)> profileByElement)
+
+        private sealed record OperatingProfileLevels(XElement? VehicleJourney, XElement? JourneyPattern, XElement? Service)
         {
-            if (operatingProfile is null)
-                throw new InvalidDataException("<OperatingProfile> element not found.");
-
-            if (!profileByElement.TryGetValue(operatingProfile, out (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) profile))
+            public XElement? Resolve(XNamespace xmlNamespace, params string[] path)
             {
-                profile = (ParseDaysOfWeek(operatingProfile, xmlNamespace),
-                    ParseBankHolidays(operatingProfile, "DaysOfOperation", xmlNamespace),
-                    ParseBankHolidays(operatingProfile, "DaysOfNonOperation", xmlNamespace));
+                XElement? Find(XElement? operatingProfile)
+                {
+                    XElement? element = operatingProfile;
+                    foreach (string name in path)
+                    {
+                        element = element?.Element(xmlNamespace + name);
+                    }
 
-                profileByElement[operatingProfile] = profile;
+                    return element;
+                }
+
+                return Find(VehicleJourney) ?? Find(JourneyPattern) ?? Find(Service);
             }
-
-            return profile;
         }
 
 
-        private static HashSet<DayOfWeek> ParseDaysOfWeek(XElement? operatingProfile, XNamespace xmlNamespace)
+        private static HashSet<DayOfWeek> ResolveDaysOfWeek(XElement? regularDayType, XNamespace xmlNamespace, Dictionary<XElement, HashSet<DayOfWeek>> daysByElement)
+        {
+            if (regularDayType is null)
+                throw new InvalidDataException("<RegularDayType> element not found.");
+
+            if (!daysByElement.TryGetValue(regularDayType, out HashSet<DayOfWeek>? days))
+            {
+                days = ParseDaysOfWeek(regularDayType, xmlNamespace);
+                daysByElement[regularDayType] = days;
+            }
+
+            return days;
+        }
+
+        private static BankHoliday ResolveBankHolidays(XElement? bankHolidays, XNamespace xmlNamespace, ILogger logger, Dictionary<XElement, BankHoliday> bankHolidaysByElement)
+        {
+            if (bankHolidays is null)
+                return BankHoliday.None;
+
+            if (!bankHolidaysByElement.TryGetValue(bankHolidays, out BankHoliday holidays))
+            {
+                holidays = ParseBankHolidays(bankHolidays, xmlNamespace, logger);
+                bankHolidaysByElement[bankHolidays] = holidays;
+            }
+
+            return holidays;
+        }
+
+
+        private static HashSet<DayOfWeek> ParseDaysOfWeek(XElement regularDayType, XNamespace xmlNamespace)
         {
             var days = new HashSet<DayOfWeek>();
 
-            XElement? regularDayType = operatingProfile?.Element(xmlNamespace + "RegularDayType");
-
             // <HolidaysOnly/> means the journey never runs on a regular weekday.
-            if (regularDayType?.Element(xmlNamespace + "HolidaysOnly") is not null)
+            if (regularDayType.Element(xmlNamespace + "HolidaysOnly") is not null)
                 return days;
 
-            XElement? daysOfWeek = regularDayType?.Element(xmlNamespace + "DaysOfWeek");
+            XElement? daysOfWeek = regularDayType.Element(xmlNamespace + "DaysOfWeek");
             if (daysOfWeek is null)
                 return days;
 
@@ -404,7 +435,7 @@ namespace Backend.Extensions
         }
 
 
-        private static BankHoliday ParseBankHolidays(XElement? operatingProfile, string operation, XNamespace xmlNamespace)
+        private static BankHoliday ParseBankHolidays(XElement holidays, XNamespace xmlNamespace, ILogger logger)
         {
             const BankHoliday christmasDays = BankHoliday.ChristmasDay | BankHoliday.BoxingDay;
             const BankHoliday otherBankHolidayDays = BankHoliday.GoodFriday | BankHoliday.NewYearsDay | BankHoliday.Jan2ndScotland | BankHoliday.StAndrewsDay;
@@ -414,11 +445,7 @@ namespace Backend.Extensions
 
             BankHoliday bankHolidays = BankHoliday.None;
 
-            XElement? days = operatingProfile?.Element(xmlNamespace + "BankHolidayOperation")?.Element(xmlNamespace + operation);
-            if (days is null)
-                return bankHolidays;
-
-            foreach (XElement day in days.Elements())
+            foreach (XElement day in holidays.Elements())
             {
                 switch (day.Name.LocalName)
                 {
@@ -430,22 +457,27 @@ namespace Backend.Extensions
                     case "DisplacementHolidays": bankHolidays |= displacementHolidays; break;
                     case "EarlyRunOffDays": bankHolidays |= earlyRunOffDays; break;
 
-                    // ToDo, just skip holiday section for now there are way more holiday then default like 
-                    // <OtherPublicHoliday> is not supported: CoronationOfKingCharlesIII
-                    // <OtherPublicHoliday> is not a known bank holiday value.
-
-                    /*
-                    // Carries a Description and an optional Date, so it has no place in a fixed enum.
+                    // A one-off holiday such as CoronationOfKingCharlesIII, carrying a Description and an optional
+                    // Date, so it has no place in a fixed enum. Logged rather than dropped quietly, because the
+                    // name is the only clue the day was ever declared.
                     case "OtherPublicHoliday":
-                        throw new InvalidDataException($"<OtherPublicHoliday> is not supported: {day.Value(xmlNamespace, "Description")}");
+                        logger.LogWarning("Skipped unsupported <OtherPublicHoliday>: {Description}", day.Value(xmlNamespace, "Description"));
+                        break;
 
-                    // The parse is the validation: anything outside the schema vocabulary fails here.
+                    // Every remaining value in the schema names a single holiday, and each one matches a member of
+                    // BankHoliday exactly. The profile is skipped rather than rejected so one unrecognised day
+                    // cannot cost the whole document.
                     default:
-                        if (!Enum.TryParse(day.Name.LocalName, out BankHoliday holiday))
-                            throw new InvalidDataException($"<{day.Name.LocalName}> is not a known bank holiday value.");
+                        if (Enum.TryParse(day.Name.LocalName, out BankHoliday holiday))
+                        {
+                            bankHolidays |= holiday;
+                        }
+                        else
+                        {
+                            logger.LogWarning("Skipped <{BankHoliday}>, which is not a known bank holiday value.", day.Name.LocalName);
+                        }
 
-                        bankHolidays |= holiday;
-                        break;*/
+                        break;
                 }
             }
 
