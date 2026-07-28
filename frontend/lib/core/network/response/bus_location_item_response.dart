@@ -14,26 +14,33 @@ class BusLocationItemResponse {
   final String destinationRef;
   final String? destinationAimedArrivalTime;
 
+  final int estimatedScheduleOffset;
+
   final double latitude;
   final double longitude;
   final double bearing;
-  final int estimatedScheduleOffset;
 
   BusLocationItemResponse._({
     required this.originDepartureKey,
     required this.recordedAtTime,
+
     required this.operatorRef,
     required this.publishedLineName,
+
     required this.originName,
     required this.originRef,
     required this.originAimedDepartureTime,
+
     required this.destinationName,
     required this.destinationRef,
     required this.destinationAimedArrivalTime,
+
+    required this.estimatedScheduleOffset,
+
     required this.latitude,
     required this.longitude,
     required this.bearing,
-    required this.estimatedScheduleOffset
+    
   });
 
   factory BusLocationItemResponse.fromJson(Map<String, dynamic> json) {
@@ -48,10 +55,10 @@ class BusLocationItemResponse {
       destinationName: json['destinationName'] as String,
       destinationRef: json['destinationRef'] as String,
       destinationAimedArrivalTime: json['destinationAimedArrivalTime'] as String?,
+      estimatedScheduleOffset: (json['estimatedScheduleOffset'] as num).toInt(),
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       bearing: (json['bearing'] as num).toDouble(),
-      estimatedScheduleOffset: (json['estimatedScheduleOffset'] as num).toInt(),
     );
   }
 }

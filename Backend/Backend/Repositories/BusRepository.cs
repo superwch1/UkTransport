@@ -21,6 +21,8 @@ namespace Backend.Repositories
 
         public async Task<IReadOnlyList<BusCallingPoint>> GetBusRoute(string originDepartureKey)
         {
+            Console.WriteLine(originDepartureKey);
+
             // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
             BusTimetable? timetable = await _context.BusTimetables
@@ -30,10 +32,12 @@ namespace Backend.Repositories
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .AsNoTracking()
                 .OrderByDescending(x => x.StartDate)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();   
 
             if (timetable is null || timetable.BusCallingPoints is null)
                 return [];
+
+            Console.WriteLine($"{timetable.Id}, {timetable.OperatorRef}, {timetable.OriginDepartureKey}");
 
             return timetable.BusCallingPoints;
         }

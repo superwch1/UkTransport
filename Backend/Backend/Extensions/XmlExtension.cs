@@ -61,10 +61,6 @@ namespace Backend.Extensions
                 : value.Trim();
         }
 
-        /// <summary>
-        /// Reads an attribute, trimmed. Ids are matched against element values read by
-        /// <see cref="Value"/>, so both sides have to be trimmed the same way.
-        /// </summary>
         public static string? AttributeValue(this XElement? element, string attributeName)
         {
             string? value = element?.Attribute(attributeName)?.Value;

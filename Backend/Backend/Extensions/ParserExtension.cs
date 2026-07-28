@@ -126,10 +126,10 @@ namespace Backend.Extensions
             }
 
 
-            // Line Section, Operating Profile Section and Journey Section 
+            // Line Section, Operating Profile Section and Journey Section
             var lineById = new Dictionary<string, string>();
-            var serviceById = new Dictionary<string, (DateOnly StartDate, DateOnly EndDate, HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)>();
-            var journeyById = new Dictionary<string, (IReadOnlyList<string> SectionId, string direction, string origin, string destination)>();
+            var serviceById = new Dictionary<string, (DateOnly StartDate, DateOnly EndDate, XElement? OperatingProfile)>();
+            var journeyById = new Dictionary<string, (IReadOnlyList<string> SectionId, string direction, string origin, string destination, XElement? OperatingProfile)>();
 
             IEnumerable<XElement> services = root.Element(xmlNamespace + "Services")?.Elements(xmlNamespace + "Service") ?? throw new InvalidDataException("<Services> element not found.");
 
@@ -145,7 +145,7 @@ namespace Backend.Extensions
                     lineById[lineId] = lineName;
                 }
 
-                // Get operating profile (Start date, Day of Week, Holiday etc.)
+                // Get operating period and profile (Start date and End date etc)
                 string serviceCode = service.Value(xmlNamespace, "ServiceCode") ?? throw new InvalidDataException("<ServiceCode> element not found.");
                 XElement? period = service.Element(xmlNamespace + "OperatingPeriod");
                 DateOnly startDate = period.Value(xmlNamespace, "StartDate").ParseDateOnly() ?? throw new InvalidDataException("<StartDate> element not found.");
@@ -153,9 +153,8 @@ namespace Backend.Extensions
                 // some does not provide a end date, and even the end date can be before now, if it continue early then the journey cannot be added to timetable
                 DateOnly endDate = period.Value(xmlNamespace, "EndDate").ParseDateOnly() ?? DateOnly.FromDateTime(now.AddDays(180));
 
-                XElement? operatingProfile = service.Element(xmlNamespace + "OperatingProfile");
-                serviceById[serviceCode] = (startDate, endDate, ParseDaysOfWeek(operatingProfile, xmlNamespace),
-                    ParseBankHolidays(operatingProfile, "DaysOfOperation", xmlNamespace), ParseBankHolidays(operatingProfile, "DaysOfNonOperation", xmlNamespace));
+                // The profile is carried unparsed because a profile in vehicle journey may replace it
+                serviceById[serviceCode] = (startDate, endDate, service.Element(xmlNamespace + "OperatingProfile"));
 
 
                 // Get the journey
@@ -174,7 +173,7 @@ namespace Backend.Extensions
                         .Select(r => r.Value.Trim())
                         .ToList();
 
-                    journeyById[journeyId] = (sectionIds, direction, origin, destination);
+                    journeyById[journeyId] = (sectionIds, direction, origin, destination, journeyPattern.Element(xmlNamespace + "OperatingProfile"));
                 }
             }
 
@@ -224,6 +223,9 @@ namespace Backend.Extensions
             // Vehicle Journey Section
             XElement vehicleJourneys = root.Element(xmlNamespace + "VehicleJourneys") ?? throw new InvalidDataException("<VehicleJourneys> element not found.");
 
+            // A service- or pattern-level element is shared by many journeys, so each distinct element is parsed once.
+            var profileByElement = new Dictionary<XElement, (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)>();
+
             foreach (XElement vehicleJourney in vehicleJourneys.Elements(xmlNamespace + "VehicleJourney"))
             {
                 string operatorId = vehicleJourney.Value(xmlNamespace, "OperatorRef") ?? throw new InvalidDataException("<OperatorRef> element not found.");
@@ -231,7 +233,7 @@ namespace Backend.Extensions
                     throw new InvalidDataException($"Operator Id not found {operatorId}");
 
                 string journeyId = vehicleJourney.Value(xmlNamespace, "JourneyPatternRef") ?? throw new InvalidDataException("<JourneyPatternRef> element not found.");
-                if (!journeyById.TryGetValue(journeyId, out (IReadOnlyList<string> SectionIds, string direction, string origin, string destination) journey))
+                if (!journeyById.TryGetValue(journeyId, out (IReadOnlyList<string> SectionIds, string direction, string origin, string destination, XElement? OperatingProfile) journey))
                     throw new InvalidDataException($"Journey Id not found {journeyId}");
 
                 string lineId = vehicleJourney.Value(xmlNamespace, "LineRef") ?? throw new InvalidDataException("<LineRef> element not found.");
@@ -239,11 +241,18 @@ namespace Backend.Extensions
                     throw new InvalidDataException($"Line Id not found {lineId}");
 
                 string serviceId = vehicleJourney.Value(xmlNamespace, "ServiceRef") ?? throw new InvalidDataException("<ServiceRef> element not found.");
-                if (!serviceById.TryGetValue(serviceId, out (DateOnly StartDate, DateOnly EndDate, HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) service))
+                if (!serviceById.TryGetValue(serviceId, out (DateOnly StartDate, DateOnly EndDate, XElement? OperatingProfile) service))
                     throw new InvalidDataException($"Service Id not found {serviceId}");
 
                 if (DateOnly.FromDateTime(now) > service.EndDate)
                     continue;
+
+                // TransXChange resolves the operating profile most-specific-first: a vehicle journey replaces the journey patterns, which replaces the service's
+                XElement? operatingProfile = vehicleJourney.Element(xmlNamespace + "OperatingProfile")
+                    ?? journey.OperatingProfile
+                    ?? service.OperatingProfile;
+
+                (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) profile = ResolveOperatingProfile(operatingProfile, xmlNamespace, profileByElement);
 
                 string departure = vehicleJourney.Value(xmlNamespace, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
                 TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
@@ -251,8 +260,7 @@ namespace Backend.Extensions
                 string timetableId = Guid.NewGuid().ToString();
                 List<BusCallingPoint> busCallingPoints = [];
 
-                // The pattern's sections stack on top of each other, each picking up where the
-                // previous one ended.
+                // The pattern's sections stack on top of each other, each picking up where the previous one ended.
                 int sequenceOffset = 0;
                 double minutesOffset = 0;
 
@@ -307,21 +315,47 @@ namespace Backend.Extensions
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
-                    Monday = service.Days.Contains(DayOfWeek.Monday),
-                    Tuesday = service.Days.Contains(DayOfWeek.Tuesday),
-                    Wednesday = service.Days.Contains(DayOfWeek.Wednesday),
-                    Thursday = service.Days.Contains(DayOfWeek.Thursday),
-                    Friday = service.Days.Contains(DayOfWeek.Friday),
-                    Saturday = service.Days.Contains(DayOfWeek.Saturday),
-                    Sunday = service.Days.Contains(DayOfWeek.Sunday),
-                    BankHolidaysOfOperation = service.BankHolidaysOfOperation,
-                    BankHolidaysOfNonOperation = service.BankHolidaysOfNonOperation,
+                    Monday = profile.Days.Contains(DayOfWeek.Monday),
+                    Tuesday = profile.Days.Contains(DayOfWeek.Tuesday),
+                    Wednesday = profile.Days.Contains(DayOfWeek.Wednesday),
+                    Thursday = profile.Days.Contains(DayOfWeek.Thursday),
+                    Friday = profile.Days.Contains(DayOfWeek.Friday),
+                    Saturday = profile.Days.Contains(DayOfWeek.Saturday),
+                    Sunday = profile.Days.Contains(DayOfWeek.Sunday),
+                    BankHolidaysOfOperation = profile.BankHolidaysOfOperation,
+                    BankHolidaysOfNonOperation = profile.BankHolidaysOfNonOperation,
                     BusCallingPoints = busCallingPoints,
                 });
             }
 
             return busTimetables;
         }
+
+        /// <summary>
+        /// Parses the days and bank holiday rules out of a single resolved &lt;OperatingProfile&gt;, reusing the
+        /// result when the same element is shared by several vehicle journeys. A null element means the journey
+        /// carries no profile at any level, which leaves it running on no day at all.
+        /// </summary>
+        private static (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) ResolveOperatingProfile(
+            XElement? operatingProfile,
+            XNamespace xmlNamespace,
+            Dictionary<XElement, (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation)> profileByElement)
+        {
+            if (operatingProfile is null)
+                throw new InvalidDataException("<OperatingProfile> element not found.");
+
+            if (!profileByElement.TryGetValue(operatingProfile, out (HashSet<DayOfWeek> Days, BankHoliday BankHolidaysOfOperation, BankHoliday BankHolidaysOfNonOperation) profile))
+            {
+                profile = (ParseDaysOfWeek(operatingProfile, xmlNamespace),
+                    ParseBankHolidays(operatingProfile, "DaysOfOperation", xmlNamespace),
+                    ParseBankHolidays(operatingProfile, "DaysOfNonOperation", xmlNamespace));
+
+                profileByElement[operatingProfile] = profile;
+            }
+
+            return profile;
+        }
+
 
         private static HashSet<DayOfWeek> ParseDaysOfWeek(XElement? operatingProfile, XNamespace xmlNamespace)
         {

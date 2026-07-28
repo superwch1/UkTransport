@@ -1,7 +1,6 @@
 ﻿using Backend.Extensions;
 using Backend.Models;
 using Backend.Repositories;
-using System.Data;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
@@ -10,8 +9,6 @@ namespace Backend.Services
 {
     public class BusTimetableImportService : BackgroundService
     {
-        private static readonly string LogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "log.txt");
-
         private const string DatasetApiUrl = "https://data.bus-data.dft.gov.uk/api/v1/dataset/";
         private const string DownloadUrlFormat = "https://data.bus-data.dft.gov.uk/timetable/dataset/{0}/download/";
         private static readonly XNamespace _transXChangeNamespace = "http://www.transxchange.org.uk/";
