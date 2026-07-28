@@ -227,6 +227,7 @@ namespace Backend.Extensions
             var daysByElement = new Dictionary<XElement, HashSet<DayOfWeek>>();
             var bankHolidaysByElement = new Dictionary<XElement, BankHoliday>();
             var dateRangesByElement = new Dictionary<XElement, IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>>();
+            var weeksByElement = new Dictionary<XElement, WeekOfMonth>();
 
             foreach (XElement vehicleJourney in vehicleJourneys.Elements(xmlNamespace + "VehicleJourney"))
             {
@@ -261,8 +262,10 @@ namespace Backend.Extensions
                 XElement? holidaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "BankHolidayOperation", "DaysOfNonOperation");
                 XElement? specialDaysOfOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfOperation");
                 XElement? specialDaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfNonOperation");
+                XElement? periodicDayType = profileLevels.Resolve(xmlNamespace, "PeriodicDayType");
 
                 HashSet<DayOfWeek> days = ResolveDaysOfWeek(regularDayType, xmlNamespace, daysByElement);
+                WeekOfMonth weeksOfMonth = ResolveWeeksOfMonth(periodicDayType, xmlNamespace, logger, weeksByElement);
                 BankHoliday bankHolidaysOfOperation = ResolveBankHolidays(holidaysOfOperation, xmlNamespace, logger, bankHolidaysByElement);
                 BankHoliday bankHolidaysOfNonOperation = ResolveBankHolidays(holidaysOfNonOperation, xmlNamespace, logger, bankHolidaysByElement);
                 IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> operatingDates = ResolveDateRanges(specialDaysOfOperation, xmlNamespace, dateRangesByElement);
@@ -347,6 +350,7 @@ namespace Backend.Extensions
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),
                     Wednesday = days.Contains(DayOfWeek.Wednesday),
@@ -410,6 +414,21 @@ namespace Backend.Extensions
             return days;
         }
 
+        private static WeekOfMonth ResolveWeeksOfMonth(XElement? periodicDayType, XNamespace xmlNamespace, ILogger logger, Dictionary<XElement, WeekOfMonth> weeksByElement)
+        {
+            // can be null here for bus running some specific week on a month since majority of bus does not have this
+            if (periodicDayType is null)
+                return WeekOfMonth.None;
+
+            if (!weeksByElement.TryGetValue(periodicDayType, out WeekOfMonth weeks))
+            {
+                weeks = ParseWeeksOfMonth(periodicDayType, xmlNamespace, logger);
+                weeksByElement[periodicDayType] = weeks;
+            }
+
+            return weeks;
+        }
+
         private static IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> ResolveDateRanges(XElement? dateRanges, XNamespace xmlNamespace, Dictionary<XElement, IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>> dateRangesByElement)
         {
             // can be null in here for special date operation since majority of bus lines does not have this
@@ -437,6 +456,38 @@ namespace Backend.Extensions
             }
 
             return holidays;
+        }
+
+
+        // <WeekNumber> is an enumeration rather than a number, so the digits the schema guide describes are not
+        // accepted: with a flags enum "3" would read as first-and-second rather than third.
+        private static WeekOfMonth ParseWeeksOfMonth(XElement periodicDayType, XNamespace xmlNamespace, ILogger logger)
+        {
+            WeekOfMonth weeks = WeekOfMonth.None;
+
+            foreach (XElement weekOfMonth in periodicDayType.Elements(xmlNamespace + "WeekOfMonth"))
+            {
+                foreach (XElement weekNumber in weekOfMonth.Elements(xmlNamespace + "WeekNumber"))
+                {
+                    switch (weekNumber.Value.Trim().ToLowerInvariant())
+                    {
+                        case "first": weeks |= WeekOfMonth.First; break;
+                        case "second": weeks |= WeekOfMonth.Second; break;
+                        case "third": weeks |= WeekOfMonth.Third; break;
+                        case "fourth": weeks |= WeekOfMonth.Fourth; break;
+                        case "fifth": weeks |= WeekOfMonth.Fifth; break;
+                        case "last": weeks |= WeekOfMonth.Last; break;
+
+                        // Skipped rather than rejected, so one odd value cannot cost the whole document. The
+                        // journey then keeps its regular days unnarrowed, which is the safer way to be wrong.
+                        default:
+                            logger.LogWarning("Skipped <{WeekNumber}>, which is not a known WeekNumber value.", weekNumber.Value.Trim());
+                            break;
+                    }
+                }
+            }
+
+            return weeks;
         }
 
 

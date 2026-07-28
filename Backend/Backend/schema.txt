@@ -131,3 +131,26 @@ Take StopPointRef from the referenced JPTL, not the VJTL — PTI §9.4: "The Fro
 PTI §9.4 also guarantees "there must be a one-to-one mapping between the links in a set of VehicleJourneyTimingLink element and the underlying JourneyPattern", so you can assume complete coverage rather than patching partial overrides — on conformant files.
 
 Rough size: an id index plus a second stop-list builder, call it 60–80 lines.
+
+
+#11 — ServicedOrganisationDayType not modelled ❌
+Spec
+§6.11.1: "Specifies that the service runs or does not run on the working days or holidays of a nominated organisation such as a school or Local Education Authority. ServicedOrganisationDayType is ANDed with RegularDayType and any PeriodicDayType values."
+
+The organisation itself is declared once at document level (§6.12) with an OrganisationCode, Name and WorkingDays date ranges, and journeys reference it by code.
+
+PTI §9.3.6 explains the intended encoding, which is what makes this tractable:
+
+serviced organisation dates restrict (are logically ANDed with) the days of the week provided in the RegularDayType element. So, for schools… this pattern can be stated as the regular days of operation. The dates provided for the serviced organisation then list the range of dates during which those Mondays to Fridays apply.
+
+Two PTI simplifications worth banking:
+
+"only WorkingDays shall be defined, and all other days that are not WorkingDays shall be assumed to be holidays" — Holidays must not be used. Term-time journeys are DaysOfOperation/WorkingDays; holiday-only journeys are DaysOfNonOperation/WorkingDays.
+ParentServicedOrganisationRef is "Not used" in PTI — so Table 14-5's ancestor rules (rows 9/10, 19/20, 30/31) don't apply to BODS data at all. That removes the recursive part of the algorithm.
+Your code
+The document-level <ServicedOrganisations> collection is never read, and ServicedOrganisationDayType never resolved.
+
+Impact
+Over-reporting, and this is the most common real-world instance of the gap. A school bus coded RegularDayType Mon–Fri + ServicedOrganisationDayType/DaysOfOperation/WorkingDays (term ranges) imports as "runs every weekday, all year". Through August you'd advertise school services that don't exist.
+
+None of your four samples use it, but it's widespread across the wider BODS feed — PTI §3.1 calls it "strongly recommended".

@@ -43,6 +43,9 @@ namespace Backend.Models
         public required bool Saturday { get; init; }
         public required bool Sunday { get; init; }
 
+        // Narrows the days above to certain weeks of the month. None for almost every journey.
+        public required WeekOfMonth WeeksOfMonth { get; init; }
+
         public required BankHoliday BankHolidaysOfOperation { get; init; }
 
         public required BankHoliday BankHolidaysOfNonOperation { get; init; }

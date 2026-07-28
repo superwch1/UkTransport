@@ -1,4 +1,5 @@
-﻿using Backend.Models;
+﻿using Backend.Enumerations;
+using Backend.Models;
 using Backend.Services;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -137,6 +138,27 @@ namespace Backend.Repositories
 
     public static class BusRepositoryExtension
     {
+        // A date falls in the nth occurrence of its own weekday, so days 1-7 are the first week, 8-14 the second,
+        // and so on. The last occurrence is flagged as well, since the last Friday of a month is also its fourth
+        // or fifth Friday and a journey may be stated either way.
+        private static WeekOfMonth GetWeekOfMonth(DateOnly date)
+        {
+            WeekOfMonth week = ((date.Day - 1) / 7) switch
+            {
+                0 => WeekOfMonth.First,
+                1 => WeekOfMonth.Second,
+                2 => WeekOfMonth.Third,
+                3 => WeekOfMonth.Fourth,
+                _ => WeekOfMonth.Fifth,
+            };
+
+            if (date.Day + 7 > DateTime.DaysInMonth(date.Year, date.Month))
+                week |= WeekOfMonth.Last;
+
+            return week;
+        }
+
+
         public static IQueryable<BusTimetable> ApplyDayFilter(this IQueryable<BusTimetable> query, DateTime now, bool isHoliday)
         {
             // Build one candidate query per scenario, each pairing a specific
@@ -154,6 +176,12 @@ namespace Backend.Repositories
             DateOnly yesterdayDate = todayDate.AddDays(-1);
             DateOnly dayBeforeYesterdayDate = todayDate.AddDays(-2);
 
+            // Which weeks of the month those dates fall in, worked out here so the database only has to compare
+            // the stored flags against a constant.
+            WeekOfMonth todayWeek = GetWeekOfMonth(todayDate);
+            WeekOfMonth yesterdayWeek = GetWeekOfMonth(yesterdayDate);
+            WeekOfMonth dayBeforeYesterdayWeek = GetWeekOfMonth(dayBeforeYesterdayDate);
+
             // Dates of non-operation outrank everything else: where they conflict with any other rule, including a
             // date of operation, the journey is taken as not running.
             query = query.Where(t => !t.BusSpecialDays!.Any(s => !s.IsOperating &&
@@ -168,7 +196,7 @@ namespace Backend.Repositories
                     ((t.ScheduledDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
                      (t.ScheduledDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate) ||
                      (t.ScheduledDayOffset == 2 && s.StartDate <= dayBeforeYesterdayDate && s.EndDate >= dayBeforeYesterdayDate))) ||
-                (t.ScheduledDayOffset == 0 && (
+                (t.ScheduledDayOffset == 0 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & todayWeek) != 0) && (
                     (today == DayOfWeek.Monday && t.Monday) ||
                     (today == DayOfWeek.Tuesday && t.Tuesday) ||
                     (today == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -177,7 +205,7 @@ namespace Backend.Repositories
                     (today == DayOfWeek.Saturday && t.Saturday) ||
                     (today == DayOfWeek.Sunday && t.Sunday)
                 )) ||
-                (t.ScheduledDayOffset == 1 && (
+                (t.ScheduledDayOffset == 1 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & yesterdayWeek) != 0) && (
                     (yesterday == DayOfWeek.Monday && t.Monday) ||
                     (yesterday == DayOfWeek.Tuesday && t.Tuesday) ||
                     (yesterday == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -186,7 +214,7 @@ namespace Backend.Repositories
                     (yesterday == DayOfWeek.Saturday && t.Saturday) ||
                     (yesterday == DayOfWeek.Sunday && t.Sunday)
                 )) ||
-                (t.ScheduledDayOffset == 2 && (
+                (t.ScheduledDayOffset == 2 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & dayBeforeYesterdayWeek) != 0) && (
                     (dayBeforeYesterday == DayOfWeek.Monday && t.Monday) ||
                     (dayBeforeYesterday == DayOfWeek.Tuesday && t.Tuesday) ||
                     (dayBeforeYesterday == DayOfWeek.Wednesday && t.Wednesday) ||
