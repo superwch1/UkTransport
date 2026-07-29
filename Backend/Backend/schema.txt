@@ -154,3 +154,62 @@ Impact
 Over-reporting, and this is the most common real-world instance of the gap. A school bus coded RegularDayType Mon–Fri + ServicedOrganisationDayType/DaysOfOperation/WorkingDays (term ranges) imports as "runs every weekday, all year". Through August you'd advertise school services that don't exist.
 
 None of your four samples use it, but it's widespread across the wider BODS feed — PTI §3.1 calls it "strongly recommended".
+
+
+#15 — VehicleJourneyRef kills the document ❌ (recap)
+ParserExtension.cs:241 throws when JourneyPatternRef is absent, but §6.8.1 gives a VehicleJourney two valid ways to find its pattern, and PTI §9.2 confirms it "shall have either a JourneyPatternRef … or a VehicleJourneyRef." Valid data, total file loss.
+
+PTI makes the inheritance total: "all the details of the referenced VehicleJourney, including operating profile, timings, vehicle types, etc. shall be inherited and not overridden" — only DepartureTime and the real-time operational elements stay local. Fix is an index of journeys by VehicleJourneyCode, a hop to the target for pattern/profile/line/service, and a depth guard (rule X1 forbids self-reference but not A→B→C chains). Independent of #6 for method-1 files.
+
+
+
+#16 — OperatorRef and NationalOperatorCode throws ❌
+Two separate throws, both fatal to the whole document, both on elements that aren't actually mandatory.
+
+VehicleJourney/OperatorRef — :237
+Table 3-7 classifies each property as Required [R], optional-but-inherited [O], or always-inherited [I]. OperatorRef is R at Service, (R) at JourneyPattern, I at VehicleJourney, with the Default Value column giving Service / RegisteredOperator.
+
+So a VehicleJourney omitting it should walk up to the JourneyPattern's OperatorRef, then to Service/RegisteredOperatorRef. Your samples happen to state it at all three levels, so you haven't hit it — the HIPK file carries tkt_oid on the VehicleJourney, the JourneyPattern and as RegisteredOperatorRef. A file that states it only where the schema requires it dies.
+
+Operator/NationalOperatorCode — :115
+This one has a datable cause. PTI v1.1 §2 says "NationalOperatorCode is mandatory" — and the tracked-changes markup on that line reads "Deleted: not required". It was optional in PTI v1.0 and was made mandatory in v1.1 (Aug 2020).
+
+So any file predating v1.1, or any non-PTI TransXChange, may legitimately omit it — and your parser rejects the entire document over one absent element. Note the existing code already works hard to be forgiving about operator identity a few lines down, registering the id, the NOC and OperatorCode as lookup keys because "sometimes <id> in operator does not match with <OperatorRef>". The strictness at line 115 sits oddly against that tolerance.
+
+Fix shape
+Both are small. For OperatorRef, fall back through JourneyPattern → Service/RegisteredOperatorRef before throwing. For NationalOperatorCode, fall back to OperatorCode or the id and log — BusCallingPoint.OperatorRef at :333 just needs a stable operator identifier, not specifically a NOC.
+
+
+#18 — DeadRun and short working ignored ❌
+I under-sold this one originally. It's worse than "wrong origin stop".
+
+Spec
+§6.8.3.1: a DeadRun is "a positioning run at the start or end of a journey; it is used to place a vehicle in position to start the service, or to retrieve it at the end." ShortWorking marks where a dead run intercepts the pattern, and §3.7.1.2 defines the consequence: "Short Working: a vehicle journey that follows a journey pattern but omits one or more stops at one or other end of the journey."
+
+PTI expects them — StartDeadRun and EndDeadRun are both "Where appropriate, shall be included".
+
+The part I missed
+PTI §9.7.2 redefines what DepartureTime even means when a dead run is present:
+
+for the avoidance of doubt, TXC-PTI defines the DepartureTime of a VehicleJourney as either:
+a) the departure time from the first stop on the VehicleJourney, where there is no StartDeadRun; or
+b) the departure time of the StartDeadRun, where there is a StartDeadRun.
+
+So with a StartDeadRun, DepartureTime is when the bus leaves the garage — not when it reaches its first passenger stop. Your code treats DepartureTime as the time at calling point one and adds offsets from there, so every stop time on such a journey is early by the whole dead-run duration. That's not a wrong endpoint; that's every published time wrong on that journey.
+
+Three compounding failures
+Extra stops. The full pattern is emitted, including stops before the interception point that the bus passes empty.
+All times shifted. Per §9.7.2(b), by the dead-run length.
+The live join breaks. OriginDepartureKey is departureTime + firstStopId + lastStopId. On a short working, all three components are wrong — wrong time, wrong first stop, wrong last stop. The SIRI feed reports the actual origin and destination, so the key never matches and the journey never joins to live data at all.
+Fix shape
+Bigger than #17, smaller than #6. Read StartDeadRun/EndDeadRun, use ShortWorking/JourneyPatternTimingLinkRef to find the interception link, trim the calling points outside it, and re-base the offsets so the first real calling point is at DepartureTime + dead-run RunTime. It needs the JourneyPatternTimingLink id index that #6 also needs — so if you do #6, do this alongside it.
+
+
+[00:10:18 INF] DatasetId (5340) - Bus timetables import takes 0.2417992s
+[00:10:18 ERR] Fail to extract xml stream from 5460
+System.IO.InvalidDataException: <OperatorCode> element not found.
+   at Backend.Extensions.ParserExtension.ParseBusTimetable(Stream stream, XNamespace xmlNamespace, DateTime now, ILogger logger, CancellationToken cancellationToken) in C:\Users\wchjo\Desktop\UkTransport\Backend\Backend\Extensions\ParserExtension.cs:line 116
+   at Backend.Services.BusTimetableImportService.<ExtractAndUpdateTimetable>b__15_0(Stream xmlStream, CancellationToken cancellationToken) in C:\Users\wchjo\Desktop\UkTransport\Backend\Backend\Services\BusTimetableImportService.cs:line 138
+   at Backend.Extensions.XmlExtension.ExtractXmlStreamsAsync(Stream stream, Func`3 processXmlStream, CancellationToken cancellationToken) in C:\Users\wchjo\Desktop\UkTransport\Backend\Backend\Extensions\XmlExtension.cs:line 26
+   at Backend.Extensions.XmlExtension.ExtractXmlStreamsAsync(Stream stream, Func`3 processXmlStream, CancellationToken cancellationToken) in C:\Users\wchjo\Desktop\UkTransport\Backend\Backend\Extensions\XmlExtension.cs:line 52
+   at Backend.Services.BusTimetableImportService.ExtractAndUpdateTimetable(HttpResponseMessage response, Int32 datasetId, CancellationToken cancellationToken) in C:\Users\wchjo\Desktop\UkTransport\Backend\Backend\Services\BusTimetableImportService.cs:line 132

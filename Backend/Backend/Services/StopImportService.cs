@@ -95,7 +95,7 @@ namespace Backend.Services
                         busStops[id] = new Stop()
                         {
                             Id = id,
-                            CommonName = csv.GetField("CommonName")?.Trim() ?? "",
+                            Name = csv.GetField("CommonName")?.Trim() ?? "",
                             Bearing = bearing,
                             Latitude = latitude,
                             Longitude = longitude,

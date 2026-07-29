@@ -6,7 +6,7 @@ namespace Backend.Models
     {
         public required string Id { get; init; }
 
-        public required string CommonName { get; init; }
+        public required string Name { get; init; }
 
         public required int Bearing { get; init; }
 

@@ -65,10 +65,10 @@ namespace Backend.Extensions
                     if (latitude is null || longitude is null)
                         continue;
 
-                    string originDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(originAimedDepartureTime.Value, originRef, destinationRef);
-                    busLocations[originDepartureKey] = new BusLocation
+                    string tripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(originAimedDepartureTime.Value, originRef, destinationRef);
+                    busLocations[tripScheduleKey] = new BusLocation
                     {
-                        OriginDepartureKey = originDepartureKey,
+                        TripScheduleKey = tripScheduleKey,
                         RecordedAtTime = recordedAtTime.Value,
 
                         OperatorRef = operatorRef,
@@ -106,23 +106,20 @@ namespace Backend.Extensions
             XElement root = document.Root ?? throw new InvalidDataException("Empty TransXChange document.");
 
             // Operators section
-            var operatordById = new Dictionary<string, (string NationalOperatorCode, string ShortName)>();
+            var operatordById = new Dictionary<string, (string NationalOperatorCode, string Name)>();
             XElement operators = root.Element(xmlNamespace + "Operators") ?? throw new InvalidDataException("<Operators> element not found.");
 
             foreach (XElement busOperator in operators.Elements())
             {
                 string operatorId = busOperator.AttributeValue("id") ?? throw new InvalidDataException("<id> element not found.");
                 string nationalOperatorCode = busOperator.Value(xmlNamespace, "NationalOperatorCode") ?? throw new InvalidDataException("<NationalOperatorCode> element not found.");
+                // some of the operator does not provide a operator code in the xml file
                 string operatorShortName = busOperator.Value(xmlNamespace, "OperatorShortName") ?? throw new InvalidDataException("<OperatorShortName> element not found.");
 
                 // sometimes <id> in operator does not match with <OperatorRef> in <vehicleJourney>
                 // the solution will be applying both operatorId and nationalOperatorCode to hope for at least one match
                 operatordById[operatorId] = (nationalOperatorCode, operatorShortName);
-                operatordById[nationalOperatorCode] = (nationalOperatorCode, operatorShortName);
-
-                string? operatorCode = busOperator.Value(xmlNamespace, "OperatorCode");
-                if (operatorCode is not null)
-                    operatordById[operatorCode] = (nationalOperatorCode, operatorShortName);
+                operatordById[nationalOperatorCode] = (nationalOperatorCode,  operatorShortName);
             }
 
 
@@ -229,10 +226,13 @@ namespace Backend.Extensions
             var dateRangesByElement = new Dictionary<XElement, IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)>>();
             var weeksByElement = new Dictionary<XElement, WeekOfMonth>();
 
+            // Falling back to the default days is worth knowing about, but only once for the whole document.
+            bool warnedMissingRegularDayType = false;
+
             foreach (XElement vehicleJourney in vehicleJourneys.Elements(xmlNamespace + "VehicleJourney"))
             {
                 string operatorId = vehicleJourney.Value(xmlNamespace, "OperatorRef") ?? throw new InvalidDataException("<OperatorRef> element not found.");
-                if (!operatordById.TryGetValue(operatorId, out (string NationalOperatorCode, string ShortName) busOperator))
+                if (!operatordById.TryGetValue(operatorId, out (string NationalOperatorCode, string Name) busOperator))
                     throw new InvalidDataException($"Operator Id not found {operatorId}");
 
                 string journeyId = vehicleJourney.Value(xmlNamespace, "JourneyPatternRef") ?? throw new InvalidDataException("<JourneyPatternRef> element not found.");
@@ -263,6 +263,12 @@ namespace Backend.Extensions
                 XElement? specialDaysOfOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfOperation");
                 XElement? specialDaysOfNonOperation = profileLevels.Resolve(xmlNamespace, "SpecialDaysOperation", "DaysOfNonOperation");
                 XElement? periodicDayType = profileLevels.Resolve(xmlNamespace, "PeriodicDayType");
+
+                if (regularDayType is null && !warnedMissingRegularDayType)
+                {
+                    logger.LogWarning("No <RegularDayType> at any level, defaulting journeys to Monday to Friday.");
+                    warnedMissingRegularDayType = true;
+                }
 
                 HashSet<DayOfWeek> days = ResolveDaysOfWeek(regularDayType, xmlNamespace, daysByElement);
                 WeekOfMonth weeksOfMonth = ResolveWeeksOfMonth(periodicDayType, xmlNamespace, logger, weeksByElement);
@@ -341,7 +347,8 @@ namespace Backend.Extensions
                 busTimetables.Add(new BusTimetable()
                 {
                     Id = timetableId,
-                    OperatorRef = operatorId,
+                    NationalOperatorRef = busOperator.NationalOperatorCode,
+                    OperatorName = busOperator.Name,
                     LineName = lineName,
                     OriginName = journey.origin,
                     DestinationName = journey.destination,
@@ -349,7 +356,7 @@ namespace Backend.Extensions
                     ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
-                    OriginDepartureKey = BusTimeTableExtension.CreateOriginDepartureKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    TripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                     WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),
@@ -402,8 +409,9 @@ namespace Backend.Extensions
 
         private static HashSet<DayOfWeek> ResolveDaysOfWeek(XElement? regularDayType, XNamespace xmlNamespace, Dictionary<XElement, HashSet<DayOfWeek>> daysByElement)
         {
+            // No level states one, so the schema's own default stands in: Monday to Friday, every week of the year.
             if (regularDayType is null)
-                throw new InvalidDataException("<RegularDayType> element not found.");
+                return [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday];
 
             if (!daysByElement.TryGetValue(regularDayType, out HashSet<DayOfWeek>? days))
             {
@@ -581,7 +589,7 @@ namespace Backend.Extensions
                     // Date, so it has no place in a fixed enum. Logged rather than dropped quietly, because the
                     // name is the only clue the day was ever declared.
                     case "OtherPublicHoliday":
-                        logger.LogWarning("Skipped unsupported <OtherPublicHoliday>: {Description}", day.Value(xmlNamespace, "Description"));
+                        // logger.LogWarning("Skipped unsupported <OtherPublicHoliday>: {Description}", day.Value(xmlNamespace, "Description"));
                         break;
 
                     // Every remaining value in the schema names a single holiday, and each one matches a member of

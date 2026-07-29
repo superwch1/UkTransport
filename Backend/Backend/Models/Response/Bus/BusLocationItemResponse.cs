@@ -2,7 +2,7 @@
 {
     public record BusLocationItemResponse : IResponse
     {
-        public required string OriginDepartureKey { get; init; }
+        public required string TripScheduleKey { get; init; }
         public required DateTime RecordedAtTime { get; init; }
 
         public required string OperatorRef { get; init; }

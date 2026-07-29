@@ -5,14 +5,16 @@ using System.ComponentModel.DataAnnotations;
 namespace Backend.Models
 {
     [Index(nameof(LineName))]
-    [Index(nameof(OperatorRef))]
-    [Index(nameof(OriginDepartureKey))]
+    [Index(nameof(NationalOperatorRef))]
+    [Index(nameof(TripScheduleKey))]
     public record BusTimetable
     {
         [Key]
         public required string Id { get; init; }
 
-        public required string OperatorRef { get; init; }
+        public required string NationalOperatorRef { get; init; }
+        public required string OperatorName { get; init; }
+
         public required string LineName { get; init; }     
 
         public required string OriginName { get; init; }
@@ -30,7 +32,7 @@ namespace Backend.Models
 
         // no need line name since there can be changed
         // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string OriginDepartureKey { get; init; }
+        public required string TripScheduleKey { get; init; }
 
 
         // Days this journey runs. (don't change to flag since it is faster per column read instead of reading bit flags)
@@ -57,7 +59,7 @@ namespace Backend.Models
 
     public static class BusTimeTableExtension
     {
-        public static string CreateOriginDepartureKey(TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
+        public static string BuildTripScheduleKey(TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
         {
             return $"{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
         }

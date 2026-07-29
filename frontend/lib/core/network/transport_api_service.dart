@@ -17,9 +17,9 @@ class TransportApiService extends ApiService {
       fromJson: BusLocationsResponse.fromJson);
   }
 
-  Future<ApiResponse<BusLocationItemResponse?>> getBusLocation(String originDepartureKey) async { 
+  Future<ApiResponse<BusLocationItemResponse?>> getBusLocation(String tripScheduleKey) async { 
     return await super.sendRequest(
-      HttpMethod.get, "transport/bus/$originDepartureKey/location", 
+      HttpMethod.get, "transport/bus/$tripScheduleKey/location", 
       fromJson: BusLocationItemResponse.fromJson);
   }
 
@@ -32,9 +32,9 @@ class TransportApiService extends ApiService {
       fromJson: BusStopsResponse.fromJson);
   }
 
-  Future<ApiResponse<BusRoutesResponse>> getBusRoute(String originDepartureKey) async { 
+  Future<ApiResponse<BusRoutesResponse>> getBusRoute(String tripScheduleKey) async { 
     return await super.sendRequest(
-      HttpMethod.get, "transport/bus/$originDepartureKey/route", 
+      HttpMethod.get, "transport/bus/$tripScheduleKey/route", 
       fromJson: BusRoutesResponse.fromJson);
   }
 }

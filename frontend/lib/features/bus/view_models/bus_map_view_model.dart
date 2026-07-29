@@ -97,19 +97,19 @@ class BusMapViewModel {
       return;
     }
 
-    String? originDepartureKey = props['originDepartureKey'] as String?;
+    String? tripScheduleKey = props['tripScheduleKey'] as String?;
     final source = map?['source'];   
     if (source == _busLocationSourceId) {
-      final busLocation = _busLocations.where((bus) => bus.originDepartureKey == originDepartureKey).firstOrNull;
+      final busLocation = _busLocations.where((bus) => bus.tripScheduleKey == tripScheduleKey).firstOrNull;
       if (busLocation == null) {
         return;
       }
 
-      _busLocations = _busLocations.where((bus) => bus.originDepartureKey == originDepartureKey).toList();
+      _busLocations = _busLocations.where((bus) => bus.tripScheduleKey == tripScheduleKey).toList();
       selectedBusLocationNotifier.value = busLocation;
       _busStops = [];
 
-      final response = await transportApiService.getBusRoute(busLocation.originDepartureKey);
+      final response = await transportApiService.getBusRoute(busLocation.tripScheduleKey);
       if (response.statusCode == StatusCode.ok && response.data != null) {
         _busRoutes = response.data!.busRoutes;
       } 
@@ -169,7 +169,7 @@ class BusMapViewModel {
     // If a bus is selected, refresh only that bus's location
     final selectedBus = selectedBusLocationNotifier.value;
     if (selectedBus != null) {
-      final response = await transportApiService.getBusLocation(selectedBus.originDepartureKey);
+      final response = await transportApiService.getBusLocation(selectedBus.tripScheduleKey);
       if (response.statusCode == StatusCode.ok && response.data != null) {
         _busLocations = [ response.data! ];
         selectedBusLocationNotifier.value = response.data!;
@@ -265,7 +265,7 @@ class BusMapViewModel {
             'coordinates': [busLocation.longitude, busLocation.latitude],
           },
           'properties': {
-            'originDepartureKey': busLocation.originDepartureKey,
+            'tripScheduleKey': busLocation.tripScheduleKey,
             'lineName': busLocation.publishedLineName,
             'bearing': busLocation.bearing
           },

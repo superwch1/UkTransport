@@ -44,8 +44,7 @@ try
         }, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(10)); // refresh every 30 minutes (success) and 10 minutes (fail)      
     }
     NpgsqlDataSource dataSource = dataSourceBuilder.Build();
-    builder.Services.AddDbContext<UkTransportDbContext>(options => options.UseNpgsql(dataSource, npgsql =>
-            npgsql.CommandTimeout(300)));
+    builder.Services.AddDbContext<UkTransportDbContext>(options => options.UseNpgsql(dataSource, npgsql => npgsql.CommandTimeout(300))); // long time for bulk upload
 
     builder.Services.AddHostedService<StopImportService>();
     builder.Services.AddHostedService<BusLocationTrackingService>();

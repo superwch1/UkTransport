@@ -17,7 +17,8 @@ namespace Backend.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    OperatorRef = table.Column<string>(type: "text", nullable: false),
+                    NationalOperatorRef = table.Column<string>(type: "text", nullable: false),
+                    OperatorName = table.Column<string>(type: "text", nullable: false),
                     LineName = table.Column<string>(type: "text", nullable: false),
                     OriginName = table.Column<string>(type: "text", nullable: false),
                     DestinationName = table.Column<string>(type: "text", nullable: false),
@@ -25,7 +26,7 @@ namespace Backend.Migrations
                     ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    OriginDepartureKey = table.Column<string>(type: "text", nullable: false),
+                    TripScheduleKey = table.Column<string>(type: "text", nullable: false),
                     Monday = table.Column<bool>(type: "boolean", nullable: false),
                     Tuesday = table.Column<bool>(type: "boolean", nullable: false),
                     Wednesday = table.Column<bool>(type: "boolean", nullable: false),
@@ -33,6 +34,7 @@ namespace Backend.Migrations
                     Friday = table.Column<bool>(type: "boolean", nullable: false),
                     Saturday = table.Column<bool>(type: "boolean", nullable: false),
                     Sunday = table.Column<bool>(type: "boolean", nullable: false),
+                    WeeksOfMonth = table.Column<int>(type: "integer", nullable: false),
                     BankHolidaysOfOperation = table.Column<int>(type: "integer", nullable: false),
                     BankHolidaysOfNonOperation = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -66,6 +68,28 @@ namespace Backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BusSpecialDays",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BusTimetableId = table.Column<string>(type: "text", nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    IsOperating = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BusSpecialDays", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BusSpecialDays_BusTimetables_BusTimetableId",
+                        column: x => x.BusTimetableId,
+                        principalTable: "BusTimetables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_BusCallingPoints_BusStopId",
                 table: "BusCallingPoints",
@@ -77,19 +101,24 @@ namespace Backend.Migrations
                 column: "BusTimetableId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BusSpecialDays_BusTimetableId",
+                table: "BusSpecialDays",
+                column: "BusTimetableId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BusTimetables_LineName",
                 table: "BusTimetables",
                 column: "LineName");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusTimetables_OperatorRef",
+                name: "IX_BusTimetables_NationalOperatorRef",
                 table: "BusTimetables",
-                column: "OperatorRef");
+                column: "NationalOperatorRef");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusTimetables_OriginDepartureKey",
+                name: "IX_BusTimetables_TripScheduleKey",
                 table: "BusTimetables",
-                column: "OriginDepartureKey");
+                column: "TripScheduleKey");
         }
 
         /// <inheritdoc />
@@ -97,6 +126,9 @@ namespace Backend.Migrations
         {
             migrationBuilder.DropTable(
                 name: "BusCallingPoints");
+
+            migrationBuilder.DropTable(
+                name: "BusSpecialDays");
 
             migrationBuilder.DropTable(
                 name: "BusTimetables");

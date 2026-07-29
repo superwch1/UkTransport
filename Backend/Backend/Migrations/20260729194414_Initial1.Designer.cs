@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260727235102_Initial1")]
+    [Migration("20260729194414_Initial1")]
     partial class Initial1
     {
         /// <inheritdoc />
@@ -67,6 +67,34 @@ namespace Backend.Migrations
                     b.ToTable("BusCallingPoints");
                 });
 
+            modelBuilder.Entity("Backend.Models.BusSpecialDay", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BusTimetableId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsOperating")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusTimetableId");
+
+                    b.ToTable("BusSpecialDays");
+                });
+
             modelBuilder.Entity("Backend.Models.BusTimetable", b =>
                 {
                     b.Property<string>("Id")
@@ -99,11 +127,11 @@ namespace Backend.Migrations
                     b.Property<bool>("Monday")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("OperatorRef")
+                    b.Property<string>("NationalOperatorRef")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginDepartureKey")
+                    b.Property<string>("OperatorName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -126,19 +154,26 @@ namespace Backend.Migrations
                     b.Property<bool>("Thursday")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("TripScheduleKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("Tuesday")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("Wednesday")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("WeeksOfMonth")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LineName");
 
-                    b.HasIndex("OperatorRef");
+                    b.HasIndex("NationalOperatorRef");
 
-                    b.HasIndex("OriginDepartureKey");
+                    b.HasIndex("TripScheduleKey");
 
                     b.ToTable("BusTimetables");
                 });
@@ -154,9 +189,22 @@ namespace Backend.Migrations
                     b.Navigation("BusTimetable");
                 });
 
+            modelBuilder.Entity("Backend.Models.BusSpecialDay", b =>
+                {
+                    b.HasOne("Backend.Models.BusTimetable", "BusTimetable")
+                        .WithMany("BusSpecialDays")
+                        .HasForeignKey("BusTimetableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusTimetable");
+                });
+
             modelBuilder.Entity("Backend.Models.BusTimetable", b =>
                 {
                     b.Navigation("BusCallingPoints");
+
+                    b.Navigation("BusSpecialDays");
                 });
 #pragma warning restore 612, 618
         }

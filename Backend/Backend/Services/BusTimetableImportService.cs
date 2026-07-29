@@ -56,9 +56,32 @@ namespace Backend.Services
                         cancellationToken.ThrowIfCancellationRequested(); 
 
                         using HttpResponseMessage response = await DownloadDataset(datasetId, cancellationToken);
-                        await ExtractAndUpdateTimetable(response, datasetId, cancellationToken);
+                        try
+                        {
+                            using MemoryStream stream = new MemoryStream();
+                            using (Stream source = await response.Content.ReadAsStreamAsync(cancellationToken))
+                            {
+                                await source.CopyToAsync(stream, cancellationToken);
+                            }
+                            stream.Position = 0;
 
-                        _logger.LogInformation("DatasetId ({DatasetId}) - Bus timetables import takes {Elapsed}s", datasetId, stopwatch.Elapsed.TotalSeconds);
+                            await stream.ExtractXmlStreamsAsync(
+                                async (xmlStream, cancellationToken) =>
+                                {
+                                    using IServiceScope scope = _scopeFactory.CreateScope();
+                                    BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+
+                                    IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, _timeService.UkNowDateTime, _logger, cancellationToken);
+                                    await busRepository.BulkInsertBusTimetables(busTimetables);
+                                },
+                                cancellationToken
+                            );
+                            _logger.LogInformation("DatasetId ({DatasetId}) - Bus timetables import takes {Elapsed}s", datasetId, stopwatch.Elapsed.TotalSeconds);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Fail to extract xml stream from {DatasetId}", datasetId);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -116,35 +139,6 @@ namespace Backend.Services
             response.EnsureSuccessStatusCode();
 
             return response;
-        }
-
-        private async Task ExtractAndUpdateTimetable(HttpResponseMessage response, int datasetId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                using MemoryStream stream = new MemoryStream();
-                using (Stream source = await response.Content.ReadAsStreamAsync(cancellationToken))
-                {
-                    await source.CopyToAsync(stream, cancellationToken);
-                }
-                stream.Position = 0;
-
-                await stream.ExtractXmlStreamsAsync(
-                    async (xmlStream, cancellationToken) =>
-                    {
-                        using var scope = _scopeFactory.CreateScope();
-                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
-
-                        IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, _timeService.UkNowDateTime, _logger, cancellationToken);
-                        await busRepository.BulkInsertBusTimetables(busTimetables);
-                    },
-                    cancellationToken
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fail to extract xml stream from {DatasetId}", datasetId);
-            }
         }
     }
 }

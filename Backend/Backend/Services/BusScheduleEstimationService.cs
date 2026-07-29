@@ -40,10 +40,31 @@ namespace Backend.Services
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        var busRouteByKey = await busRepository.GetBusRoutes(batch.Select(x => x.OriginDepartureKey));
-                        foreach ((string originDepartureKey, IReadOnlyList<BusCallingPoint> callingPoints) in busRouteByKey)
+                        var busRouteByKey = await busRepository.GetBusRoutes(batch.Select(x => x.TripScheduleKey));
+
+                        Dictionary<string, List<BusLocation>> abc = [];
+                        foreach((string key, BusLocation busLocation) in busLocationByKey)
                         {
-                            if (!busLocationByKey.TryGetValue(originDepartureKey, out BusLocation? busLocation) || busLocation is null)
+                            if (!busRouteByKey.ContainsKey(key))
+                            {
+                                if (!abc.ContainsKey(busLocation.OperatorRef))
+                                {
+                                    abc[busLocation.OperatorRef] = [];
+                                }
+
+                                abc[busLocation.OperatorRef].Add(busLocation);
+                            }
+                        }
+
+                        foreach(var b in abc)
+                        {
+                            Console.WriteLine($"{b.Key} - {b.Value.Count} count");
+                        }
+
+
+                        foreach ((string tripScheduleKey, IReadOnlyList<BusCallingPoint> callingPoints) in busRouteByKey)
+                        {
+                            if (!busLocationByKey.TryGetValue(tripScheduleKey, out BusLocation? busLocation) || busLocation is null)
                                 continue;
 
                             // skip the first bus stop since the bus is there but not departure yet
@@ -55,7 +76,7 @@ namespace Backend.Services
                                 .ToList();
 
                             // if the server start after the bus departure, it is possible that keep stuck at early stop and cannot update to new stop
-                            if (_scheduleEstimateByKey.TryGetValue(originDepartureKey, out BusScheduleEstimate? previousEstimate) && previousEstimate is not null)
+                            if (_scheduleEstimateByKey.TryGetValue(tripScheduleKey, out BusScheduleEstimate? previousEstimate) && previousEstimate is not null)
                                 remainingCallingPoints = callingPoints
                                     .Where(x => x.Sequence >= previousEstimate.Sequence && previousEstimate.Sequence + 5 >= x.Sequence) // prevent sequence jump from 5 to 40 cause it is a round trip
                                     .ToList();
@@ -70,7 +91,7 @@ namespace Backend.Services
                                 {
                                     // prevent wrap around in TimeOnly data structure (18:05 - 18:07 = 23h58m = 1438 minutes)
                                     int scheduleOffsetMinutes = Math.Abs((_timeService.UkNowTimeOnly.ToTimeSpan() - callingPoint.ScheduledTime.ToTimeSpan()).Minutes);
-                                    _scheduleEstimateByKey[originDepartureKey] = new BusScheduleEstimate
+                                    _scheduleEstimateByKey[tripScheduleKey] = new BusScheduleEstimate
                                     {
                                         Sequence = callingPoint.Sequence,
                                         ScheduleOffsetMinutes = scheduleOffsetMinutes,

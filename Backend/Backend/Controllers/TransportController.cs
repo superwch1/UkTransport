@@ -37,18 +37,18 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("[controller]/bus/{originDepartureKey}/route")]
-        public async Task<IActionResult> BusRoute(string originDepartureKey)
+        [HttpGet("[controller]/bus/{tripScheduleKey}/route")]
+        public async Task<IActionResult> BusRoute(string tripScheduleKey)
         {
-            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(originDepartureKey);
+            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(tripScheduleKey);
             return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.StopById));
         }
 
 
-        [HttpGet("[controller]/bus/{originDepartureKey}/location/")]
-        public IActionResult BusLocation(string originDepartureKey)
+        [HttpGet("[controller]/bus/{tripScheduleKey}/location/")]
+        public IActionResult BusLocation(string tripScheduleKey)
         {
-            var busLocation = _busRepository.GetBusLocationById(originDepartureKey);
+            var busLocation = _busRepository.GetBusLocationById(tripScheduleKey);
             if (busLocation == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 

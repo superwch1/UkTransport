@@ -8,12 +8,12 @@ namespace Backend.Extensions
         public static BusLocationItemResponse ToBusLocationItemResponse(this BusLocation busLocation, FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)
         {
             int scheduleOffsetMinutes = 0;
-            if (busScheduleEstimateByKey.TryGetValue(busLocation.OriginDepartureKey, out BusScheduleEstimate? estimate) && estimate != null)
+            if (busScheduleEstimateByKey.TryGetValue(busLocation.TripScheduleKey, out BusScheduleEstimate? estimate) && estimate != null)
                 scheduleOffsetMinutes = estimate.ScheduleOffsetMinutes;
 
             return new BusLocationItemResponse()
             {
-                OriginDepartureKey = busLocation.OriginDepartureKey,
+                TripScheduleKey = busLocation.TripScheduleKey,
                 RecordedAtTime = busLocation.RecordedAtTime,
                 OperatorRef = busLocation.OperatorRef,
                 PublishedLineName = busLocation.PublishedLineName,
@@ -48,7 +48,7 @@ namespace Backend.Extensions
                 items.Add(new BusStopItemResponse()
                 {
                     Id = busStop.Id,
-                    CommonName = busStop.CommonName,
+                    CommonName = busStop.Name,
                     Bearing = busStop.Bearing,
                     Latitude = busStop.Latitude,
                     Longitude = busStop.Longitude,
