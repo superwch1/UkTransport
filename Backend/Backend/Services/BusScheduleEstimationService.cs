@@ -33,6 +33,7 @@ namespace Backend.Services
                 try
                 {
                     FrozenDictionary<string, BusLocation> busLocationByKey = await _transportDataStore.ReadBusLocationAsync();
+                    HashSet<string> notFoundKey = busLocationByKey.Keys.ToHashSet();
 
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     foreach (BusLocation[] batch in busLocationByKey.Values.Chunk(_batchSize))
@@ -40,27 +41,9 @@ namespace Backend.Services
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        var busRouteByKey = await busRepository.GetBusRoutes(batch.Select(x => x.TripScheduleKey));
+                        var busRouteByKey = await busRepository.GetBusRoutes(batch.Select(x => x.TripScheduleKey).ToList());
 
-                        Dictionary<string, List<BusLocation>> abc = [];
-                        foreach((string key, BusLocation busLocation) in busLocationByKey)
-                        {
-                            if (!busRouteByKey.ContainsKey(key))
-                            {
-                                if (!abc.ContainsKey(busLocation.OperatorRef))
-                                {
-                                    abc[busLocation.OperatorRef] = [];
-                                }
-
-                                abc[busLocation.OperatorRef].Add(busLocation);
-                            }
-                        }
-
-                        foreach(var b in abc)
-                        {
-                            Console.WriteLine($"{b.Key} - {b.Value.Count} count");
-                        }
-
+                        notFoundKey.ExceptWith(busRouteByKey.Keys);
 
                         foreach ((string tripScheduleKey, IReadOnlyList<BusCallingPoint> callingPoints) in busRouteByKey)
                         {
@@ -101,6 +84,24 @@ namespace Backend.Services
                                 }
                             }
                         }
+                    }
+
+
+                    Dictionary<string, List<BusLocation>> abc = [];
+                    foreach (string key in notFoundKey)
+                    {
+                        BusLocation busLocation = busLocationByKey[key];
+                        if (!abc.ContainsKey(busLocation.OperatorRef))
+                        {
+                            abc[busLocation.OperatorRef] = [];
+                        }
+
+                        abc[busLocation.OperatorRef].Add(busLocation);
+                    }
+
+                    foreach (var b in abc.OrderByDescending(x => x.Value.Count))
+                    {
+                        Console.WriteLine($"{b.Key} - {b.Value.Count} count");
                     }
 
                     var expiredKeys = new List<string>();

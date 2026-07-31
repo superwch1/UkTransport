@@ -20,7 +20,7 @@ namespace Backend.Models
 
         // allow to group by line name and operator ref to find timetable of a bus stop for each line
         public required string LineName { get; init; }
-        public required string OperatorRef { get; init; }
+        public required string OperatorId { get; init; }
 
         public TimeOnly ScheduledTime { get; init; }
 

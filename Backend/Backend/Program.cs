@@ -49,7 +49,7 @@ try
     builder.Services.AddHostedService<StopImportService>();
     builder.Services.AddHostedService<BusLocationTrackingService>();
     builder.Services.AddHostedService<BusScheduleEstimationService>();
-    // builder.Services.AddHostedService<BusTimetableImportService>();
+    //builder.Services.AddHostedService<BusTimetableImportService>();
 
     builder.Services.AddControllers();
 

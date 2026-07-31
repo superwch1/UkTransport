@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260729194414_Initial1")]
-    partial class Initial1
+    [Migration("20260731114340_Initial3")]
+    partial class Initial3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,7 +45,7 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OperatorRef")
+                    b.Property<string>("OperatorId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -65,6 +65,47 @@ namespace Backend.Migrations
                     b.HasIndex("BusTimetableId");
 
                     b.ToTable("BusCallingPoints");
+                });
+
+            modelBuilder.Entity("Backend.Models.BusDataset", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BusDatasets");
+                });
+
+            modelBuilder.Entity("Backend.Models.BusHoliday", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BusTimetableId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsOperating")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PublicHolidayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusTimetableId");
+
+                    b.HasIndex("PublicHolidayName");
+
+                    b.ToTable("BusHolidays");
                 });
 
             modelBuilder.Entity("Backend.Models.BusSpecialDay", b =>
@@ -100,11 +141,9 @@ namespace Backend.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<int>("BankHolidaysOfNonOperation")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BankHolidaysOfOperation")
-                        .HasColumnType("integer");
+                    b.Property<string>("DatasetId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("DestinationName")
                         .IsRequired()
@@ -127,7 +166,7 @@ namespace Backend.Migrations
                     b.Property<bool>("Monday")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("NationalOperatorRef")
+                    b.Property<string>("OperatorId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -169,13 +208,25 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DatasetId");
+
                     b.HasIndex("LineName");
 
-                    b.HasIndex("NationalOperatorRef");
+                    b.HasIndex("OperatorId");
 
                     b.HasIndex("TripScheduleKey");
 
                     b.ToTable("BusTimetables");
+                });
+
+            modelBuilder.Entity("Backend.Models.PublicHoliday", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("PublicHolidays");
                 });
 
             modelBuilder.Entity("Backend.Models.BusCallingPoint", b =>
@@ -187,6 +238,25 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("BusTimetable");
+                });
+
+            modelBuilder.Entity("Backend.Models.BusHoliday", b =>
+                {
+                    b.HasOne("Backend.Models.BusTimetable", "BusTimetable")
+                        .WithMany("BusHolidays")
+                        .HasForeignKey("BusTimetableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.PublicHoliday", "PublicHoliday")
+                        .WithMany()
+                        .HasForeignKey("PublicHolidayName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusTimetable");
+
+                    b.Navigation("PublicHoliday");
                 });
 
             modelBuilder.Entity("Backend.Models.BusSpecialDay", b =>
@@ -202,7 +272,20 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.BusTimetable", b =>
                 {
+                    b.HasOne("Backend.Models.BusDataset", "BusDataset")
+                        .WithMany()
+                        .HasForeignKey("DatasetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BusDataset");
+                });
+
+            modelBuilder.Entity("Backend.Models.BusTimetable", b =>
+                {
                     b.Navigation("BusCallingPoints");
+
+                    b.Navigation("BusHolidays");
 
                     b.Navigation("BusSpecialDays");
                 });

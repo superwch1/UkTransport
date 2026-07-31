@@ -1,18 +1,24 @@
 ﻿using Backend.Enumerations;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
     [Index(nameof(LineName))]
-    [Index(nameof(NationalOperatorRef))]
+    [Index(nameof(OperatorId))]
     [Index(nameof(TripScheduleKey))]
     public record BusTimetable
     {
         [Key]
         public required string Id { get; init; }
 
-        public required string NationalOperatorRef { get; init; }
+        // The file this journey was read out of. Deleting that row deletes the journey with it.
+        [ForeignKey(nameof(BusDataset))]
+        public required string DatasetId { get; init; }
+        public virtual BusDataset? BusDataset { get; init; }
+
+        public required string OperatorId { get; init; }
         public required string OperatorName { get; init; }
 
         public required string LineName { get; init; }     
@@ -48,13 +54,11 @@ namespace Backend.Models
         // Narrows the days above to certain weeks of the month. None for almost every journey.
         public required WeekOfMonth WeeksOfMonth { get; init; }
 
-        public required BankHoliday BankHolidaysOfOperation { get; init; }
-
-        public required BankHoliday BankHolidaysOfNonOperation { get; init; }
-
         public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
 
         public required IReadOnlyList<BusSpecialDay>? BusSpecialDays { get; init; }
+
+        public required IReadOnlyList<BusHoliday>? BusHolidays { get; init; }
     }
 
     public static class BusTimeTableExtension
@@ -62,6 +66,12 @@ namespace Backend.Models
         public static string BuildTripScheduleKey(TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
         {
             return $"{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
+        }
+
+        // The source is part of the key because nothing stops two services numbering a dataset the same way.
+        public static string BuildDatasetKey(string source, string sourceId)
+        {
+            return $"{source}:{sourceId}";
         }
     }
 }

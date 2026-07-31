@@ -43,20 +43,38 @@ namespace Backend.Repositories
         {
             // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
-            IReadOnlyList<BusTimetable> timetables = await _context.BusTimetables
-                .Include(x => x.BusCallingPoints)
+
+            // seems splitting query is much faster (from 25s to 0.5s)
+            List<BusTimetable> timetables = await _context.BusTimetables
+                .AsNoTracking()
                 .Where(x => tripScheduleKey.Contains(x.TripScheduleKey) &&
                             x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
-                .AsNoTracking()
-                .GroupBy(x => x.TripScheduleKey)
-                .Select(x => x.OrderByDescending(x => x.StartDate).First())
                 .ToListAsync();
 
             if (timetables.Count == 0)
                 return new Dictionary<string, IReadOnlyList<BusCallingPoint>>();
 
-            return timetables.ToDictionary(x => x.TripScheduleKey, x => x.BusCallingPoints ?? []);
+            timetables = timetables
+                .GroupBy(x => x.TripScheduleKey)
+                .Select(g => g.OrderByDescending(x => x.StartDate).First())
+                .ToList();
+
+            List<string> groupTimetableIds = timetables.Select(x => x.Id).ToList();
+
+            Dictionary<string, List<BusCallingPoint>> callingPointsByTimetableId = await _context.BusCallingPoints
+                .Where(x => groupTimetableIds.Contains(x.BusTimetableId))
+                .GroupBy(x => x.BusTimetableId)
+                .ToDictionaryAsync(x => x.Key, x => x.Select(x => x).OrderBy(x => x.Sequence).ToList());
+
+            Dictionary<string, IReadOnlyList<BusCallingPoint>> result = [];
+            foreach (var trip in timetables)
+            {
+                if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? journeyCallingPoints))
+                    result[trip.TripScheduleKey] = journeyCallingPoints;
+            }
+
+            return result;
         }
 
         public async Task<IReadOnlyDictionary<string, TimeOnly>> GetBusStopTimetable(string busStopId, DateTime now, bool isHoliday)
@@ -76,7 +94,7 @@ namespace Backend.Repositories
 
 
             // Keep only calling points whose timetable survived the day filter.
-            var callingPoints = await query
+            IReadOnlyList<BusCallingPoint> callingPoints = await query
                 .Where(cp => timetables.Select(t => t.Id).Contains(cp.BusTimetableId))
                 .ToListAsync();
 
@@ -124,11 +142,34 @@ namespace Backend.Repositories
         {
             List<BusCallingPoint> callingPoints = busTimetables.SelectMany(x => x.BusCallingPoints ?? []).ToList();
             List<BusSpecialDay> specialDays = busTimetables.SelectMany(x => x.BusSpecialDays ?? []).ToList();
+            List<BusHoliday> holidays = busTimetables.SelectMany(x => x.BusHolidays ?? []).ToList();
+
+            // The holiday rows are keyed by name, so any name this file is the first to mention is upserted before the
+            // journeys that point at it. Names already in the table are left as they are.
+            List<PublicHoliday> publicHolidays = holidays
+                .Select(x => x.PublicHolidayName)
+                .Distinct()
+                .Select(x => new PublicHoliday { Name = x })
+                .ToList();
 
             // since it use bulk insert, it does not also insert the records inside collection in bus timetable
             await _context.BulkInsertAsync(busTimetables.ToList());
             await _context.BulkInsertAsync(callingPoints);
             await _context.BulkInsertAsync(specialDays);
+            await _context.BulkInsertOrUpdateAsync(publicHolidays);
+            await _context.BulkInsertAsync(holidays);
+        }
+
+        public async Task ResetBusDataset(BusDataset busDataset)
+        {
+            // Deleting the dataset cascades to its journeys, and from those to their calling points, special days and
+            // holidays, so re-importing a file replaces what it produced last time instead of adding a second copy.
+            await _context.BusDatasets
+                .Where(x => x.Id == busDataset.Id)
+                .ExecuteDeleteAsync();
+
+            _context.BusDatasets.Add(busDataset);
+            await _context.SaveChangesAsync();
         }
     }
 

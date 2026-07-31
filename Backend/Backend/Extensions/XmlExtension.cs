@@ -9,7 +9,7 @@ namespace Backend.Extensions
     {
         // Recursively walks a zip (and any nested zips) and invokes the handler for every .xml entry found at any depth
         // a zip has no real folder hierarchy to traverse and no need to go over each folder
-        public static async Task ExtractXmlStreamsAsync(this Stream stream, Func<Stream, CancellationToken, Task> processXmlStream, CancellationToken cancellationToken)
+        public static async Task ExtractXmlStreamsAsync(this Stream stream, Func<Stream, CancellationToken, Task> processXmlStream, CancellationToken cancellationToken, string? entryNameContains = null)
         {
             using MemoryStream buffered = new MemoryStream();
             await stream.CopyToAsync(buffered, cancellationToken);
@@ -43,13 +43,19 @@ namespace Backend.Extensions
                 if (!isXml && !isNestedZip)
                     continue;
 
+                if (!string.IsNullOrWhiteSpace(entryNameContains) && !entry.FullName.Contains(entryNameContains, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 using MemoryStream entryBuffered = new MemoryStream();
                 using (Stream entryStream = await entry.OpenAsync(cancellationToken))
                 {
                     await entryStream.CopyToAsync(entryBuffered, cancellationToken);
                 }
                 entryBuffered.Position = 0;
-                await ExtractXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken);
+
+                // A nested zip that matched is taken whole, since the entries inside it carry their own names and
+                // would not be expected to repeat the keyword.
+                await ExtractXmlStreamsAsync(entryBuffered, processXmlStream, cancellationToken, isNestedZip ? null : entryNameContains);
             }
         }
 
