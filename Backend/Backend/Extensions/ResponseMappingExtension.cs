@@ -5,37 +5,37 @@ namespace Backend.Extensions
 {
     public static class ResponseMappingExtension
     {
-        public static BusLocationItemResponse ToBusLocationItemResponse(this BusLocation busLocation, FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)
+        public static BusLocationItemResponse ToBusLocationItemResponse(this BusJourney busJourney, FrozenDictionary<string, BusJourney> busJourneyByKey)
         {
             int scheduleOffsetMinutes = 0;
-            if (busScheduleEstimateByKey.TryGetValue(busLocation.TripScheduleKey, out BusScheduleEstimate? estimate) && estimate != null)
-                scheduleOffsetMinutes = estimate.ScheduleOffsetMinutes;
+            if (busJourneyByKey.TryGetValue(busJourney.TripScheduleKey, out BusJourney? journey) && journey != null)
+                scheduleOffsetMinutes = journey.ScheduleOffsetMinutes;
 
             return new BusLocationItemResponse()
             {
-                TripScheduleKey = busLocation.TripScheduleKey,
-                RecordedAtTime = busLocation.RecordedAtTime,
-                OperatorRef = busLocation.OperatorRef,
-                PublishedLineName = busLocation.PublishedLineName,
-                OriginName = busLocation.OriginName,
-                OriginRef = busLocation.OriginRef,
-                OriginAimedDepartureTime = busLocation.OriginAimedDepartureTime,
-                DestinationName = busLocation.DestinationName,
-                DestinationRef = busLocation.DestinationRef,
-                DestinationAimedArrivalTime = busLocation.DestinationAimedArrivalTime,
+                TripScheduleKey = busJourney.TripScheduleKey,
+                RecordedAtTime = busJourney.RecordedAtTime,
+                OperatorRef = busJourney.OperatorId,
+                PublishedLineName = busJourney.LineName,
+                OriginName = busJourney.OriginName,
+                OriginRef = busJourney.OriginBusStopId,
+                OriginAimedDepartureTime = busJourney.OriginAimedDepartureTime,
+                DestinationName = busJourney.DestinationName,
+                DestinationRef = busJourney.DestinationBusStopId,
+                DestinationAimedArrivalTime = busJourney.DestinationAimedArrivalTime,
                 EstimatedScheduleOffset = scheduleOffsetMinutes,
-                Latitude = busLocation.Latitude,
-                Longitude = busLocation.Longitude,
-                Bearing = busLocation.Bearing
+                Latitude = busJourney.Latitude,
+                Longitude = busJourney.Longitude,
+                Bearing = busJourney.Bearing
             };
         }
 
-        public static BusLocationsResponse ToBusLocationsResponse(this IReadOnlyList<BusLocation> busLocations, FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)
+        public static BusLocationsResponse ToBusLocationsResponse(this IReadOnlyList<BusJourney> busJourneys, FrozenDictionary<string, BusJourney> busJourneyByKey)
         {
             List<BusLocationItemResponse> items = new List<BusLocationItemResponse>();
-            foreach (BusLocation busLocation in busLocations)
+            foreach (BusJourney busJourney in busJourneys)
             {
-                items.Add(busLocation.ToBusLocationItemResponse(busScheduleEstimateByKey));
+                items.Add(busJourney.ToBusLocationItemResponse(busJourneyByKey));
             }
             return new BusLocationsResponse() { BusLocations = items };
         }

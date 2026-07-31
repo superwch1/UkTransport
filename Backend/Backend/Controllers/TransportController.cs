@@ -48,22 +48,22 @@ namespace Backend.Controllers
         [HttpGet("[controller]/bus/{tripScheduleKey}/location/")]
         public IActionResult BusLocation(string tripScheduleKey)
         {
-            var busLocation = _busRepository.GetBusLocationById(tripScheduleKey);
-            if (busLocation == null)
+            var busJourney = _busRepository.GetBusJourneyById(tripScheduleKey);
+            if (busJourney == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 
-            return Success(StatusCodes.Status200OK, response: busLocation.ToBusLocationItemResponse(_transportDataStore.BusScheduleEstimateByKey));
+            return Success(StatusCodes.Status200OK, response: busJourney.ToBusLocationItemResponse(_transportDataStore.BusJourneyByKey));
         }
 
 
         [HttpGet("[controller]/bus/locations")]
         public IActionResult BusLocations([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
         {
-            var busLocations = _busRepository.GetBusLocations(north, south, east, west);
-            if (busLocations.Count > 300)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusLocation>().ToBusLocationsResponse(_transportDataStore.BusScheduleEstimateByKey), message: "Zoom in to show bus real time location");
+            var busJourneys = _busRepository.GetBusJourneys(north, south, east, west);
+            if (busJourneys.Count > 300)
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusJourney>().ToBusLocationsResponse(_transportDataStore.BusJourneyByKey), message: "Zoom in to show bus real time location");
 
-            return Success(StatusCodes.Status200OK, response: busLocations.ToBusLocationsResponse(_transportDataStore.BusScheduleEstimateByKey));
+            return Success(StatusCodes.Status200OK, response: busJourneys.ToBusLocationsResponse(_transportDataStore.BusJourneyByKey));
         }
     }
 }

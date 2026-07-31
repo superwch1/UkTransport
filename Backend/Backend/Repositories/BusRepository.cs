@@ -39,7 +39,7 @@ namespace Backend.Repositories
             return timetable.BusCallingPoints;
         }
 
-        public async Task<IReadOnlyDictionary<string, IReadOnlyList<BusCallingPoint>>> GetBusRoutes(IEnumerable<string> tripScheduleKey)
+        public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByKey(IEnumerable<string> tripScheduleKey)
         {
             // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
@@ -53,7 +53,7 @@ namespace Backend.Repositories
                 .ToListAsync();
 
             if (timetables.Count == 0)
-                return new Dictionary<string, IReadOnlyList<BusCallingPoint>>();
+                return new Dictionary<string, BusTimetable>();
 
             timetables = timetables
                 .GroupBy(x => x.TripScheduleKey)
@@ -67,11 +67,11 @@ namespace Backend.Repositories
                 .GroupBy(x => x.BusTimetableId)
                 .ToDictionaryAsync(x => x.Key, x => x.Select(x => x).OrderBy(x => x.Sequence).ToList());
 
-            Dictionary<string, IReadOnlyList<BusCallingPoint>> result = [];
+            Dictionary<string, BusTimetable> result = [];
             foreach (var trip in timetables)
             {
                 if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? journeyCallingPoints))
-                    result[trip.TripScheduleKey] = journeyCallingPoints;
+                    result[trip.TripScheduleKey] = trip with { BusCallingPoints = journeyCallingPoints };
             }
 
             return result;
@@ -109,21 +109,21 @@ namespace Backend.Repositories
                 );
         }
 
-        public BusLocation? GetBusLocationById(string busLocationId)
+        public BusJourney? GetBusJourneyById(string tripJourneyKey)
         {
             return _transportDataStore
-                .BusLocationByKey
+                .BusJourneyByKey
                 .Values
-                .FirstOrDefault(busLocation => busLocation.TripScheduleKey == busLocationId);
+                .FirstOrDefault(x => x.TripScheduleKey == tripJourneyKey);
         }
 
 
-        public IReadOnlyList<BusLocation> GetBusLocations(decimal north, decimal south, decimal east, decimal west)
+        public IReadOnlyList<BusJourney> GetBusJourneys(decimal north, decimal south, decimal east, decimal west)
         {
             return _transportDataStore
-                .BusLocationByKey
+                .BusJourneyByKey
                 .Values
-                .Where(busLocation => busLocation.Latitude <= north && busLocation.Latitude >= south && busLocation.Longitude <= east && busLocation.Longitude >= west)
+                .Where(x => x.Latitude <= north && x.Latitude >= south && x.Longitude <= east && x.Longitude >= west)
                 .ToList();
         }
 

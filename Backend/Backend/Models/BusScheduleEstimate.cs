@@ -7,6 +7,7 @@
         // delay (+), arrive early (-)
         public required int ScheduleOffsetMinutes { get; init; }
 
-        public required DateTimeOffset CalculatedAt { get; init; }
+        // When the live feed recorded the position this was worked out from.
+        public required DateTime RecordedAtTime { get; init; }
     }
 }

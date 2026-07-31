@@ -6,16 +6,12 @@ namespace Backend
 {
     public class TransportDataStore
     {
-        private FrozenDictionary<string, BusLocation> _busLocationByKey = FrozenDictionary.Create<string, BusLocation>();
-        public FrozenDictionary<string, BusLocation> BusLocationByKey => _busLocationByKey;
+        private FrozenDictionary<string, BusJourney> _busJourneyByKey = FrozenDictionary.Create<string, BusJourney>();
+        public FrozenDictionary<string, BusJourney> BusJourneyByKey => _busJourneyByKey;
 
 
         private FrozenDictionary<string, Stop> _stopsById = FrozenDictionary.Create<string, Stop>();
         public FrozenDictionary<string, Stop> StopById => _stopsById;
-
-
-        private FrozenDictionary<string, BusScheduleEstimate> _busScheduleEstimatetByKey = FrozenDictionary.Create<string, BusScheduleEstimate>();
-        public FrozenDictionary<string, BusScheduleEstimate> BusScheduleEstimateByKey => _busScheduleEstimatetByKey;
 
 
         private readonly Channel<FrozenDictionary<string, BusLocation>> _busLocationByKeyChannel =
@@ -29,11 +25,10 @@ namespace Backend
         public async ValueTask<FrozenDictionary<string, BusLocation>> ReadBusLocationAsync()
         {
             return await _busLocationByKeyChannel.Reader.ReadAsync();
-        }
+        }              
 
         public async Task RefreshBusLocations(FrozenDictionary<string, BusLocation> busLocationByKey)
-        {
-            Interlocked.Exchange(ref _busLocationByKey, busLocationByKey);
+        {            
             await _busLocationByKeyChannel.Writer.WriteAsync(busLocationByKey);
         }
 
@@ -42,9 +37,9 @@ namespace Backend
             Interlocked.Exchange(ref _stopsById, stops.Values.ToFrozenDictionary(x => x.Id, x => x));
         }
 
-        public void RefreshBusScheduleEstimate(FrozenDictionary<string, BusScheduleEstimate> busScheduleEstimateByKey)
+        public void RefreshBusJourneys(FrozenDictionary<string, BusJourney> journeys)
         {
-            Interlocked.Exchange(ref _busScheduleEstimatetByKey, busScheduleEstimateByKey);
+            Interlocked.Exchange(ref _busJourneyByKey, journeys);
         }
     }
 }
