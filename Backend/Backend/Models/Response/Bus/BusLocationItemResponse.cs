@@ -17,6 +17,7 @@
         public required string DestinationRef { get; init; }
         public required TimeOnly? DestinationAimedArrivalTime { get; init; }
 
+        // delay (+), arrive early (-)
         public required int EstimatedScheduleOffset { get; init; }
 
 

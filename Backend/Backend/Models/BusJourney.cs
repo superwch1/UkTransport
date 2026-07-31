@@ -2,8 +2,6 @@ namespace Backend.Models
 {
     public record BusJourney
     {
-        public required string Id { get; init; }
-
         public required string DatasetId { get; init; }
 
         public required string OperatorId { get; init; }
@@ -31,7 +29,7 @@ namespace Backend.Models
         public required TimeOnly? DestinationAimedArrivalTime { get; init; }
 
 
-        public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
+        public required IReadOnlyList<BusCallingPoint> BusCallingPoints { get; init; }
 
 
         // calling point the bus was last seen at, or null while it has not been seen at one. So the calling points cannot jump form 5 to 40 in a round trip

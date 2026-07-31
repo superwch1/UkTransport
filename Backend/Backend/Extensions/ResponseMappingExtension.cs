@@ -5,12 +5,8 @@ namespace Backend.Extensions
 {
     public static class ResponseMappingExtension
     {
-        public static BusLocationItemResponse ToBusLocationItemResponse(this BusJourney busJourney, FrozenDictionary<string, BusJourney> busJourneyByKey)
+        public static BusLocationItemResponse ToBusLocationItemResponse(this BusJourney busJourney)
         {
-            int scheduleOffsetMinutes = 0;
-            if (busJourneyByKey.TryGetValue(busJourney.TripScheduleKey, out BusJourney? journey) && journey != null)
-                scheduleOffsetMinutes = journey.ScheduleOffsetMinutes;
-
             return new BusLocationItemResponse()
             {
                 TripScheduleKey = busJourney.TripScheduleKey,
@@ -23,19 +19,19 @@ namespace Backend.Extensions
                 DestinationName = busJourney.DestinationName,
                 DestinationRef = busJourney.DestinationBusStopId,
                 DestinationAimedArrivalTime = busJourney.DestinationAimedArrivalTime,
-                EstimatedScheduleOffset = scheduleOffsetMinutes,
+                EstimatedScheduleOffset = busJourney.ScheduleOffsetMinutes,
                 Latitude = busJourney.Latitude,
                 Longitude = busJourney.Longitude,
                 Bearing = busJourney.Bearing
             };
         }
 
-        public static BusLocationsResponse ToBusLocationsResponse(this IReadOnlyList<BusJourney> busJourneys, FrozenDictionary<string, BusJourney> busJourneyByKey)
+        public static BusLocationsResponse ToBusLocationsResponse(this IReadOnlyList<BusJourney> busJourneys)
         {
             List<BusLocationItemResponse> items = new List<BusLocationItemResponse>();
             foreach (BusJourney busJourney in busJourneys)
             {
-                items.Add(busJourney.ToBusLocationItemResponse(busJourneyByKey));
+                items.Add(busJourney.ToBusLocationItemResponse());
             }
             return new BusLocationsResponse() { BusLocations = items };
         }

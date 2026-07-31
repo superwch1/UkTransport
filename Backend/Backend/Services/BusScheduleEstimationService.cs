@@ -81,7 +81,7 @@ namespace Backend.Services
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        Dictionary<string, List<string>> candidateKeysByKey = batch.ToDictionary(
+                        IReadOnlyDictionary<string, List<string>> candidateKeysByKey = batch.ToDictionary(
                             x => x.TripScheduleKey,
                             x => _departureOffsetMinutes
                                 // it is build from -1, 1, -2, 2, -3, 3 ...
@@ -109,6 +109,16 @@ namespace Backend.Services
                     int offsetMatchCount = busLocationByKey.Count - exactMatchCount - notFoundKey.Count;
 
 
+                    // Fourth: the buses no timetable was found for, carrying what the feed alone can say, so they are
+                    // still drawn instead of disappearing from the map. Kept apart from the journeys above so they are
+                    // never answered from memory, and rebuilt each pass since a position is all they hold.
+                    var journeyWithoutTimetableByKey = new Dictionary<string, BusJourney>(notFoundKey.Count);
+                    foreach (string tripScheduleKey in notFoundKey)
+                    {
+                        journeyWithoutTimetableByKey[tripScheduleKey] = CreateJourneyWithoutTimetable(busLocationByKey[tripScheduleKey]);
+                    }
+
+
                     // Counted per operator rather than in total, because a raw number of failures only ranks operators by fleet size
                     var resultCountByOperator = new Dictionary<string, (int Matched, int Unmatched)>();
                     foreach (BusLocation busLocation in busLocationByKey.Values)
@@ -130,7 +140,7 @@ namespace Backend.Services
                     foreach ((string operatorRef, (int matched, int unmatched)) in resultCountByOperator.Where(x => x.Value.Unmatched > 0).OrderByDescending(x => x.Value.Unmatched))
                     {
                         int total = matched + unmatched;
-                        Console.WriteLine($"{operatorRef} - {matched}/{total} matched ({(double)unmatched / total:P0} failed)");
+                        Console.WriteLine($"{operatorRef} - {total - matched} not matched");
                     }
 
 
@@ -150,13 +160,21 @@ namespace Backend.Services
                     }
 
 
-                    // Only journeys whose bus has actually been seen at a calling point carry an estimate to publish.
-                    _transportDataStore.RefreshBusJourneys(_journeyByKey.ToFrozenDictionary());
+                    // The two sets are published as one, so a caller sees every bus that is running whether or not a
+                    // timetable was found for it. Their keys cannot collide, since a journey answered from memory is
+                    // never in the not-found set.
+                    var publishedJourneyByKey = new Dictionary<string, BusJourney>(_journeyByKey);
+                    foreach ((string tripScheduleKey, BusJourney busJourney) in journeyWithoutTimetableByKey)
+                    {
+                        publishedJourneyByKey[tripScheduleKey] = busJourney;
+                    }
+
+                    _transportDataStore.RefreshBusJourneys(publishedJourneyByKey.ToFrozenDictionary());
 
 
                     _logger.LogInformation(
-                        "Bus schedule estimation completed in {Elapsed}s - {Total} live: {Cached} cached, {Exact} exact, {Offset} by departure offset, {Unmatched} unmatched ({Journeys} journeys held)",
-                        stopwatch.Elapsed.TotalSeconds, busLocationByKey.Count, cachedMatchCount, exactMatchCount, offsetMatchCount, notFoundKey.Count, _journeyByKey.Count);
+                        "Bus schedule estimation completed in {Elapsed}s - {Total} live: {Cached} cached, {Exact} exact, {Offset} by departure offset, {Unmatched} unmatched ({Journeys} journeys held, {Published} published)",
+                        stopwatch.Elapsed.TotalSeconds, busLocationByKey.Count, cachedMatchCount, exactMatchCount, offsetMatchCount, notFoundKey.Count, _journeyByKey.Count, publishedJourneyByKey.Count);
                 }
                 catch (Exception ex)
                 {
@@ -171,7 +189,6 @@ namespace Backend.Services
 
             _journeyByKey[tripScheduleKey] = new BusJourney
             {
-                Id = timetable.Id,
                 DatasetId = timetable.DatasetId,
                 OperatorId = busLocation.OperatorRef,
                 OperatorName = timetable.OperatorName,
@@ -180,7 +197,7 @@ namespace Backend.Services
                 DestinationName = busLocation.DestinationName,
                 DirectionRef = busLocation.DirectionRef,
                 ScheduledDayOffset = timetable.ScheduledDayOffset,
-                TripScheduleKey = timetable.TripScheduleKey,
+                TripScheduleKey = busLocation.TripScheduleKey,
                 OriginBusStopId = busLocation.OriginRef,
                 OriginAimedDepartureTime = busLocation.OriginAimedDepartureTime,
                 DestinationBusStopId = busLocation.DestinationRef,
@@ -203,6 +220,34 @@ namespace Backend.Services
             {
                 LastSeenSequence = lastSeenSequence,
                 ScheduleOffsetMinutes = scheduleOffsetMinutes,
+                Latitude = busLocation.Latitude,
+                Longitude = busLocation.Longitude,
+                Bearing = busLocation.Bearing,
+                RecordedAtTime = busLocation.RecordedAtTime,
+            };
+        }
+
+
+        private static BusJourney CreateJourneyWithoutTimetable(BusLocation busLocation)
+        {
+            return new BusJourney
+            {
+                DatasetId = string.Empty,
+                OperatorId = busLocation.OperatorRef,
+                OperatorName = string.Empty,
+                LineName = busLocation.PublishedLineName,
+                OriginName = busLocation.OriginName,
+                DestinationName = busLocation.DestinationName,
+                DirectionRef = busLocation.DirectionRef,
+                ScheduledDayOffset = 0,
+                TripScheduleKey = busLocation.TripScheduleKey,
+                OriginBusStopId = busLocation.OriginRef,
+                OriginAimedDepartureTime = busLocation.OriginAimedDepartureTime,
+                DestinationBusStopId = busLocation.DestinationRef,
+                DestinationAimedArrivalTime = busLocation.DestinationAimedArrivalTime,
+                BusCallingPoints = [],
+                LastSeenSequence = null,
+                ScheduleOffsetMinutes = 0,
                 Latitude = busLocation.Latitude,
                 Longitude = busLocation.Longitude,
                 Bearing = busLocation.Bearing,

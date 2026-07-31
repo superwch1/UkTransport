@@ -52,7 +52,7 @@ namespace Backend.Controllers
             if (busJourney == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 
-            return Success(StatusCodes.Status200OK, response: busJourney.ToBusLocationItemResponse(_transportDataStore.BusJourneyByKey));
+            return Success(StatusCodes.Status200OK, response: busJourney.ToBusLocationItemResponse());
         }
 
 
@@ -61,9 +61,9 @@ namespace Backend.Controllers
         {
             var busJourneys = _busRepository.GetBusJourneys(north, south, east, west);
             if (busJourneys.Count > 300)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusJourney>().ToBusLocationsResponse(_transportDataStore.BusJourneyByKey), message: "Zoom in to show bus real time location");
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusJourney>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
 
-            return Success(StatusCodes.Status200OK, response: busJourneys.ToBusLocationsResponse(_transportDataStore.BusJourneyByKey));
+            return Success(StatusCodes.Status200OK, response: busJourneys.ToBusLocationsResponse());
         }
     }
 }
