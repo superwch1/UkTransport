@@ -7,7 +7,7 @@ namespace Backend.Models
 {
     [Index(nameof(LineName))]
     [Index(nameof(OperatorId))]
-    [Index(nameof(TripJourneyKey))]
+    [Index(nameof(JourneyKey))]
     [Index(nameof(DepartureTime))]
     [Index(nameof(OriginBusStopId))]
     [Index(nameof(DestinationBusStopId))]
@@ -16,9 +16,8 @@ namespace Backend.Models
         [Key]
         public required string Id { get; init; }
 
-        // no need line name since there can be changed
         // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string TripJourneyKey { get; init; }
+        public required string JourneyKey { get; init; }
 
 
         [ForeignKey(nameof(BusDataset))]
@@ -66,7 +65,7 @@ namespace Backend.Models
 
     public static class BusTimeTableExtension
     {
-        public static string BuildTripJourneyKey(string lineName, TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
+        public static string BuildJourneyKey(string lineName, TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
         {
             return $"{lineName}-{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
         }

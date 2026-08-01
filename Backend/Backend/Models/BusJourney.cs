@@ -3,7 +3,7 @@ namespace Backend.Models
     public record BusJourney
     {
         // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string TripJourneyKey { get; init; }
+        public required string JourneyKey { get; init; }
 
         public required string DatasetId { get; init; }
 
@@ -44,8 +44,6 @@ namespace Backend.Models
         public required decimal Longitude { get; init; }
         public required decimal Bearing { get; init; }
 
-        // When the live feed recorded the position this was worked out from, so the journey ages by what the bus
-        // reported rather than by when it happened to be processed.
         public required DateTime RecordedAtTime { get; init; }
     }
 }

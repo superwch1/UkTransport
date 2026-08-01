@@ -13,23 +13,26 @@ namespace Backend.Services
         private readonly TimeService _timeService;
         private readonly ILogger _logger;
 
-        // Minutes to shift a reported departure by when nothing matched it exactly: -1, 1, -2, 2 and so on out to -10, 10
-        private static readonly int[] _departureOffsetMinutes = [.. Enumerable.Range(1, 10).SelectMany(x => new[] { -x, x })];
-        private readonly int _batchSize = 500;
+        private readonly ScheduleMetaOptions _meta;
 
-        // Debugging only: which operator's unmatched buses to dump, and how many of them
-        private const string _debugOperatorRef = "TFLO";
-        private const int _debugSampleSize = 10;
-
-        private readonly TimeSpan _dataRetentionPeriod = TimeSpan.FromMinutes(30);
+        // Minutes to shift a reported departure by when nothing matched it exactly: -1, 1, -2, 2 and so on out to the configured maximum
+        private readonly int[] _departureOffsetMinutes;
         private readonly Dictionary<string, BusJourney> _journeyByKey = [];
 
-        public BusScheduleEstimationService(TransportDataStore transportDataStore, TimeService timeService, IServiceScopeFactory serviceScopeFactory, ILogger<BusScheduleEstimationService> logger)
+        public BusScheduleEstimationService(IConfiguration configuration, TransportDataStore transportDataStore, TimeService timeService, IServiceScopeFactory serviceScopeFactory, ILogger<BusScheduleEstimationService> logger)
         {
             _transportDataStore = transportDataStore;
             _timeService = timeService;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+
+            _meta = configuration
+                .GetSection("Bus")
+                .GetSection("Schedule")
+                .GetSection("Meta")
+                .Get<ScheduleMetaOptions>() ?? throw new InvalidDataException("Bus:Schedule:Meta");
+
+            _departureOffsetMinutes = [.. Enumerable.Range(1, _meta.MaxDepartureOffsetMinutes).SelectMany(x => new[] { -x, x })];
         }
 
 
@@ -43,7 +46,7 @@ namespace Backend.Services
                     HashSet<string> notFoundKey = busLocationByKey.Keys.ToHashSet();
 
                     // early return since the bus stop is not finished imported yet
-                    using IServiceScope stopScope = _serviceScopeFactory.CreateScope();
+                    using (IServiceScope stopScope = _serviceScopeFactory.CreateScope())
                     {
                         StopRepository stopRepository = stopScope.ServiceProvider.GetRequiredService<StopRepository>();
                         if (!stopRepository.IsStopFinishedImport())
@@ -51,7 +54,6 @@ namespace Backend.Services
                             await Task.Delay(1000);
                             continue;
                         }
-                            
                     }
                     Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -59,58 +61,69 @@ namespace Backend.Services
                     int cachedMatchCount = 0;
                     foreach (BusLocation busLocation in busLocationByKey.Values)
                     {
-                        if (!_journeyByKey.TryGetValue(busLocation.TripJourneyKey, out BusJourney? journeyState))
+                        if (!_journeyByKey.TryGetValue(busLocation.JourneyKey, out BusJourney? journey))
                             continue;
 
                         cachedMatchCount++;
-                        ReestimateSchedule(busLocation.TripJourneyKey, busLocation, journeyState);
-                        notFoundKey.Remove(busLocation.TripJourneyKey);
+
+                        // re-estimate the schedule offset and last seen sequence based on the new bus location
+                        (int? lastSeenSequence, int scheduleOffsetMinutes) = EstimateBusSchedule(busLocation, journey.BusCallingPoints, journey.LastArrivedStopSequence, journey.ScheduleOffsetMinutes);
+                        _journeyByKey[busLocation.JourneyKey] = journey with
+                        {
+                            LastArrivedStopSequence = lastSeenSequence,
+                            ScheduleOffsetMinutes = scheduleOffsetMinutes,
+                            Latitude = busLocation.Latitude,
+                            Longitude = busLocation.Longitude,
+                            Bearing = busLocation.Bearing,
+                            RecordedAtTime = busLocation.RecordedAtTime,
+                        };
+
+                        notFoundKey.Remove(busLocation.JourneyKey);
                     }
 
 
                     // Second: search for the journey in database using departure-origin-destination key
-                    List<BusLocation> uncachedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
+                    IReadOnlyList<BusLocation> uncachedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
                     int exactMatchCount = 0;
-                    foreach (BusLocation[] batch in uncachedBusLocations.Chunk(_batchSize))
+                    foreach (BusLocation[] batch in uncachedBusLocations.Chunk(_meta.DatabaseLookupBatchSize))
                     {
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByKey(batch.Select(x => x.TripJourneyKey).ToList());
+                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByKey(batch.Select(x => x.JourneyKey).ToList());
 
-                        notFoundKey.ExceptWith(busTimetableByKey.Keys);
-
-                        foreach ((string tripJourneyKey, BusTimetable timetable) in busTimetableByKey)
+                        foreach ((string journeyKey, BusTimetable timetable) in busTimetableByKey)
                         {
-                            if (!busLocationByKey.TryGetValue(tripJourneyKey, out BusLocation? busLocation) || busLocation is null)
+                            if (!busLocationByKey.TryGetValue(journeyKey, out BusLocation? busLocation) || busLocation is null)
                                 continue;
 
                             exactMatchCount++;
-                            FirstEstimateSchedule(tripJourneyKey, busLocation, timetable);
+                            FirstEstimation(journeyKey, busLocation, timetable);
+                            notFoundKey.Remove(journeyKey);
                         }
                     }
 
 
                     // Third: shift minutes for each departure-origin-destination key then perform search in database
-                    List<BusLocation> unmatchedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
+                    IReadOnlyList<BusLocation> unmatchedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
                     int offsetMatchCount = 0;
-                    foreach (BusLocation[] batch in unmatchedBusLocations.Chunk(_batchSize))
+                    foreach (BusLocation[] batch in unmatchedBusLocations.Chunk(_meta.DatabaseLookupBatchSize))
                     {
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                         IReadOnlyDictionary<string, List<string>> candidateKeysByKey = batch.ToDictionary(
-                            x => x.TripJourneyKey,
+                            x => x.JourneyKey,
                             x => _departureOffsetMinutes
                                 // it is build from -1, 1, -2, 2, -3, 3 ...
-                                .Select(offset => BusTimeTableExtension.BuildTripJourneyKey(x.LineName, x.OriginAimedDepartureTime.AddMinutes(offset), x.OriginBusStopId, x.DestinationBusStopId))
+                                .Select(offset => BusTimeTableExtension.BuildJourneyKey(x.LineName, x.OriginAimedDepartureTime.AddMinutes(offset), x.OriginBusStopId, x.DestinationBusStopId))
                                 .ToList());
 
                         IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByKey(candidateKeysByKey.Values.SelectMany(x => x).Distinct().ToList());
                         if (busTimetableByKey.Count == 0)
                             continue;
 
-                        foreach ((string tripScheduleKey, List<string> candidateKeys) in candidateKeysByKey)
+                        foreach ((string journeyKey, List<string> candidateKeys) in candidateKeysByKey)
                         {
                             // The offsets are ordered nearest first, so the closest departure wins.
                             foreach (string candidateKey in candidateKeys)
@@ -119,8 +132,8 @@ namespace Backend.Services
                                     continue;
 
                                 offsetMatchCount++;
-                                FirstEstimateSchedule(tripScheduleKey, busLocationByKey[tripScheduleKey], timetable);
-                                notFoundKey.Remove(tripScheduleKey);
+                                FirstEstimation(journeyKey, busLocationByKey[journeyKey], timetable);
+                                notFoundKey.Remove(journeyKey);
                                 break;
                             }
                         }
@@ -129,9 +142,9 @@ namespace Backend.Services
 
                     // drop the data when the bus is no longer being tracked recently
                     var expiredKeys = new List<string>();
-                    foreach ((string key, BusJourney journeyState) in _journeyByKey)
+                    foreach ((string key, BusJourney journey) in _journeyByKey)
                     {
-                        if (_timeService.UkNowDateTime - journeyState.RecordedAtTime > _dataRetentionPeriod)
+                        if (_timeService.UkNowDateTime - journey.RecordedAtTime > _meta.DataRetentionPeriod)
                         {
                             expiredKeys.Add(key);
                         }
@@ -158,9 +171,9 @@ namespace Backend.Services
             }
         }
 
-        private void FirstEstimateSchedule(string tripScheduleKey, BusLocation busLocation, BusTimetable timetable)
+        private void FirstEstimation(string tripScheduleKey, BusLocation busLocation, BusTimetable timetable)
         {
-            (int? lastSeenSequence, int scheduleOffsetMinutes) = LocateBus(busLocation, timetable.BusCallingPoints, null, 0);
+            (int? lastSeenSequence, int scheduleOffsetMinutes) = EstimateBusSchedule(busLocation, timetable.BusCallingPoints, null, 0);
 
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             StopRepository stopRepository = scope.ServiceProvider.GetRequiredService<StopRepository>();
@@ -171,14 +184,14 @@ namespace Backend.Services
             _journeyByKey[tripScheduleKey] = new BusJourney
             {
                 DatasetId = timetable.DatasetId,
-                OperatorId = busLocation.OperatorId,
+                OperatorId = timetable.OperatorId,
                 OperatorName = timetable.OperatorName,
-                LineName = busLocation.LineName,
+                LineName = timetable.LineName,
                 OriginName = originBusStop is not null ? originBusStop.Name : busLocation.OriginBusStopId,
                 DestinationName = destinationBusStop is not null ? destinationBusStop.Name : busLocation.DestinationBusStopId,
-                Direction = busLocation.Direction,
+                Direction = timetable.Direction,
                 ScheduledDayOffset = timetable.ScheduledDayOffset,
-                TripJourneyKey = busLocation.TripJourneyKey,
+                JourneyKey = busLocation.JourneyKey,
                 OriginBusStopId = busLocation.OriginBusStopId,
                 OriginAimedDepartureTime = busLocation.OriginAimedDepartureTime,
                 DestinationBusStopId = busLocation.DestinationBusStopId,
@@ -193,30 +206,14 @@ namespace Backend.Services
             };
         }
 
-        private void ReestimateSchedule(string tripScheduleKey, BusLocation busLocation, BusJourney busJourney)
-        {
-            (int? lastSeenSequence, int scheduleOffsetMinutes) = LocateBus(busLocation, busJourney.BusCallingPoints, busJourney.LastArrivedStopSequence, busJourney.ScheduleOffsetMinutes);
-
-            _journeyByKey[tripScheduleKey] = busJourney with
-            {
-                LastArrivedStopSequence = lastSeenSequence,
-                ScheduleOffsetMinutes = scheduleOffsetMinutes,
-                Latitude = busLocation.Latitude,
-                Longitude = busLocation.Longitude,
-                Bearing = busLocation.Bearing,
-                RecordedAtTime = busLocation.RecordedAtTime,
-            };
-        }
-
-        private (int? LastSeenSequence, int ScheduleOffsetMinutes) LocateBus(BusLocation busLocation, IReadOnlyList<BusCallingPoint>? busCallingPoints, int? lastSeenSequence, int scheduleOffsetMinutes)
+        private (int? LastSeenSequence, int ScheduleOffsetMinutes) EstimateBusSchedule(BusLocation busLocation, IReadOnlyList<BusCallingPoint>? busCallingPoints, int? lastSeenSequence, int scheduleOffsetMinutes)
         {
             IReadOnlyList<BusCallingPoint> callingPoints = busCallingPoints ?? [];
             if (callingPoints.Count == 0)
                 return (lastSeenSequence, scheduleOffsetMinutes);
 
-            // skip the first bus stop since the bus is there but not departure yet
-            // reason not checking is time greater than schedule is because 1:00 is after 23:00 but TimeOnly thinks different
-            // also not checking last because if the bus keep staying at last station may considered as delay although journey is finished
+            // skip the first bus stop since the bus is there but not departure yet and not checking is time greater than schedule is because 1:00 is after 23:00 but TimeOnly thinks different
+            // not checking last bus stop because if the bus staying at last stop, it is considered as delay though journey is finished
             int lastSequence = callingPoints[callingPoints.Count - 1].Sequence;
             IReadOnlyList<BusCallingPoint> remainingCallingPoints = callingPoints
                 .Where(x => x.Sequence != 0 && x.Sequence != lastSequence)
@@ -228,10 +225,8 @@ namespace Backend.Services
                     .Where(x => x.Sequence >= lastSeenSequence && lastSeenSequence + 5 >= x.Sequence) // prevent sequence jump from 5 to 40 cause it is a round trip
                     .ToList();
 
-            // Measured against when the feed recorded the position, not against now. A reading can be up to ten minutes
-            // old by the time it is read, and charging that delay to the bus would report it later than it ran.
+            // Measured against when the feed recorded the position, not against now
             TimeOnly recordedTime = TimeOnly.FromDateTime(busLocation.RecordedAtTime);
-
             foreach (BusCallingPoint callingPoint in remainingCallingPoints)
             {
                 if (!_transportDataStore.StopById.TryGetValue(callingPoint.BusStopId, out Stop? busStop) || busStop is null)
@@ -240,26 +235,34 @@ namespace Backend.Services
                 // ~50 m radius
                 if (Math.Abs(busStop.Latitude - busLocation.Latitude) < 0.00045m && Math.Abs(busStop.Longitude - busLocation.Longitude) < 0.00065m)
                 {
-                    return (callingPoint.Sequence, MinutesFromSchedule(callingPoint.ScheduledTime, recordedTime));
+                    // taken the short way round the clock, so a bus due 23:58 and seen at 00:02 is four minutes late rather than 1436 early.
+                    int minutes = (int)(callingPoint.ScheduledTime.ToTimeSpan() - recordedTime.ToTimeSpan()).TotalMinutes;
+
+                    if (minutes > 720)
+                        minutes -= 1440;
+
+                    if (minutes < -720)
+                        minutes += 1440;
+
+                    return (callingPoint.Sequence, minutes);
                 }
             }
 
             return (lastSeenSequence, scheduleOffsetMinutes);
         }
 
-        // How far off its scheduled time the bus was at that stop: positive late, negative early. Taken the short way
-        // round the clock, so a bus due 23:58 and seen at 00:02 is four minutes late rather than 1436 early.
-        private static int MinutesFromSchedule(TimeOnly scheduledTime, TimeOnly recordedTime)
+
+        // Bus:Schedule:Meta.
+        public sealed record ScheduleMetaOptions
         {
-            int minutes = (int)(recordedTime.ToTimeSpan() - scheduledTime.ToTimeSpan()).TotalMinutes;
+            // Furthest a reported departure is shifted, in minutes, when nothing matched it exactly.
+            public required int MaxDepartureOffsetMinutes { get; init; }
 
-            if (minutes > 720)
-                return minutes - 1440;
+            // How many bus locations are looked up in the database at a time.
+            public required int DatabaseLookupBatchSize { get; init; }
 
-            if (minutes < -720)
-                return minutes + 1440;
-
-            return minutes;
+            // How long a journey is kept after it was last seen in the location feed.
+            public required TimeSpan DataRetentionPeriod { get; init; }
         }
     }
 }

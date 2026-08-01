@@ -10,21 +10,11 @@ namespace Backend.Controllers
     {
         private readonly BusRepository _busRepository;
         private readonly StopRepository _stopRepository;
-        private readonly TransportDataStore _transportDataStore;
 
-        public TransportController(BusRepository busRepository, StopRepository stopRepository, TransportDataStore transportDataStore)
+        public TransportController(BusRepository busRepository, StopRepository stopRepository)
         {
             _busRepository = busRepository;
             _stopRepository = stopRepository;
-            _transportDataStore = transportDataStore;
-        }
-
-
-        [HttpGet("[controller]/bus/stop/{id}/timetables")]
-        public async Task<IActionResult> BusStopTimetables(string id)
-        {
-            IReadOnlyDictionary<string, TimeOnly> busStopTimeTables = await _busRepository.GetBusStopTimetable(id, DateTime.Now, false);
-            return Success(StatusCodes.Status200OK, response: busStopTimeTables.ToBusCallingPointsResponse());
         }
 
 
@@ -39,18 +29,18 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("[controller]/bus/{tripJourneyKey}/route")]
-        public async Task<IActionResult> BusRoute(string tripJourneyKey)
+        [HttpGet("[controller]/bus/{journeyKey}/route")]
+        public async Task<IActionResult> BusRoute(string journeyKey)
         {
-            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(tripJourneyKey);
+            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(journeyKey);
             return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_stopRepository.GetStop));
         }
 
 
-        [HttpGet("[controller]/bus/{tripJourneyKey}/location/")]
-        public IActionResult BusLocation(string tripJourneyKey)
+        [HttpGet("[controller]/bus/{journeyKey}/location/")]
+        public IActionResult BusLocation(string journeyKey)
         {
-            var busJourney = _busRepository.GetBusJourneyById(tripJourneyKey);
+            var busJourney = _busRepository.GetBusJourneyByKey(journeyKey);
             if (busJourney == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 

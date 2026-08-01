@@ -20,13 +20,12 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<IReadOnlyList<BusCallingPoint>> GetBusRoute(string tripScheduleKey)
+        public async Task<IReadOnlyList<BusCallingPoint>> GetBusRoute(string journeyKey)
         {
-            // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
             BusTimetable? timetable = await _context.BusTimetables
                 .Include(x => x.BusCallingPoints)
-                .Where(x => tripScheduleKey == x.TripJourneyKey &&
+                .Where(x => journeyKey == x.JourneyKey &&
                             x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .AsNoTracking()
@@ -55,6 +54,7 @@ namespace Backend.Repositories
                     x.First().OperatorName,
                     x.First().Direction
                 })
+                .OrderBy(x => x.OperatorName)
                 .ToListAsync();
 
             Dictionary<string, List<BusRoute>> routeByLineName = new Dictionary<string, List<BusRoute>>(StringComparer.Ordinal);
@@ -77,7 +77,7 @@ namespace Backend.Repositories
                 busRoutes.Add(new BusRoute
                 {
                     LineName = route.LineName,
-                    OperatorId = route.OperatorName,
+                    OperatorName = route.OperatorName,
                     OriginBusStopId = route.OriginBusStopId,
                     OriginName = originBusStopName,
                     DestinationBusStopId = route.DestinationBusStopId,
@@ -90,15 +90,13 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByKey(IEnumerable<string> tripScheduleKey)
+        public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByKey(IEnumerable<string> journeyKey)
         {
-            // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
-
             // seems splitting query is much faster (from 25s to 0.5s)
             List<BusTimetable> timetables = await _context.BusTimetables
                 .AsNoTracking()
-                .Where(x => tripScheduleKey.Contains(x.TripJourneyKey) &&
+                .Where(x => journeyKey.Contains(x.JourneyKey) &&
                             x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .ToListAsync();
@@ -107,7 +105,7 @@ namespace Backend.Repositories
                 return new Dictionary<string, BusTimetable>();
 
             timetables = timetables
-                .GroupBy(x => x.TripJourneyKey)
+                .GroupBy(x => x.JourneyKey)
                 .Select(g => g.OrderByDescending(x => x.StartDate).First())
                 .ToList();
 
@@ -122,50 +120,19 @@ namespace Backend.Repositories
             foreach (var trip in timetables)
             {
                 if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? journeyCallingPoints))
-                    result[trip.TripJourneyKey] = trip with { BusCallingPoints = journeyCallingPoints };
+                    result[trip.JourneyKey] = trip with { BusCallingPoints = journeyCallingPoints };
             }
 
             return result;
         }
 
-        public async Task<IReadOnlyDictionary<string, TimeOnly>> GetBusStopTimetable(string busStopId, DateTime now, bool isHoliday)
-        {
-            var nowTime = TimeOnly.FromDateTime(now);
 
-            IQueryable<BusCallingPoint> query = _context.BusCallingPoints
-                .Include(cp => cp.BusTimetable)
-                .Where(cp => cp.BusStopId == busStopId)
-                .Where(cp => (cp.ScheduledTime >= nowTime));
-
-            // Timetables referenced by those calling points.
-            IQueryable<BusTimetable> timetables = query
-                .Select(cp => cp.BusTimetable!)
-                .Distinct()
-                .ApplyDayFilter(_timeService.UkNowDateTime, false);
-
-
-            // Keep only calling points whose timetable survived the day filter.
-            IReadOnlyList<BusCallingPoint> callingPoints = await query
-                .Where(cp => timetables.Select(t => t.Id).Contains(cp.BusTimetableId))
-                .ToListAsync();
-
-            return callingPoints
-                .GroupBy(cp => cp.BusTimetable!.LineName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g
-                        .Select(cp => cp.ScheduledTime)
-                        .OrderBy(x => x)
-                        .First()
-                );
-        }
-
-        public BusJourney? GetBusJourneyById(string tripJourneyKey)
+        public BusJourney? GetBusJourneyByKey(string journeyKey)
         {
             return _transportDataStore
                 .BusJourneyByKey
                 .Values
-                .FirstOrDefault(x => x.TripJourneyKey == tripJourneyKey);
+                .FirstOrDefault(x => x.JourneyKey == journeyKey);
         }
 
 

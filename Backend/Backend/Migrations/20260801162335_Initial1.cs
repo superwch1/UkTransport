@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial2 : Migration
+    public partial class Initial1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -40,17 +40,18 @@ namespace Backend.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    JourneyKey = table.Column<string>(type: "text", nullable: false),
                     DatasetId = table.Column<string>(type: "text", nullable: false),
-                    NationalOperatorRef = table.Column<string>(type: "text", nullable: false),
+                    OperatorId = table.Column<string>(type: "text", nullable: false),
                     OperatorName = table.Column<string>(type: "text", nullable: false),
                     LineName = table.Column<string>(type: "text", nullable: false),
-                    OriginName = table.Column<string>(type: "text", nullable: false),
-                    DestinationName = table.Column<string>(type: "text", nullable: false),
+                    DepartureTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    OriginBusStopId = table.Column<string>(type: "text", nullable: false),
+                    DestinationBusStopId = table.Column<string>(type: "text", nullable: false),
                     Direction = table.Column<string>(type: "text", nullable: false),
                     ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    TripScheduleKey = table.Column<string>(type: "text", nullable: false),
                     Monday = table.Column<bool>(type: "boolean", nullable: false),
                     Tuesday = table.Column<bool>(type: "boolean", nullable: false),
                     Wednesday = table.Column<bool>(type: "boolean", nullable: false),
@@ -80,8 +81,6 @@ namespace Backend.Migrations
                     BusTimetableId = table.Column<string>(type: "text", nullable: false),
                     Sequence = table.Column<int>(type: "integer", nullable: false),
                     BusStopId = table.Column<string>(type: "text", nullable: false),
-                    LineName = table.Column<string>(type: "text", nullable: false),
-                    OperatorRef = table.Column<string>(type: "text", nullable: false),
                     ScheduledTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -176,19 +175,34 @@ namespace Backend.Migrations
                 column: "DatasetId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_DepartureTime",
+                table: "BusTimetables",
+                column: "DepartureTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_DestinationBusStopId",
+                table: "BusTimetables",
+                column: "DestinationBusStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_JourneyKey",
+                table: "BusTimetables",
+                column: "JourneyKey");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BusTimetables_LineName",
                 table: "BusTimetables",
                 column: "LineName");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusTimetables_NationalOperatorRef",
+                name: "IX_BusTimetables_OperatorId",
                 table: "BusTimetables",
-                column: "NationalOperatorRef");
+                column: "OperatorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusTimetables_TripScheduleKey",
+                name: "IX_BusTimetables_OriginBusStopId",
                 table: "BusTimetables",
-                column: "TripScheduleKey");
+                column: "OriginBusStopId");
         }
 
         /// <inheritdoc />

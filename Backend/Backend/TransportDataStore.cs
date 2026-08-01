@@ -14,6 +14,10 @@ namespace Backend
         public FrozenDictionary<string, Stop> StopById => _stopsById;
 
 
+        public FrozenDictionary<string, IReadOnlyList<BusRoute>> _busRouteByLineName = FrozenDictionary.Create<string, IReadOnlyList<BusRoute>>();
+        public FrozenDictionary<string, IReadOnlyList<BusRoute>> BusRouteByLineName => _busRouteByLineName;
+
+
 
         private readonly Channel<FrozenDictionary<string, BusLocation>> _busLocationByKeyChannel =
             Channel.CreateBounded<FrozenDictionary<string, BusLocation>>(

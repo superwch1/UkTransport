@@ -1,9 +1,9 @@
 class BusLocationItemResponse {
 
-  final String tripJourneyKey;
+  final String journeyKey;
   final DateTime recordedAtTime;
 
-  final String operatorRef;
+  final String operatorName;
   final String publishedLineName;
 
   final String originName;
@@ -21,10 +21,10 @@ class BusLocationItemResponse {
   final double bearing;
 
   BusLocationItemResponse._({
-    required this.tripJourneyKey,
+    required this.journeyKey,
     required this.recordedAtTime,
 
-    required this.operatorRef,
+    required this.operatorName,
     required this.publishedLineName,
 
     required this.originName,
@@ -45,9 +45,9 @@ class BusLocationItemResponse {
 
   factory BusLocationItemResponse.fromJson(Map<String, dynamic> json) {
     return BusLocationItemResponse._(
-      tripJourneyKey: json['tripJourneyKey'] as String,
+      journeyKey: json['journeyKey'] as String,
       recordedAtTime: DateTime.parse(json['recordedAtTime'] as String),
-      operatorRef: json['operatorRef'] as String,
+      operatorName: json['operatorName'] as String,
       publishedLineName: json['publishedLineName'] as String,
       originName: json['originName'] as String,
       originRef: json['originRef'] as String,

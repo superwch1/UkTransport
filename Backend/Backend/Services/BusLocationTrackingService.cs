@@ -12,8 +12,6 @@ namespace Backend.Services
 
     public class BusLocationTrackingService : BackgroundService
     {
-        // refresh every 10 seconds
-        private const string _unknownPlaceholder = "unknown";
         private static readonly XNamespace _siriNamespace = "http://www.siri.org.uk/siri";
 
         private readonly TimeService _timeService;
@@ -21,8 +19,8 @@ namespace Backend.Services
         private readonly TransportDataStore _transportDataStore;
         private readonly ILogger<BusLocationTrackingService> _logger;
 
-        private readonly IReadOnlyDictionary<string, string> _apiKeyBySource;
-        private readonly IReadOnlyDictionary<string, string> _locationDataUrlBySource;
+        private readonly LocationMetaOptions _meta;
+        private readonly IReadOnlyDictionary<string, string> _locationUrlBySource;
 
         public BusLocationTrackingService(IConfiguration configuration, TimeService timeService, IHttpClientFactory httpClientFactory, TransportDataStore transportDataStore, ILogger<BusLocationTrackingService> logger)
         {
@@ -31,14 +29,17 @@ namespace Backend.Services
             _transportDataStore = transportDataStore;
             _logger = logger;
 
-            _apiKeyBySource = configuration
-                .GetSection("ApiKey")
-                .Get<Dictionary<string, string>>() ?? throw new InvalidDataException("ApiKey");
-
-            _locationDataUrlBySource = configuration
+            _meta = configuration
                 .GetSection("Bus")
-                .GetSection("LocationData")
-                .Get<Dictionary<string, string>>() ?? throw new InvalidDataException("Bus:LocationData");
+                .GetSection("Location")
+                .GetSection("Meta")
+                .Get<LocationMetaOptions>() ?? throw new InvalidDataException("Bus:Location:Meta");
+
+            _locationUrlBySource = configuration
+                .GetSection("Bus")
+                .GetSection("Location")
+                .GetSection("Sources")
+                .Get<Dictionary<string, string>>() ?? throw new InvalidDataException("Bus:Location:Sources");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -50,9 +51,9 @@ namespace Backend.Services
                 try
                 {
                     Stopwatch stopwatch = Stopwatch.StartNew();
-                    foreach ((string source, string locationDataUrl) in _locationDataUrlBySource)
+                    foreach ((string source, string locationUrl) in _locationUrlBySource)
                     {
-                        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, locationDataUrl);
+                        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, locationUrl);
 
                         HttpClient client = _httpClientFactory.CreateClient();
                         using HttpResponseMessage response = await client.SendAsync(request, cancellationToken);
@@ -68,7 +69,7 @@ namespace Backend.Services
                         await stream.ExtractXmlStreamsAsync(
                             async (xmlStream, cancellationToken) =>
                             {
-                                Dictionary<string, BusLocation> entryBusLocations = await xmlStream.ParseBusLocation(_siriNamespace, _unknownPlaceholder, _timeService.UkNowDateTime, _timeService.UkTimeZone, _logger, cancellationToken);
+                                Dictionary<string, BusLocation> entryBusLocations = await xmlStream.ParseBusLocation(_siriNamespace, _timeService.UkNowDateTime, _meta.RetentionPeriod, _timeService.UkTimeZone, _logger, cancellationToken);
                                 foreach (var (key, value) in entryBusLocations)
                                     busLocations[key] = value;   // last-wins on duplicate keys
                             },
@@ -84,8 +85,16 @@ namespace Backend.Services
                     _logger.LogError(ex, "Failed to download and import bus locations from zip archive");
                 }
 
-                await Task.Delay(10000, cancellationToken);
+                await Task.Delay(_meta.RefreshInterval, cancellationToken);
             }
+        }
+
+
+        public sealed record LocationMetaOptions
+        {
+            public required TimeSpan RefreshInterval { get; init; }
+
+            public required TimeSpan RetentionPeriod { get; init; }
         }
     }
 }

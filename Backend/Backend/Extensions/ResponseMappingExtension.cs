@@ -9,9 +9,9 @@ namespace Backend.Extensions
         {
             return new BusLocationItemResponse()
             {
-                TripJourneyKey = busJourney.TripJourneyKey,
+                JourneyKey = busJourney.JourneyKey,
                 RecordedAtTime = busJourney.RecordedAtTime,
-                OperatorRef = busJourney.OperatorId,
+                OperatorName = busJourney.OperatorName,
                 PublishedLineName = busJourney.LineName,
                 OriginName = busJourney.OriginName,
                 OriginRef = busJourney.OriginBusStopId,

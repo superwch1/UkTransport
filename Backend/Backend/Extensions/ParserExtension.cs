@@ -16,7 +16,7 @@ namespace Backend.Extensions
         private static readonly string[] s_displacementHolidays = ["ChristmasDayHoliday", "BoxingDayHoliday", "NewYearsDayHoliday", "Jan2ndScotlandHoliday", "StAndrewsDayHoliday"];
         private static readonly string[] s_earlyRunOffDays = ["ChristmasEve", "NewYearsEve"];
 
-        public static async Task<Dictionary<string, BusLocation>> ParseBusLocation(this Stream stream, XNamespace xmlNamespace, string unknownPlaceholder, DateTime now, TimeZoneInfo timeZoneInfo, ILogger logger, CancellationToken cancellationToken)
+        public static async Task<Dictionary<string, BusLocation>> ParseBusLocation(this Stream stream, XNamespace xmlNamespace, DateTime now, TimeSpan retentionPeriod, TimeZoneInfo timeZoneInfo, ILogger logger, CancellationToken cancellationToken)
         {
             Dictionary<string, BusLocation> busLocations = [];
             XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
@@ -25,7 +25,7 @@ namespace Backend.Extensions
             // ten seconds. The totals say whether a source is publishing badly; a line per vehicle would not.
             int vehicleCount = 0;
             int expiredCount = 0;
-            int missingServiceCount = 0;
+            int missingLineNameCount = 0;
             int missingJourneyCount = 0;
             int missingCoordinateCount = 0;
 
@@ -38,7 +38,7 @@ namespace Backend.Extensions
                     vehicleCount++;
 
                     DateTime? recordedAtTime = activity.Value(xmlNamespace, "RecordedAtTime").ParseUkDateTime(timeZoneInfo);
-                    if (recordedAtTime is null || now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
+                    if (recordedAtTime is null || now - retentionPeriod > recordedAtTime.Value)
                     {
                         expiredCount++;
                         continue;
@@ -46,19 +46,18 @@ namespace Backend.Extensions
 
                     XElement journey = activity.Element(xmlNamespace + "MonitoredVehicleJourney") ?? throw new InvalidDataException("<MonitoredVehicleJourney> element not found.");
 
-                    string? operatorRef = journey.Value(xmlNamespace, "OperatorRef");
+                    // string? operatorRef = journey.Value(xmlNamespace, "OperatorRef");
                     string? publishedLineName = journey.Value(xmlNamespace, "PublishedLineName");   
-
-                    if (operatorRef is null || publishedLineName is null)
+                    if (publishedLineName is null)
                     {
-                        missingServiceCount++;
+                        missingLineNameCount++;
                         continue;
                     }
 
 
                     string? originBusStopId = journey.Value(xmlNamespace, "OriginRef");
                     string? destinationBusStopId = journey.Value(xmlNamespace, "DestinationRef");    
-                    string? direction = journey.Value(xmlNamespace, "DirectionRef"); // inbound, outbound, clockwise, anticlockwise, 1, 2
+                    // string? direction = journey.Value(xmlNamespace, "DirectionRef"); // inbound, outbound, clockwise, anticlockwise, 1, 2
 
                     TimeOnly? originAimedDepartureTime = journey.Value(xmlNamespace, "OriginAimedDepartureTime").ParseUkTimeOnly(timeZoneInfo);
                     TimeOnly? destinationAimedArrivalTime = journey.Value(xmlNamespace, "DestinationAimedArrivalTime").ParseUkTimeOnly(timeZoneInfo);
@@ -75,7 +74,7 @@ namespace Backend.Extensions
 
                     // seems the bus either do not have arrival time or both arrival and departure time
                     originAimedDepartureTime = originAimedDepartureTime ?? departureTimeFromJourneyCode;
-                    if (originBusStopId is null || destinationBusStopId is null || direction is null || !originAimedDepartureTime.HasValue)
+                    if (originBusStopId is null || destinationBusStopId is null || !originAimedDepartureTime.HasValue)
                     {
                         missingJourneyCount++;
                         continue;
@@ -92,15 +91,13 @@ namespace Backend.Extensions
                         continue;
                     }
 
-                    string tripScheduleKey = BusTimeTableExtension.BuildTripJourneyKey(publishedLineName, originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
+                    string tripScheduleKey = BusTimeTableExtension.BuildJourneyKey(publishedLineName, originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
                     busLocations[tripScheduleKey] = new BusLocation
                     {
-                        TripJourneyKey = tripScheduleKey,
+                        JourneyKey = tripScheduleKey,
                         RecordedAtTime = recordedAtTime.Value,
 
-                        OperatorId = operatorRef,
                         LineName = publishedLineName.ToUpperInvariant(),
-                        Direction = direction,
 
                         OriginBusStopId = originBusStopId,
                         OriginAimedDepartureTime = originAimedDepartureTime.Value,
@@ -119,10 +116,10 @@ namespace Backend.Extensions
                 }
             }
 
-            int skippedCount = expiredCount + missingServiceCount + missingJourneyCount + missingCoordinateCount;
+            int skippedCount = expiredCount + missingLineNameCount + missingJourneyCount + missingCoordinateCount;
             logger.LogInformation(
-                "Bus locations - {Valid} valid, {Skipped} skipped ({Expired} expired, {MissingService} no service, {MissingJourney} no journey, {MissingLocation} no coordinates)",
-                busLocations.Count, skippedCount, expiredCount, missingServiceCount, missingJourneyCount, missingCoordinateCount);
+                "Bus locations - {Valid} valid, {Skipped} skipped ({Expired} expired, {MissingLineName} no line name, {MissingJourney} no journey, {MissingLocation} no coordinates)",
+                busLocations.Count, skippedCount, expiredCount, missingLineNameCount, missingJourneyCount, missingCoordinateCount);
 
             return busLocations;
         }
@@ -222,12 +219,18 @@ namespace Backend.Extensions
                     throw new InvalidDataException("<JourneyPatternTimingLink> element not found");
 
                 // Every link's To is the next link's From, so take the From of each link...
-                foreach (XElement timingLink in timingLinks)
+                for (int i = 0; i < timingLinks.Count; i++)
                 {
+                    XElement timingLink = timingLinks[i];
                     string timingLinkId = timingLink.AttributeValue("id") ?? string.Empty;
 
                     XElement from = timingLink.Element(xmlNamespace + "From") ?? throw new InvalidDataException("<From> element not found.");
                     string fromStopId = from.Value(xmlNamespace, "StopPointRef") ?? throw new InvalidDataException("<StopPointRef> element not found.");
+
+                    // ...and the wait at that stop can be written on either side of it, since it is this link's From and
+                    // the previous link's To. Publishers pick one or the other, so both are read.
+                    string? waitTime = from.Value(xmlNamespace, "WaitTime")
+                        ?? (i == 0 ? null : timingLinks[i - 1].Element(xmlNamespace + "To").Value(xmlNamespace, "WaitTime"));
 
                     // The wait is at this stop before moving on, the run is the leg to the next one.
                     stops.Add(new SectionStop(
@@ -235,7 +238,7 @@ namespace Backend.Extensions
                         fromStopId,
                         sequence,
                         IsPassedStop(from, xmlNamespace),
-                        from.Value(xmlNamespace, "WaitTime").ParseDuration(),
+                        waitTime.ParseDuration(),
                         timingLink.Value(xmlNamespace, "RunTime").ParseDuration()));
 
                     sequence++;
@@ -392,14 +395,13 @@ namespace Backend.Extensions
 
                     foreach (SectionStop stop in stops)
                     {
-                        // A section's first stop is the previous section's last stop, and its times were already added
-                        // by the section before, so it is skipped without advancing the clock again.
-                        if (!isFirstSection && stop.Sequence == 1)
-                            continue;
+                        // A section's first stop is the previous section's last stop, so it is not called at twice. Its
+                        // times still count though, since the leg on from it belongs to this section, not the last one.
+                        bool isRepeatedSectionStop = !isFirstSection && stop.Sequence == 1;
 
                         TimeOnly scheduledTime = departureTime.AddMinutes(offsetFromDeparture.TotalMinutes, out int scheduledDayOffset);
 
-                        if (!stop.IsPassed)
+                        if (!stop.IsPassed && !isRepeatedSectionStop)
                         {
                             busCallingPoints.Add(new BusCallingPoint()
                             {
@@ -446,7 +448,7 @@ namespace Backend.Extensions
                     ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
-                    TripJourneyKey = BusTimeTableExtension.BuildTripJourneyKey(lineName, departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    JourneyKey = BusTimeTableExtension.BuildJourneyKey(lineName, departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                     WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),

@@ -151,6 +151,10 @@ namespace Backend.Migrations
                     b.Property<bool>("Friday")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("JourneyKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("LineName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -185,10 +189,6 @@ namespace Backend.Migrations
                     b.Property<bool>("Thursday")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("TripJourneyKey")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("Tuesday")
                         .HasColumnType("boolean");
 
@@ -206,13 +206,13 @@ namespace Backend.Migrations
 
                     b.HasIndex("DestinationBusStopId");
 
+                    b.HasIndex("JourneyKey");
+
                     b.HasIndex("LineName");
 
                     b.HasIndex("OperatorId");
 
                     b.HasIndex("OriginBusStopId");
-
-                    b.HasIndex("TripJourneyKey");
 
                     b.ToTable("BusTimetables");
                 });

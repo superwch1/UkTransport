@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260801111810_Initial5")]
-    partial class Initial5
+    [Migration("20260801162335_Initial1")]
+    partial class Initial1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -154,6 +154,10 @@ namespace Backend.Migrations
                     b.Property<bool>("Friday")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("JourneyKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("LineName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -188,10 +192,6 @@ namespace Backend.Migrations
                     b.Property<bool>("Thursday")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("TripJourneyKey")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("Tuesday")
                         .HasColumnType("boolean");
 
@@ -209,13 +209,13 @@ namespace Backend.Migrations
 
                     b.HasIndex("DestinationBusStopId");
 
+                    b.HasIndex("JourneyKey");
+
                     b.HasIndex("LineName");
 
                     b.HasIndex("OperatorId");
 
                     b.HasIndex("OriginBusStopId");
-
-                    b.HasIndex("TripJourneyKey");
 
                     b.ToTable("BusTimetables");
                 });

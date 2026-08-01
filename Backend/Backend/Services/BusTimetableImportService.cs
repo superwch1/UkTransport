@@ -13,25 +13,19 @@ namespace Backend.Services
 
         private const int PageSize = 1000;
 
-        // Timetables change slowly, so this runs once a day, just after midnight. The day filter turns over at
-        // midnight, so importing straight afterwards puts the new day's journeys in before anything asks for them.
-        private static readonly TimeSpan _dailyRunTime = new TimeSpan(0, 5, 0);
-
-        // How stale a dataset already imported has to be before it is downloaded and rebuilt again.
-        private static readonly TimeSpan _datasetRefreshInterval = TimeSpan.FromDays(7);
-
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TimeService _timeService;
         private readonly ILogger<BusTimetableImportService> _logger;
 
+        private readonly TimetableMetaOptions _meta;
         private readonly IReadOnlyDictionary<string, string> _apiKeyBySource;
         private readonly IReadOnlyDictionary<string, TimetableSourceOptions> _sourceOptionsBySource;
 
-        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory scopeFactory, TimeService timeService, ILogger<BusTimetableImportService> logger)
+        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory, TimeService timeService, ILogger<BusTimetableImportService> logger)
         {
             _httpClientFactory = httpClientFactory;
-            _scopeFactory = scopeFactory;
+            _serviceScopeFactory = serviceScopeFactory;
             _timeService = timeService;
             _logger = logger;
 
@@ -39,18 +33,35 @@ namespace Backend.Services
                 .GetSection("ApiKey")
                 .Get<Dictionary<string, string>>() ?? throw new InvalidDataException("ApiKey");
 
+            _meta = configuration
+                .GetSection("Bus")
+                .GetSection("Timetable")
+                .GetSection("Meta")
+                .Get<TimetableMetaOptions>() ?? throw new InvalidDataException("Bus:Timetable:Meta");
+
             _sourceOptionsBySource = configuration
                 .GetSection("Bus")
-                .GetSection("TimetableData")
-                .Get<Dictionary<string, TimetableSourceOptions>>() ?? throw new InvalidDataException("Bus:TimetableData");
+                .GetSection("Timetable")
+                .GetSection("Sources")
+                .Get<Dictionary<string, TimetableSourceOptions>>() ?? throw new InvalidDataException("Bus:Timetable:Sources");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                // Built from what is already stored before anything is downloaded, since the import runs for hours and
-                // yesterday's routes are worth having in the meantime, then again once the new data has landed.
+                // early return since the bus stop is not finished imported yet
+                using (IServiceScope stopScope = _serviceScopeFactory.CreateScope())
+                {
+                    StopRepository stopRepository = stopScope.ServiceProvider.GetRequiredService<StopRepository>();
+                    if (!stopRepository.IsStopFinishedImport())
+                    {
+                        await Task.Delay(1000);
+                        continue;
+                    }
+                }
+
+                // Built from what is already stored before anything is downloaded, since the import runs for hours
                 await RefreshBusRoutes();
 
                 await ImportBodsTimetables(cancellationToken);
@@ -60,7 +71,7 @@ namespace Backend.Services
 
 
                 DateTime ukNow = _timeService.UkNowDateTime;
-                DateTime nextRun = ukNow.Date.Add(_dailyRunTime);
+                DateTime nextRun = ukNow.Date.Add(_meta.DailyRunTime);
 
                 if (nextRun <= ukNow)
                     nextRun = nextRun.AddDays(1);
@@ -74,7 +85,7 @@ namespace Backend.Services
         {
             try
             {
-                using IServiceScope scope = _scopeFactory.CreateScope();
+                using IServiceScope scope = _serviceScopeFactory.CreateScope();
                 BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                 IReadOnlyDictionary<string, IReadOnlyList<BusRoute>> busRoutesByLineName = await busRepository.GetBusOriginDestinations();
@@ -96,7 +107,7 @@ namespace Backend.Services
             {
                 TimetableSourceOptions sourceOptions = GetTimetableSourceOptions(source);
                 string apiKey = _apiKeyBySource[source] ?? throw new InvalidDataException($"ApiKey:{source}");
-                string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:TimetableData:{source}:CatalogueUrl");
+                string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:Timetable:Sources:{source}:CatalogueUrl");
 
                 IReadOnlyList<string> sourceDatasetIds = await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken);
                 foreach (string sourceDatasetId in sourceDatasetIds)
@@ -133,12 +144,12 @@ namespace Backend.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             string datasetId = BusTimeTableExtension.BuildDatasetKey(source, sourceDatasetId);
-            using (IServiceScope freshnessScope = _scopeFactory.CreateScope())
+            using (IServiceScope freshnessScope = _serviceScopeFactory.CreateScope())
             {
                 BusRepository busRepository = freshnessScope.ServiceProvider.GetRequiredService<BusRepository>();
                 BusDataset? importedDataset = await busRepository.GetBusDataset(datasetId);
 
-                if (importedDataset is not null && _timeService.UtcNowDateTimeOffset - importedDataset.ImportedAt < _datasetRefreshInterval)
+                if (importedDataset is not null && _timeService.UtcNowDateTimeOffset - importedDataset.ImportedAt < _meta.DatasetRefreshInterval)
                 {
                     _logger.LogInformation("DatasetId ({DatasetId}) - skipped, imported at {ImportedAt}", datasetId, importedDataset.ImportedAt);
                     return;
@@ -151,7 +162,7 @@ namespace Backend.Services
 
             try
             {
-                using (IServiceScope datasetScope = _scopeFactory.CreateScope())
+                using (IServiceScope datasetScope = _serviceScopeFactory.CreateScope())
                 {
                     BusRepository busRepository = datasetScope.ServiceProvider.GetRequiredService<BusRepository>();
                     await busRepository.ResetBusDataset(new BusDataset { Id = datasetId, ImportedAt = _timeService.UtcNowDateTimeOffset });
@@ -165,14 +176,14 @@ namespace Backend.Services
                 stream.Position = 0;
 
                 await stream.ExtractXmlStreamsAsync(
-                    async (xmlStream, cancellationToken) =>
+                    (Func<Stream, CancellationToken, Task>)(async (xmlStream, cancellationToken) =>
                     {
-                        using IServiceScope scope = _scopeFactory.CreateScope();
+                        using IServiceScope scope = this._serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                         IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, datasetId, _timeService.UkNowDateTime, _logger, cancellationToken);
                         await busRepository.BulkInsertBusTimetables(busTimetables);
-                    },
+                    }),
                     cancellationToken,
                     entryNameContains
                 );
@@ -223,13 +234,24 @@ namespace Backend.Services
         private TimetableSourceOptions GetTimetableSourceOptions(string source)
         {
             if (!_sourceOptionsBySource.TryGetValue(source, out TimetableSourceOptions? sourceOptions) || string.IsNullOrWhiteSpace(sourceOptions.Url))
-                throw new InvalidDataException($"Bus:TimetableData:{source}");
+                throw new InvalidDataException($"Bus:Timetable:Sources:{source}");
 
             return sourceOptions;
         }
 
 
-        // One entry under Bus:TimetableData.
+        // Bus:Timetable:Meta.
+        public sealed record TimetableMetaOptions
+        {
+            // Time of day (UK time), the daily import starts.
+            public required TimeSpan DailyRunTime { get; init; }
+
+            // How long an already imported dataset is left alone before it is downloaded again.
+            public required TimeSpan DatasetRefreshInterval { get; init; }
+        }
+
+
+        // One entry under Bus:Timetable:Sources.
         public sealed record TimetableSourceOptions
         {
             public required string Url { get; init; }

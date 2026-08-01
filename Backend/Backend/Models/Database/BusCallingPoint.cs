@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Backend.Models
 {
     [Index(nameof(BusStopId))]
+    [Index(nameof(BusTimetableId))]
     public record BusCallingPoint
     {
         [Key]
@@ -18,13 +19,7 @@ namespace Backend.Models
         public required int Sequence { get; init; }     
         public required string BusStopId { get; init; }
 
-        // TODO not sure 
-        //// allow to group by line name and operator ref to find timetable of a bus stop for each line
-        //public required string LineName { get; init; }
-        //public required string OperatorId { get; init; }
-
         public TimeOnly ScheduledTime { get; init; }
-
         public required int ScheduledDayOffset { get; init; } // Day offset relative to the journey's first operating day (0-based).
     }
 }
