@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260801162335_Initial1")]
+    [Migration("20260801220608_Initial1")]
     partial class Initial1
     {
         /// <inheritdoc />
@@ -177,6 +177,10 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("RouteKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("Saturday")
                         .HasColumnType("boolean");
 
@@ -216,6 +220,8 @@ namespace Backend.Migrations
                     b.HasIndex("OperatorId");
 
                     b.HasIndex("OriginBusStopId");
+
+                    b.HasIndex("RouteKey");
 
                     b.ToTable("BusTimetables");
                 });

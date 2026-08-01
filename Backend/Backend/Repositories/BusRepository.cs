@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 
 namespace Backend.Repositories
 {
@@ -20,26 +21,16 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<IReadOnlyList<BusCallingPoint>> GetBusRoute(string journeyKey)
+        public IReadOnlyList<BusRoute> GetBusRoutes(string lineName)
         {
-            // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
-            BusTimetable? timetable = await _context.BusTimetables
-                .Include(x => x.BusCallingPoints)
-                .Where(x => journeyKey == x.JourneyKey &&
-                            x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
-                .ApplyDayFilter(_timeService.UkNowDateTime, false)
-                .AsNoTracking()
-                .OrderByDescending(x => x.StartDate)
-                .FirstOrDefaultAsync();   
-
-            if (timetable is null || timetable.BusCallingPoints is null)
-                return [];
-
-            return timetable.BusCallingPoints;
+            return _transportDataStore.BusRoutes
+                .Where(x => x.LineName.Contains(lineName, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(x => x.OperatorName)
+                .ToList();
         }
 
 
-        public async Task<IReadOnlyDictionary<string, IReadOnlyList<BusRoute>>> GetBusOriginDestinations()
+        public async Task<ImmutableArray<BusRoute>> GetBusRoutes()
         {
             var routes = await _context.BusTimetables
                 .AsNoTracking()
@@ -57,7 +48,7 @@ namespace Backend.Repositories
                 .OrderBy(x => x.OperatorName)
                 .ToListAsync();
 
-            Dictionary<string, List<BusRoute>> routeByLineName = new Dictionary<string, List<BusRoute>>(StringComparer.Ordinal);
+            List<BusRoute> busRoutes = new List<BusRoute>();
             foreach (var route in routes)
             {
                 string originBusStopName = _transportDataStore.StopById.TryGetValue(route.OriginBusStopId, out Stop? originBusStop) && originBusStop is not null
@@ -67,12 +58,6 @@ namespace Backend.Repositories
                 string destinationBusStopName = _transportDataStore.StopById.TryGetValue(route.DestinationBusStopId, out Stop? destinationBusStop) && destinationBusStop is not null
                    ? destinationBusStop.Name
                    : route.DestinationBusStopId;
-
-                if (!routeByLineName.TryGetValue(route.LineName, out List<BusRoute>? busRoutes))
-                {
-                    busRoutes = [];
-                    routeByLineName[route.LineName] = busRoutes;
-                }
 
                 busRoutes.Add(new BusRoute
                 {
@@ -86,7 +71,7 @@ namespace Backend.Repositories
                 });
             }
 
-            return routeByLineName.ToDictionary(x => x.Key, x => (IReadOnlyList<BusRoute>)x.Value);
+            return busRoutes.ToImmutableArray();
         }
 
 
@@ -119,8 +104,8 @@ namespace Backend.Repositories
             Dictionary<string, BusTimetable> result = [];
             foreach (var trip in timetables)
             {
-                if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? journeyCallingPoints))
-                    result[trip.JourneyKey] = trip with { BusCallingPoints = journeyCallingPoints };
+                if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? busCallingPoints))
+                    result[trip.JourneyKey] = trip with { BusCallingPoints = busCallingPoints };
             }
 
             return result;

@@ -29,14 +29,38 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("[controller]/bus/{journeyKey}/route")]
-        public async Task<IActionResult> BusRoute(string journeyKey)
+        [HttpGet("[controller]/bus/journeys/{journeyKey}")]
+        public async Task<IActionResult> BusJourney(string journeyKey)
         {
-            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(journeyKey);
-            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_stopRepository.GetStop));
+            BusJourney? busJourney = _busRepository.GetBusJourneyByKey(journeyKey);
+            if (busJourney == null)
+                return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
+
+            return Success(StatusCodes.Status200OK, response: busJourney.ToBusJourneyResponse(_stopRepository.GetStop));
+        }
+
+        [HttpGet("[controller]/bus/lines/{lineName}/routes")]
+        public async Task<IActionResult> BusRoute(string lineName)
+        {
+            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutes(lineName).Take(100).ToList();
+            if (busRoutes.Count == 0)
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusRoute>().ToBusRoutesResponse(), message: "Failed to find the bus");
+
+            return Success(StatusCodes.Status200OK, response: busRoutes.ToBusRoutesResponse());
+        }
+
+        [HttpGet("[controller]/routes/{routeKey}/journeys")]
+        public async Task<IActionResult> GetBusJourneysByRoute(string lineName)
+        {
+            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutes(lineName).Take(100).ToList();
+            if (busRoutes.Count == 0)
+                return Success(StatusCodes.Status200OK, response: Array.Empty<BusRoute>().ToBusRoutesResponse(), message: "Failed to find the bus");
+
+            return Success(StatusCodes.Status200OK, response: busRoutes.ToBusRoutesResponse());
         }
 
 
+        /*
         [HttpGet("[controller]/bus/{journeyKey}/location/")]
         public IActionResult BusLocation(string journeyKey)
         {
@@ -56,6 +80,6 @@ namespace Backend.Controllers
                 return Success(StatusCodes.Status200OK, response: Array.Empty<BusJourney>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
 
             return Success(StatusCodes.Status200OK, response: busJourneys.ToBusLocationsResponse());
-        }
+        }*/
     }
 }

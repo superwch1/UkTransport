@@ -41,6 +41,7 @@ namespace Backend.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     JourneyKey = table.Column<string>(type: "text", nullable: false),
+                    RouteKey = table.Column<string>(type: "text", nullable: false),
                     DatasetId = table.Column<string>(type: "text", nullable: false),
                     OperatorId = table.Column<string>(type: "text", nullable: false),
                     OperatorName = table.Column<string>(type: "text", nullable: false),
@@ -203,6 +204,11 @@ namespace Backend.Migrations
                 name: "IX_BusTimetables_OriginBusStopId",
                 table: "BusTimetables",
                 column: "OriginBusStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_RouteKey",
+                table: "BusTimetables",
+                column: "RouteKey");
         }
 
         /// <inheritdoc />

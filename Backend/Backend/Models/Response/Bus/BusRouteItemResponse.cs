@@ -2,14 +2,15 @@
 {
     public record BusRouteItemResponse: IResponse
     {
-        public required int Sequence { get; init; }
-        public required string BusStopId { get; init; }
+        public required string LineName { get; init; }
+        public required string OperatorName { get; init; }
 
-        public TimeOnly ScheduledTime { get; init; }
+        public required string OriginBusStopId { get; init; }
+        public required string OriginName { get; init; }
 
-        public required decimal Latitude { get; init; }
-        public required decimal Longitude { get; init; }
+        public required string DestinationBusStopId { get; init; }
+        public required string DestinationName { get; init; }
 
-        public required string Name { get; init; }
+        public required string Direction { get; init; }
     }
 }

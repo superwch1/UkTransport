@@ -47,8 +47,8 @@ namespace Backend.Extensions
                     XElement journey = activity.Element(xmlNamespace + "MonitoredVehicleJourney") ?? throw new InvalidDataException("<MonitoredVehicleJourney> element not found.");
 
                     // string? operatorRef = journey.Value(xmlNamespace, "OperatorRef");
-                    string? publishedLineName = journey.Value(xmlNamespace, "PublishedLineName");   
-                    if (publishedLineName is null)
+                    string? lineName = journey.Value(xmlNamespace, "PublishedLineName");   
+                    if (lineName is null)
                     {
                         missingLineNameCount++;
                         continue;
@@ -91,13 +91,13 @@ namespace Backend.Extensions
                         continue;
                     }
 
-                    string tripScheduleKey = BusTimeTableExtension.BuildJourneyKey(publishedLineName, originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
+                    string tripScheduleKey = BusTimeTableExtension.BuildJourneyKey(lineName, originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
                     busLocations[tripScheduleKey] = new BusLocation
                     {
                         JourneyKey = tripScheduleKey,
                         RecordedAtTime = recordedAtTime.Value,
 
-                        LineName = publishedLineName.ToUpperInvariant(),
+                        LineName = lineName.ToUpperInvariant(),
 
                         OriginBusStopId = originBusStopId,
                         OriginAimedDepartureTime = originAimedDepartureTime.Value,
@@ -118,7 +118,7 @@ namespace Backend.Extensions
 
             int skippedCount = expiredCount + missingLineNameCount + missingJourneyCount + missingCoordinateCount;
             logger.LogInformation(
-                "Bus locations - {Valid} valid, {Skipped} skipped ({Expired} expired, {MissingLineName} no line name, {MissingJourney} no journey, {MissingLocation} no coordinates)",
+                "Bus location - {Valid} valid, {Skipped} skipped ({Expired} expired, {MissingLineName} no line name, {MissingJourney} no journey, {MissingLocation} no coordinates)",
                 busLocations.Count, skippedCount, expiredCount, missingLineNameCount, missingJourneyCount, missingCoordinateCount);
 
             return busLocations;
@@ -449,6 +449,7 @@ namespace Backend.Extensions
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     JourneyKey = BusTimeTableExtension.BuildJourneyKey(lineName, departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    RouteKey = BusTimeTableExtension.BuildRouteKey(lineName, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                     WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),

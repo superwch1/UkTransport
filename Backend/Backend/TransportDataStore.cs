@@ -1,5 +1,6 @@
 ﻿using Backend.Models;
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Threading.Channels;
 
 namespace Backend
@@ -14,25 +15,24 @@ namespace Backend
         public FrozenDictionary<string, Stop> StopById => _stopsById;
 
 
-        public FrozenDictionary<string, IReadOnlyList<BusRoute>> _busRouteByLineName = FrozenDictionary.Create<string, IReadOnlyList<BusRoute>>();
-        public FrozenDictionary<string, IReadOnlyList<BusRoute>> BusRouteByLineName => _busRouteByLineName;
+        private ImmutableArray<BusRoute> _busRoutes = [];
+        public ImmutableArray<BusRoute> BusRoutes => _busRoutes;
 
 
-
-        private readonly Channel<FrozenDictionary<string, BusLocation>> _busLocationByKeyChannel =
-            Channel.CreateBounded<FrozenDictionary<string, BusLocation>>(
+        private readonly Channel<IReadOnlyDictionary<string, BusLocation>> _busLocationByKeyChannel =
+            Channel.CreateBounded<IReadOnlyDictionary<string, BusLocation>>(
             new BoundedChannelOptions(1)
             {
                 FullMode = BoundedChannelFullMode.DropOldest,
                 SingleReader = true
             });
 
-        public async ValueTask<FrozenDictionary<string, BusLocation>> ReadBusLocationAsync()
+        public async ValueTask<IReadOnlyDictionary<string, BusLocation>> ReadBusLocationAsync()
         {
             return await _busLocationByKeyChannel.Reader.ReadAsync();
         }              
 
-        public async Task RefreshBusLocations(FrozenDictionary<string, BusLocation> busLocationByKey)
+        public async Task RefreshBusLocations(IReadOnlyDictionary<string, BusLocation> busLocationByKey)
         {            
             await _busLocationByKeyChannel.Writer.WriteAsync(busLocationByKey);
         }
@@ -45,6 +45,11 @@ namespace Backend
         public void RefreshBusJourneys(FrozenDictionary<string, BusJourney> journeys)
         {
             Interlocked.Exchange(ref _busJourneyByKey, journeys);
+        }
+
+        public void RefreshBusRoutes(ImmutableArray<BusRoute> routes)
+        {
+            ImmutableInterlocked.InterlockedExchange(ref _busRoutes, routes);
         }
     }
 }

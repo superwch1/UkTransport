@@ -23,10 +23,10 @@ namespace Backend.Models
 
 
         public required string OriginBusStopId { get; init; }
-        public required TimeOnly OriginAimedDepartureTime { get; init; }
+        public required TimeOnly OriginDepartureTime { get; init; }
 
         public required string DestinationBusStopId { get; init; }
-        public required TimeOnly? DestinationAimedArrivalTime { get; init; }
+        public required TimeOnly DestinationArrivalTime { get; init; }
 
 
         public required IReadOnlyList<BusCallingPoint> BusCallingPoints { get; init; }

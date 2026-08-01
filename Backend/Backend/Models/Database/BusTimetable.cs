@@ -8,6 +8,7 @@ namespace Backend.Models
     [Index(nameof(LineName))]
     [Index(nameof(OperatorId))]
     [Index(nameof(JourneyKey))]
+    [Index(nameof(RouteKey))]
     [Index(nameof(DepartureTime))]
     [Index(nameof(OriginBusStopId))]
     [Index(nameof(DestinationBusStopId))]
@@ -16,8 +17,9 @@ namespace Backend.Models
         [Key]
         public required string Id { get; init; }
 
-        // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string JourneyKey { get; init; }
+
+        public required string JourneyKey { get; init; } // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
+        public required string RouteKey { get; init; } // {lineName}-{originBusStopId}-{destinationBusStopId}
 
 
         [ForeignKey(nameof(BusDataset))]
@@ -45,8 +47,7 @@ namespace Backend.Models
         public required DateOnly EndDate { get; init; }
 
 
-        // Days this journey runs. (don't change to flag since it is faster per column read instead of reading bit flags)
-        // Consider holiday in UK, Scotland, England, Wales and so many (or maybe not consider matching day yet)
+        // don't change to flag since it is faster per column read instead of reading bit flags
         public required bool Monday { get; init; }
         public required bool Tuesday { get; init; }
         public required bool Wednesday { get; init; }
@@ -68,6 +69,11 @@ namespace Backend.Models
         public static string BuildJourneyKey(string lineName, TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
         {
             return $"{lineName}-{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
+        }
+
+        public static string BuildRouteKey(string lineName, string originBusStopId, string destinationBusStopId)
+        {
+            return $"{lineName}-{originBusStopId}-{destinationBusStopId}";
         }
 
         // The source is part of the key because nothing stops two services numbering a dataset the same way.

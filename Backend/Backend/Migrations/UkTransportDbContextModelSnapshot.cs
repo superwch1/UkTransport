@@ -174,6 +174,10 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("RouteKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("Saturday")
                         .HasColumnType("boolean");
 
@@ -213,6 +217,8 @@ namespace Backend.Migrations
                     b.HasIndex("OperatorId");
 
                     b.HasIndex("OriginBusStopId");
+
+                    b.HasIndex("RouteKey");
 
                     b.ToTable("BusTimetables");
                 });

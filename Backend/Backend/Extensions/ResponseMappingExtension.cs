@@ -1,41 +1,10 @@
 ﻿using Backend.Models;
-using System.Collections.Frozen;
+using System.Collections.Immutable;
 
 namespace Backend.Extensions
 {
     public static class ResponseMappingExtension
     {
-        public static BusLocationItemResponse ToBusLocationItemResponse(this BusJourney busJourney)
-        {
-            return new BusLocationItemResponse()
-            {
-                JourneyKey = busJourney.JourneyKey,
-                RecordedAtTime = busJourney.RecordedAtTime,
-                OperatorName = busJourney.OperatorName,
-                PublishedLineName = busJourney.LineName,
-                OriginName = busJourney.OriginName,
-                OriginRef = busJourney.OriginBusStopId,
-                OriginAimedDepartureTime = busJourney.OriginAimedDepartureTime,
-                DestinationName = busJourney.DestinationName,
-                DestinationRef = busJourney.DestinationBusStopId,
-                DestinationAimedArrivalTime = busJourney.DestinationAimedArrivalTime,
-                EstimatedScheduleOffset = busJourney.ScheduleOffsetMinutes,
-                Latitude = busJourney.Latitude,
-                Longitude = busJourney.Longitude,
-                Bearing = busJourney.Bearing
-            };
-        }
-
-        public static BusLocationsResponse ToBusLocationsResponse(this IReadOnlyList<BusJourney> busJourneys)
-        {
-            List<BusLocationItemResponse> items = new List<BusLocationItemResponse>();
-            foreach (BusJourney busJourney in busJourneys)
-            {
-                items.Add(busJourney.ToBusLocationItemResponse());
-            }
-            return new BusLocationsResponse() { BusLocations = items };
-        }
-
         public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<Stop> busStops)
         {
             List<BusStopItemResponse> items = new List<BusStopItemResponse>();
@@ -54,16 +23,36 @@ namespace Backend.Extensions
         }
 
 
-        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, Func<string, Stop?> getStopById)
+        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusRoute> busRoutes)
         {
             List<BusRouteItemResponse> items = new List<BusRouteItemResponse>();
-            foreach (BusCallingPoint busCallingPoint in busCallingPoints)
+            foreach (BusRoute busRoute in busRoutes)
+            {
+                items.Add(new BusRouteItemResponse()
+                {
+                    LineName = busRoute.LineName,
+                    OperatorName = busRoute.OperatorName,
+                    OriginBusStopId = busRoute.OriginBusStopId,
+                    OriginName = busRoute.OriginName,
+                    DestinationBusStopId = busRoute.DestinationBusStopId,
+                    DestinationName = busRoute.DestinationName,
+                    Direction = busRoute.Direction
+                });
+            }
+            return new BusRoutesResponse() { BusRoutes = items };
+        }
+
+
+        public static BusJourneyResponse ToBusJourneyResponse(this BusJourney busJourney, Func<string, Stop?> getStopById)
+        {
+            List<BusCallingPointItemResponse> items = new List<BusCallingPointItemResponse>();
+            foreach (BusCallingPoint busCallingPoint in busJourney.BusCallingPoints)
             {
                 Stop? busStop = getStopById(busCallingPoint.BusStopId);
                 if (busStop is null)
                     continue;
 
-                items.Add(new BusRouteItemResponse()
+                items.Add(new BusCallingPointItemResponse()
                 {
                     Sequence = busCallingPoint.Sequence,
                     BusStopId = busCallingPoint.BusStopId,
@@ -73,22 +62,24 @@ namespace Backend.Extensions
                     Name = busStop.Name
                 });
             }
-            return new BusRoutesResponse() { BusRoutes = items };
-        }
-
-
-        public static BusStopTimetablesResponse ToBusCallingPointsResponse(this IReadOnlyDictionary<string, TimeOnly> timeByLineName)
-        {
-            List<BusStopTimetableItemResponse> items = new List<BusStopTimetableItemResponse>();
-            foreach ((string lineName, TimeOnly scheduledTime) in timeByLineName)
-            {
-                items.Add(new BusStopTimetableItemResponse()
-                {
-                    LineName = lineName,
-                    ScheduledTime = scheduledTime
-                });
-            }
-            return new BusStopTimetablesResponse() { BusStopTimetables = items };
+            return new BusJourneyResponse() { 
+                JourneyKey = busJourney.JourneyKey,
+                OperatorName = busJourney.OperatorName,
+                LineName = busJourney.LineName,
+                Direction = busJourney.Direction,
+                OriginName = busJourney.OriginName,
+                OriginBusStopId = busJourney.OriginBusStopId,
+                OriginDepartureTime = busJourney.OriginDepartureTime,
+                DestinationName = busJourney.DestinationName,
+                DestinationBusStopId = busJourney.DestinationBusStopId,
+                DestinationArrivalTime = busJourney.DestinationArrivalTime,
+                Latitude = busJourney.Latitude,
+                Longitude = busJourney.Longitude,
+                Bearing = busJourney.Bearing,
+                ScheduleOffsetMinutes = busJourney.ScheduleOffsetMinutes,
+                RecordedAtTime = busJourney.RecordedAtTime,
+                BusCallingPoints = items 
+            };
         }
     }
 }

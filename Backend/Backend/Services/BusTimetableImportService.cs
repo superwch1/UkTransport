@@ -1,6 +1,7 @@
 using Backend.Extensions;
 using Backend.Models;
 using Backend.Repositories;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
@@ -16,17 +17,20 @@ namespace Backend.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TimeService _timeService;
+        private readonly TransportDataStore _transportDataStore;
+
         private readonly ILogger<BusTimetableImportService> _logger;
 
         private readonly TimetableMetaOptions _meta;
         private readonly IReadOnlyDictionary<string, string> _apiKeyBySource;
         private readonly IReadOnlyDictionary<string, TimetableSourceOptions> _sourceOptionsBySource;
 
-        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory, TimeService timeService, ILogger<BusTimetableImportService> logger)
+        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory, TimeService timeService, TransportDataStore transportDataStore, ILogger<BusTimetableImportService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _serviceScopeFactory = serviceScopeFactory;
             _timeService = timeService;
+            _transportDataStore = transportDataStore;
             _logger = logger;
 
             _apiKeyBySource = configuration
@@ -88,11 +92,9 @@ namespace Backend.Services
                 using IServiceScope scope = _serviceScopeFactory.CreateScope();
                 BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                IReadOnlyDictionary<string, IReadOnlyList<BusRoute>> busRoutesByLineName = await busRepository.GetBusOriginDestinations();
-
-                _logger.LogInformation(
-                    "Bus routes - {Lines} lines, {Routes} origin destination pairs",
-                    busRoutesByLineName.Count, busRoutesByLineName.Sum(x => x.Value.Count));
+                ImmutableArray<BusRoute> busRoutes = await busRepository.GetBusRoutes();
+                _transportDataStore.RefreshBusRoutes(busRoutes);
+                _logger.LogInformation("Bus routes - {Routes} origin destination pairs", busRoutes.Length);
             }
             catch (Exception ex)
             {

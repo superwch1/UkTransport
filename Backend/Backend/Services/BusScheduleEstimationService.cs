@@ -42,7 +42,7 @@ namespace Backend.Services
             {
                 try
                 {
-                    FrozenDictionary<string, BusLocation> busLocationByKey = await _transportDataStore.ReadBusLocationAsync();
+                    IReadOnlyDictionary<string, BusLocation> busLocationByKey = await _transportDataStore.ReadBusLocationAsync();
                     HashSet<string> notFoundKey = busLocationByKey.Keys.ToHashSet();
 
                     // early return since the bus stop is not finished imported yet
@@ -181,6 +181,9 @@ namespace Backend.Services
             Stop? originBusStop = stopRepository.GetStop(busLocation.OriginBusStopId);
             Stop? destinationBusStop = stopRepository.GetStop(busLocation.DestinationBusStopId);
 
+            BusCallingPoint firstCallingPoint = timetable.BusCallingPoints![0];
+            BusCallingPoint finalCallingPoint = timetable.BusCallingPoints[timetable.BusCallingPoints.Count - 1];
+
             _journeyByKey[tripScheduleKey] = new BusJourney
             {
                 DatasetId = timetable.DatasetId,
@@ -193,9 +196,9 @@ namespace Backend.Services
                 ScheduledDayOffset = timetable.ScheduledDayOffset,
                 JourneyKey = busLocation.JourneyKey,
                 OriginBusStopId = busLocation.OriginBusStopId,
-                OriginAimedDepartureTime = busLocation.OriginAimedDepartureTime,
+                OriginDepartureTime = firstCallingPoint.ScheduledTime,
                 DestinationBusStopId = busLocation.DestinationBusStopId,
-                DestinationAimedArrivalTime = busLocation.DestinationAimedArrivalTime,
+                DestinationArrivalTime = finalCallingPoint.ScheduledTime,
                 BusCallingPoints = timetable.BusCallingPoints ?? [],
                 LastArrivedStopSequence = lastSeenSequence,
                 ScheduleOffsetMinutes = scheduleOffsetMinutes,
