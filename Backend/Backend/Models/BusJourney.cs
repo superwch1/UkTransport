@@ -2,6 +2,9 @@ namespace Backend.Models
 {
     public record BusJourney
     {
+        // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
+        public required string TripJourneyKey { get; init; }
+
         public required string DatasetId { get; init; }
 
         public required string OperatorId { get; init; }
@@ -17,9 +20,6 @@ namespace Backend.Models
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
         public required int ScheduledDayOffset { get; init; }
-
-        // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string TripScheduleKey { get; init; }
 
 
         public required string OriginBusStopId { get; init; }

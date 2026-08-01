@@ -2,12 +2,12 @@
 {
     public record BusLocation
     {
-        public required string TripScheduleKey { get; init; }
+        public required string TripJourneyKey { get; init; }
         public required DateTime RecordedAtTime { get; init; }
 
 
         // Operator and service metadata
-        public required string OperatorRef { get; init; }
+        public required string OperatorId { get; init; }
         public required string LineName { get; init; }
         public required string Direction { get; init; }
 

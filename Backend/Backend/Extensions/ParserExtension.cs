@@ -16,7 +16,7 @@ namespace Backend.Extensions
         private static readonly string[] s_displacementHolidays = ["ChristmasDayHoliday", "BoxingDayHoliday", "NewYearsDayHoliday", "Jan2ndScotlandHoliday", "StAndrewsDayHoliday"];
         private static readonly string[] s_earlyRunOffDays = ["ChristmasEve", "NewYearsEve"];
 
-        public static async Task<Dictionary<string, BusLocation>> ParseBusLocation(this Stream stream, XNamespace xmlNamespace, string unknownPlaceholder, TimeZoneInfo timeZoneInfo, ILogger logger, CancellationToken cancellationToken)
+        public static async Task<Dictionary<string, BusLocation>> ParseBusLocation(this Stream stream, XNamespace xmlNamespace, string unknownPlaceholder, DateTime now, TimeZoneInfo timeZoneInfo, ILogger logger, CancellationToken cancellationToken)
         {
             Dictionary<string, BusLocation> busLocations = [];
             XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
@@ -38,7 +38,7 @@ namespace Backend.Extensions
                     vehicleCount++;
 
                     DateTime? recordedAtTime = activity.Value(xmlNamespace, "RecordedAtTime").ParseUkDateTime(timeZoneInfo);
-                    if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
+                    if (recordedAtTime is null || now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
                     {
                         expiredCount++;
                         continue;
@@ -92,14 +92,14 @@ namespace Backend.Extensions
                         continue;
                     }
 
-                    string tripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
+                    string tripScheduleKey = BusTimeTableExtension.BuildTripJourneyKey(publishedLineName, originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
                     busLocations[tripScheduleKey] = new BusLocation
                     {
-                        TripScheduleKey = tripScheduleKey,
+                        TripJourneyKey = tripScheduleKey,
                         RecordedAtTime = recordedAtTime.Value,
 
-                        OperatorRef = operatorRef,
-                        LineName = publishedLineName,
+                        OperatorId = operatorRef,
+                        LineName = publishedLineName.ToUpperInvariant(),
                         Direction = direction,
 
                         OriginBusStopId = originBusStopId,
@@ -399,14 +399,15 @@ namespace Backend.Extensions
                     DatasetId = datasetId,
                     OperatorId = busOperator.OperatorId,
                     OperatorName = busOperator.Name,
-                    LineName = lineName,
+                    LineName = lineName.ToUpperInvariant(),
+                    DepartureTime = firstCallingPoint.ScheduledTime,
                     OriginBusStopId = firstCallingPoint.BusStopId,
                     DestinationBusStopId = lastCallingPoint.BusStopId,
                     Direction = journey.direction,
                     ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
-                    TripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    TripJourneyKey = BusTimeTableExtension.BuildTripJourneyKey(lineName, departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                     WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),

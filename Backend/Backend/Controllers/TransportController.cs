@@ -9,11 +9,13 @@ namespace Backend.Controllers
     public class TransportController : ApiControllerBase
     {
         private readonly BusRepository _busRepository;
+        private readonly StopRepository _stopRepository;
         private readonly TransportDataStore _transportDataStore;
 
-        public TransportController(BusRepository busRepository, TransportDataStore transportDataStore)
+        public TransportController(BusRepository busRepository, StopRepository stopRepository, TransportDataStore transportDataStore)
         {
             _busRepository = busRepository;
+            _stopRepository = stopRepository;
             _transportDataStore = transportDataStore;
         }
 
@@ -37,18 +39,18 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("[controller]/bus/{tripScheduleKey}/route")]
-        public async Task<IActionResult> BusRoute(string tripScheduleKey)
+        [HttpGet("[controller]/bus/{tripJourneyKey}/route")]
+        public async Task<IActionResult> BusRoute(string tripJourneyKey)
         {
-            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(tripScheduleKey);
-            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_transportDataStore.StopById));
+            IReadOnlyList<BusCallingPoint> callingPoints = await _busRepository.GetBusRoute(tripJourneyKey);
+            return Success(StatusCodes.Status200OK, response: callingPoints.ToBusRoutesResponse(_stopRepository.GetStop));
         }
 
 
-        [HttpGet("[controller]/bus/{tripScheduleKey}/location/")]
-        public IActionResult BusLocation(string tripScheduleKey)
+        [HttpGet("[controller]/bus/{tripJourneyKey}/location/")]
+        public IActionResult BusLocation(string tripJourneyKey)
         {
-            var busJourney = _busRepository.GetBusJourneyById(tripScheduleKey);
+            var busJourney = _busRepository.GetBusJourneyById(tripJourneyKey);
             if (busJourney == null)
                 return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
 

@@ -7,13 +7,18 @@ namespace Backend.Models
 {
     [Index(nameof(LineName))]
     [Index(nameof(OperatorId))]
-    [Index(nameof(TripScheduleKey))]
+    [Index(nameof(TripJourneyKey))]
+    [Index(nameof(DepartureTime))]
     [Index(nameof(OriginBusStopId))]
     [Index(nameof(DestinationBusStopId))]
     public record BusTimetable
     {
         [Key]
         public required string Id { get; init; }
+
+        // no need line name since there can be changed
+        // {lineName}-{originDepartureTime}-{originBusStopId}-{destinationBusStopId}
+        public required string TripJourneyKey { get; init; }
 
 
         [ForeignKey(nameof(BusDataset))]
@@ -23,17 +28,13 @@ namespace Backend.Models
 
         public required string OperatorId { get; init; }
         public required string OperatorName { get; init; }
+        public required string LineName { get; init; }
 
-        public required string LineName { get; init; }     
 
+        public required TimeOnly DepartureTime { get; init; }
         public required string OriginBusStopId { get; init; }
         public required string DestinationBusStopId { get; init; }
         public required string Direction { get; init; }
-
-
-        // no need line name since there can be changed
-        // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string TripScheduleKey { get; init; }
 
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
@@ -59,17 +60,15 @@ namespace Backend.Models
         public required WeekOfMonth WeeksOfMonth { get; init; }
 
         public required IReadOnlyList<BusCallingPoint>? BusCallingPoints { get; init; }
-
         public required IReadOnlyList<BusSpecialDay>? BusSpecialDays { get; init; }
-
         public required IReadOnlyList<BusHoliday>? BusHolidays { get; init; }
     }
 
     public static class BusTimeTableExtension
     {
-        public static string BuildTripScheduleKey(TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
+        public static string BuildTripJourneyKey(string lineName, TimeOnly departureTime, string originBusStopId, string destinationBusStopId)
         {
-            return $"{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
+            return $"{lineName}-{departureTime.ToString("HH:mm")}-{originBusStopId}-{destinationBusStopId}";
         }
 
         // The source is part of the key because nothing stops two services numbering a dataset the same way.

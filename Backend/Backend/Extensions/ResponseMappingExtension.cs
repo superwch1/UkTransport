@@ -9,7 +9,7 @@ namespace Backend.Extensions
         {
             return new BusLocationItemResponse()
             {
-                TripScheduleKey = busJourney.TripScheduleKey,
+                TripJourneyKey = busJourney.TripJourneyKey,
                 RecordedAtTime = busJourney.RecordedAtTime,
                 OperatorRef = busJourney.OperatorId,
                 PublishedLineName = busJourney.LineName,
@@ -54,14 +54,12 @@ namespace Backend.Extensions
         }
 
 
-        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, FrozenDictionary<string, Stop> busStopById)
+        public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusCallingPoint> busCallingPoints, Func<string, Stop?> getStopById)
         {
             List<BusRouteItemResponse> items = new List<BusRouteItemResponse>();
             foreach (BusCallingPoint busCallingPoint in busCallingPoints)
             {
-                if (!busStopById.TryGetValue(busCallingPoint.BusStopId, out Stop? busStop) || busStop is null)
-                    continue;
-
+                Stop? busStop = getStopById(busCallingPoint.BusStopId);
                 if (busStop is null)
                     continue;
 
@@ -71,7 +69,8 @@ namespace Backend.Extensions
                     BusStopId = busCallingPoint.BusStopId,
                     Latitude = busStop.Latitude,
                     Longitude = busStop.Longitude,
-                    ScheduledTime = busCallingPoint.ScheduledTime
+                    ScheduledTime = busCallingPoint.ScheduledTime,
+                    Name = busStop.Name
                 });
             }
             return new BusRoutesResponse() { BusRoutes = items };

@@ -13,9 +13,17 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
+// One file per day on the desktop, a week kept. The folder is created if it is not there.
+string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "UkTransportLogs");
+
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration) 
+    .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Console()
+    .WriteTo.File(
+        Path.Combine(logDirectory, "log-.txt"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 try
@@ -28,6 +36,8 @@ try
     builder.Services.AddHttpClient();
 
     builder.Services.AddScoped<BusRepository>();
+    builder.Services.AddScoped<StopRepository>();
+
     builder.Services.AddSingleton<TransportDataStore>();
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<TimeService>();

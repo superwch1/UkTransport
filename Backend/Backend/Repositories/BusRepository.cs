@@ -26,7 +26,7 @@ namespace Backend.Repositories
             // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
             BusTimetable? timetable = await _context.BusTimetables
                 .Include(x => x.BusCallingPoints)
-                .Where(x => tripScheduleKey == x.TripScheduleKey &&
+                .Where(x => tripScheduleKey == x.TripJourneyKey &&
                             x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .AsNoTracking()
@@ -76,7 +76,8 @@ namespace Backend.Repositories
 
                 busRoutes.Add(new BusRoute
                 {
-                    OperatorName = route.OperatorName,
+                    LineName = route.LineName,
+                    OperatorId = route.OperatorName,
                     OriginBusStopId = route.OriginBusStopId,
                     OriginName = originBusStopName,
                     DestinationBusStopId = route.DestinationBusStopId,
@@ -97,7 +98,7 @@ namespace Backend.Repositories
             // seems splitting query is much faster (from 25s to 0.5s)
             List<BusTimetable> timetables = await _context.BusTimetables
                 .AsNoTracking()
-                .Where(x => tripScheduleKey.Contains(x.TripScheduleKey) &&
+                .Where(x => tripScheduleKey.Contains(x.TripJourneyKey) &&
                             x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .ToListAsync();
@@ -106,7 +107,7 @@ namespace Backend.Repositories
                 return new Dictionary<string, BusTimetable>();
 
             timetables = timetables
-                .GroupBy(x => x.TripScheduleKey)
+                .GroupBy(x => x.TripJourneyKey)
                 .Select(g => g.OrderByDescending(x => x.StartDate).First())
                 .ToList();
 
@@ -121,7 +122,7 @@ namespace Backend.Repositories
             foreach (var trip in timetables)
             {
                 if (callingPointsByTimetableId.TryGetValue(trip.Id, out List<BusCallingPoint>? journeyCallingPoints))
-                    result[trip.TripScheduleKey] = trip with { BusCallingPoints = journeyCallingPoints };
+                    result[trip.TripJourneyKey] = trip with { BusCallingPoints = journeyCallingPoints };
             }
 
             return result;
@@ -164,7 +165,7 @@ namespace Backend.Repositories
             return _transportDataStore
                 .BusJourneyByKey
                 .Values
-                .FirstOrDefault(x => x.TripScheduleKey == tripJourneyKey);
+                .FirstOrDefault(x => x.TripJourneyKey == tripJourneyKey);
         }
 
 

@@ -4,7 +4,8 @@ namespace Backend.Models
     // timetable's fields directly and none of the times, since a pair is the same whichever departure produced it.
     public record BusRoute
     {
-        public required string OperatorName { get; init; }
+        public required string LineName { get; init; }
+        public required string OperatorId { get; init; }
 
         public required string OriginBusStopId { get; init; }
         public required string OriginName { get; init; }

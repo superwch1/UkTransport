@@ -68,7 +68,7 @@ namespace Backend.Services
                         await stream.ExtractXmlStreamsAsync(
                             async (xmlStream, cancellationToken) =>
                             {
-                                Dictionary<string, BusLocation> entryBusLocations = await xmlStream.ParseBusLocation(_siriNamespace, _unknownPlaceholder, _timeService.UkTimeZone, _logger, cancellationToken);
+                                Dictionary<string, BusLocation> entryBusLocations = await xmlStream.ParseBusLocation(_siriNamespace, _unknownPlaceholder, _timeService.UkNowDateTime, _timeService.UkTimeZone, _logger, cancellationToken);
                                 foreach (var (key, value) in entryBusLocations)
                                     busLocations[key] = value;   // last-wins on duplicate keys
                             },

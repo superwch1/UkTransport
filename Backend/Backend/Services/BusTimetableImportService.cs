@@ -9,9 +9,6 @@ namespace Backend.Services
 {
     public class BusTimetableImportService : BackgroundService
     {
-        private const string BodsSource = "BODS";
-        private const string TflSource = "TFL";
-
         private static readonly XNamespace _transXChangeNamespace = "http://www.transxchange.org.uk/";
 
         private const int PageSize = 1000;
@@ -56,31 +53,23 @@ namespace Backend.Services
                 // yesterday's routes are worth having in the meantime, then again once the new data has landed.
                 await RefreshBusRoutes();
 
-                try
-                {
-                    await ImportBods(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Fail to import bus timetable from {Source}", BodsSource);
-                }
-
-                try
-                {
-                    await ImportTfl(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Fail to import bus timetable from {Source}", TflSource);
-                }
+                await ImportBodsTimetables(cancellationToken);
+                await ImportTflTimetables(cancellationToken);
 
                 await RefreshBusRoutes();
 
-                await Task.Delay(GetDelayUntilDailyRun(), cancellationToken);
+
+                DateTime ukNow = _timeService.UkNowDateTime;
+                DateTime nextRun = ukNow.Date.Add(_dailyRunTime);
+
+                if (nextRun <= ukNow)
+                    nextRun = nextRun.AddDays(1);
+
+                TimeSpan untilNextRun = nextRun - ukNow;
+                await Task.Delay(untilNextRun, cancellationToken);
             }
         }
 
-        // Swallows its own failures, so a bad read here never stops the import that follows it.
         private async Task RefreshBusRoutes()
         {
             try
@@ -100,40 +89,45 @@ namespace Backend.Services
             }
         }
 
-        private TimeSpan GetDelayUntilDailyRun()
+        private async Task ImportBodsTimetables(CancellationToken cancellationToken)
         {
-            DateTime ukNow = _timeService.UkNowDateTime;
-            DateTime nextRun = ukNow.Date.Add(_dailyRunTime);
-
-            if (nextRun <= ukNow)
-                nextRun = nextRun.AddDays(1);
-
-            return nextRun - ukNow;
-        }
-
-        private async Task ImportBods(CancellationToken cancellationToken)
-        {
-            TimetableSourceOptions sourceOptions = GetTimetableSourceOptions(BodsSource);
-            string apiKey = GetApiKey(BodsSource);
-            string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:TimetableData:{BodsSource}:CatalogueUrl");
-
-            IReadOnlyList<string> sourceDatasetIds = await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken);
-            foreach (string sourceDatasetId in sourceDatasetIds)
+            const string source = "BODS";
+            try
             {
-                string url = $"{string.Format(sourceOptions.Url, sourceDatasetId)}?api_key={apiKey}";
-                await ImportDataset(BodsSource, sourceDatasetId, url, entryNameContains: null, cancellationToken);
+                TimetableSourceOptions sourceOptions = GetTimetableSourceOptions(source);
+                string apiKey = _apiKeyBySource[source] ?? throw new InvalidDataException($"ApiKey:{source}");
+                string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:TimetableData:{source}:CatalogueUrl");
+
+                IReadOnlyList<string> sourceDatasetIds = await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken);
+                foreach (string sourceDatasetId in sourceDatasetIds)
+                {
+                    string url = $"{string.Format(sourceOptions.Url, sourceDatasetId)}?api_key={apiKey}";
+                    await ImportTimetables(source, sourceDatasetId, url, entryNameContains: null, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to import bus timetable from {Source}", source);
             }
         }
 
-        private async Task ImportTfl(CancellationToken cancellationToken)
+        private async Task ImportTflTimetables(CancellationToken cancellationToken)
         {
-            TimetableSourceOptions sourceOptions = GetTimetableSourceOptions(TflSource);
-            string sourceDatasetId = Path.GetFileNameWithoutExtension(new Uri(sourceOptions.Url).AbsolutePath);
+            const string source = "TFL";
+            try
+            {
+                TimetableSourceOptions sourceOptions = GetTimetableSourceOptions(source);
+                string sourceDatasetId = Path.GetFileNameWithoutExtension(new Uri(sourceOptions.Url).AbsolutePath);
 
-            await ImportDataset(TflSource, sourceDatasetId, sourceOptions.Url, sourceOptions.EntryNameContains, cancellationToken);
+                await ImportTimetables(source, sourceDatasetId, sourceOptions.Url, sourceOptions.EntryNameContains, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to import bus timetable from {Source}", source);
+            }
         }
 
-        private async Task ImportDataset(string source, string sourceDatasetId, string url, string? entryNameContains, CancellationToken cancellationToken)
+        private async Task ImportTimetables(string source, string sourceDatasetId, string url, string? entryNameContains, CancellationToken cancellationToken)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             cancellationToken.ThrowIfCancellationRequested();
@@ -157,16 +151,10 @@ namespace Backend.Services
 
             try
             {
-                // Cleared only once the download has come back, so a source that is briefly unreachable leaves the
-                // timetables already held for it alone.
                 using (IServiceScope datasetScope = _scopeFactory.CreateScope())
                 {
                     BusRepository busRepository = datasetScope.ServiceProvider.GetRequiredService<BusRepository>();
-                    await busRepository.ResetBusDataset(new BusDataset
-                    {
-                        Id = datasetId,
-                        ImportedAt = _timeService.UtcNowDateTimeOffset,
-                    });
+                    await busRepository.ResetBusDataset(new BusDataset { Id = datasetId, ImportedAt = _timeService.UtcNowDateTimeOffset });
                 }
 
                 using MemoryStream stream = new MemoryStream();
@@ -240,13 +228,6 @@ namespace Backend.Services
             return sourceOptions;
         }
 
-        private string GetApiKey(string source)
-        {
-            if (!_apiKeyBySource.TryGetValue(source, out string? apiKey) || string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidDataException($"ApiKey:{source}");
-
-            return apiKey;
-        }
 
         // One entry under Bus:TimetableData.
         public sealed record TimetableSourceOptions
