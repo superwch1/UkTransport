@@ -16,8 +16,12 @@ namespace Backend.Services
 
         private const int PageSize = 1000;
 
-        // Timetables change slowly; re-run once a day.
-        private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(24);
+        // Timetables change slowly, so this runs once a day, just after midnight. The day filter turns over at
+        // midnight, so importing straight afterwards puts the new day's journeys in before anything asks for them.
+        private static readonly TimeSpan _dailyRunTime = new TimeSpan(0, 5, 0);
+
+        // How stale a dataset already imported has to be before it is downloaded and rebuilt again.
+        private static readonly TimeSpan _datasetRefreshInterval = TimeSpan.FromDays(7);
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IServiceScopeFactory _scopeFactory;
@@ -48,6 +52,10 @@ namespace Backend.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                // Built from what is already stored before anything is downloaded, since the import runs for hours and
+                // yesterday's routes are worth having in the meantime, then again once the new data has landed.
+                await RefreshBusRoutes();
+
                 try
                 {
                     await ImportBods(cancellationToken);
@@ -66,8 +74,41 @@ namespace Backend.Services
                     _logger.LogError(ex, "Fail to import bus timetable from {Source}", TflSource);
                 }
 
-                await Task.Delay(RefreshInterval, cancellationToken);
+                await RefreshBusRoutes();
+
+                await Task.Delay(GetDelayUntilDailyRun(), cancellationToken);
             }
+        }
+
+        // Swallows its own failures, so a bad read here never stops the import that follows it.
+        private async Task RefreshBusRoutes()
+        {
+            try
+            {
+                using IServiceScope scope = _scopeFactory.CreateScope();
+                BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+
+                IReadOnlyDictionary<string, IReadOnlyList<BusRoute>> busRoutesByLineName = await busRepository.GetBusOriginDestinations();
+
+                _logger.LogInformation(
+                    "Bus routes - {Lines} lines, {Routes} origin destination pairs",
+                    busRoutesByLineName.Count, busRoutesByLineName.Sum(x => x.Value.Count));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to refresh bus routes");
+            }
+        }
+
+        private TimeSpan GetDelayUntilDailyRun()
+        {
+            DateTime ukNow = _timeService.UkNowDateTime;
+            DateTime nextRun = ukNow.Date.Add(_dailyRunTime);
+
+            if (nextRun <= ukNow)
+                nextRun = nextRun.AddDays(1);
+
+            return nextRun - ukNow;
         }
 
         private async Task ImportBods(CancellationToken cancellationToken)
@@ -98,6 +139,17 @@ namespace Backend.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             string datasetId = BusTimeTableExtension.BuildDatasetKey(source, sourceDatasetId);
+            using (IServiceScope freshnessScope = _scopeFactory.CreateScope())
+            {
+                BusRepository busRepository = freshnessScope.ServiceProvider.GetRequiredService<BusRepository>();
+                BusDataset? importedDataset = await busRepository.GetBusDataset(datasetId);
+
+                if (importedDataset is not null && _timeService.UtcNowDateTimeOffset - importedDataset.ImportedAt < _datasetRefreshInterval)
+                {
+                    _logger.LogInformation("DatasetId ({DatasetId}) - skipped, imported at {ImportedAt}", datasetId, importedDataset.ImportedAt);
+                    return;
+                }
+            }
 
             HttpClient client = _httpClientFactory.CreateClient();
             using HttpResponseMessage response = await client.GetAsync(url, cancellationToken);

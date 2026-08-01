@@ -4,8 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
-    // Dates a journey runs, or does not run, regardless of its regular days. Days of operation are additive and
-    // apply whatever weekday they land on, days of non-operation are subtractive and win over everything else.
     [Index(nameof(BusTimetableId))]
     public record BusSpecialDay
     {

@@ -13,7 +13,7 @@ namespace Backend.Models
         public required string DestinationName { get; init; }
 
         // possible value: inbound, outbound, clockwise, anticlockwise, 1, 2
-        public required string DirectionRef { get; init; }
+        public required string Direction { get; init; }
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
         public required int ScheduledDayOffset { get; init; }
@@ -32,8 +32,8 @@ namespace Backend.Models
         public required IReadOnlyList<BusCallingPoint> BusCallingPoints { get; init; }
 
 
-        // calling point the bus was last seen at, or null while it has not been seen at one. So the calling points cannot jump form 5 to 40 in a round trip
-        public required int? LastSeenSequence { get; init; }
+        // calling point the bus was last arrived at, or null while it has not been seen at one. So the calling points cannot jump form 5 to 40 in a round trip
+        public required int? LastArrivedStopSequence { get; init; }
 
         // delay (+), arrive early (-)
         public required int ScheduleOffsetMinutes { get; init; }

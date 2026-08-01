@@ -39,6 +39,56 @@ namespace Backend.Repositories
             return timetable.BusCallingPoints;
         }
 
+
+        public async Task<IReadOnlyDictionary<string, IReadOnlyList<BusRoute>>> GetBusOriginDestinations()
+        {
+            var routes = await _context.BusTimetables
+                .AsNoTracking()
+                .Where(x => x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
+                .ApplyDayFilter(_timeService.UkNowDateTime, false)
+                .GroupBy(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName })
+                .Select(x => new
+                {
+                    x.Key.OriginBusStopId,
+                    x.Key.DestinationBusStopId,
+                    x.Key.LineName,
+                    x.First().OperatorName,
+                    x.First().Direction
+                })
+                .ToListAsync();
+
+            Dictionary<string, List<BusRoute>> routeByLineName = new Dictionary<string, List<BusRoute>>(StringComparer.Ordinal);
+            foreach (var route in routes)
+            {
+                string originBusStopName = _transportDataStore.StopById.TryGetValue(route.OriginBusStopId, out Stop? originBusStop) && originBusStop is not null
+                    ? originBusStop.Name
+                    : route.OriginBusStopId;
+
+                string destinationBusStopName = _transportDataStore.StopById.TryGetValue(route.DestinationBusStopId, out Stop? destinationBusStop) && destinationBusStop is not null
+                   ? destinationBusStop.Name
+                   : route.DestinationBusStopId;
+
+                if (!routeByLineName.TryGetValue(route.LineName, out List<BusRoute>? busRoutes))
+                {
+                    busRoutes = [];
+                    routeByLineName[route.LineName] = busRoutes;
+                }
+
+                busRoutes.Add(new BusRoute
+                {
+                    OperatorName = route.OperatorName,
+                    OriginBusStopId = route.OriginBusStopId,
+                    OriginName = originBusStopName,
+                    DestinationBusStopId = route.DestinationBusStopId,
+                    DestinationName = destinationBusStopName,
+                    Direction = route.Direction
+                });
+            }
+
+            return routeByLineName.ToDictionary(x => x.Key, x => (IReadOnlyList<BusRoute>)x.Value);
+        }
+
+
         public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByKey(IEnumerable<string> tripScheduleKey)
         {
             // LineName is intentionally NOT filtered. The live feed's PublishedLineName can differ from the timetable's LineName for the same physical route
@@ -160,10 +210,15 @@ namespace Backend.Repositories
             await _context.BulkInsertAsync(holidays);
         }
 
+        public async Task<BusDataset?> GetBusDataset(string datasetId)
+        {
+            return await _context.BusDatasets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == datasetId);
+        }
+
         public async Task ResetBusDataset(BusDataset busDataset)
         {
-            // Deleting the dataset cascades to its journeys, and from those to their calling points, special days and
-            // holidays, so re-importing a file replaces what it produced last time instead of adding a second copy.
             await _context.BusDatasets
                 .Where(x => x.Id == busDataset.Id)
                 .ExecuteDeleteAsync();

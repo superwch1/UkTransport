@@ -21,32 +21,44 @@ namespace Backend.Extensions
             Dictionary<string, BusLocation> busLocations = [];
             XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
 
+            // Counted rather than logged one by one, since a feed carries twenty thousand vehicles and is read every
+            // ten seconds. The totals say whether a source is publishing badly; a line per vehicle would not.
+            int vehicleCount = 0;
+            int expiredCount = 0;
+            int missingServiceCount = 0;
+            int missingJourneyCount = 0;
+            int missingCoordinateCount = 0;
+
             IEnumerable<XElement> activities = document.Descendants(xmlNamespace + "VehicleActivity");
             foreach (XElement activity in activities)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
+                    vehicleCount++;
+
                     DateTime? recordedAtTime = activity.Value(xmlNamespace, "RecordedAtTime").ParseUkDateTime(timeZoneInfo);
                     if (recordedAtTime is null || DateTime.Now - TimeSpan.FromMinutes(10) > recordedAtTime.Value)
+                    {
+                        expiredCount++;
                         continue;
+                    }
 
                     XElement journey = activity.Element(xmlNamespace + "MonitoredVehicleJourney") ?? throw new InvalidDataException("<MonitoredVehicleJourney> element not found.");
 
                     string? operatorRef = journey.Value(xmlNamespace, "OperatorRef");
-                    string? publishedLineName = journey.Value(xmlNamespace, "PublishedLineName");
+                    string? publishedLineName = journey.Value(xmlNamespace, "PublishedLineName");   
 
-                    string? originRef = journey.Value(xmlNamespace, "OriginRef");
-                    string? destinationRef = journey.Value(xmlNamespace, "DestinationRef");
-
-                    // possible value: inbound, outbound, clockwise, anticlockwise, 1, 2
-                    string? directionRef = journey.Value(xmlNamespace, "DirectionRef");
-
-                    if (operatorRef is null || publishedLineName is null || originRef is null || destinationRef is null || directionRef is null)
+                    if (operatorRef is null || publishedLineName is null)
+                    {
+                        missingServiceCount++;
                         continue;
+                    }
 
-                    string originName = journey.Value(xmlNamespace, "OriginName") ?? unknownPlaceholder;
-                    string destinationName = journey.Value(xmlNamespace, "DestinationName") ?? unknownPlaceholder;
+
+                    string? originBusStopId = journey.Value(xmlNamespace, "OriginRef");
+                    string? destinationBusStopId = journey.Value(xmlNamespace, "DestinationRef");    
+                    string? direction = journey.Value(xmlNamespace, "DirectionRef"); // inbound, outbound, clockwise, anticlockwise, 1, 2
 
                     TimeOnly? originAimedDepartureTime = journey.Value(xmlNamespace, "OriginAimedDepartureTime").ParseUkTimeOnly(timeZoneInfo);
                     TimeOnly? destinationAimedArrivalTime = journey.Value(xmlNamespace, "DestinationAimedArrivalTime").ParseUkTimeOnly(timeZoneInfo);
@@ -63,8 +75,11 @@ namespace Backend.Extensions
 
                     // seems the bus either do not have arrival time or both arrival and departure time
                     originAimedDepartureTime = originAimedDepartureTime ?? departureTimeFromJourneyCode;
-                    if (!originAimedDepartureTime.HasValue)
+                    if (originBusStopId is null || destinationBusStopId is null || direction is null || !originAimedDepartureTime.HasValue)
+                    {
+                        missingJourneyCount++;
                         continue;
+                    }
 
                     XElement? location = journey?.Element(xmlNamespace + "VehicleLocation");
                     decimal? latitude = location.Value(xmlNamespace, "Latitude").ParseDecimal();
@@ -72,24 +87,25 @@ namespace Backend.Extensions
                     decimal bearing = journey.Value(xmlNamespace, "Bearing").ParseDecimal() ?? 0;
 
                     if (latitude is null || longitude is null)
+                    {
+                        missingCoordinateCount++;
                         continue;
+                    }
 
-                    string tripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(originAimedDepartureTime.Value, originRef, destinationRef);
+                    string tripScheduleKey = BusTimeTableExtension.BuildTripScheduleKey(originAimedDepartureTime.Value, originBusStopId, destinationBusStopId);
                     busLocations[tripScheduleKey] = new BusLocation
                     {
                         TripScheduleKey = tripScheduleKey,
                         RecordedAtTime = recordedAtTime.Value,
 
                         OperatorRef = operatorRef,
-                        PublishedLineName = publishedLineName,
-                        DirectionRef = directionRef,
+                        LineName = publishedLineName,
+                        Direction = direction,
 
-                        OriginName = originName,
-                        OriginRef = originRef,
+                        OriginBusStopId = originBusStopId,
                         OriginAimedDepartureTime = originAimedDepartureTime.Value,
 
-                        DestinationName = destinationName,
-                        DestinationRef = destinationRef,
+                        DestinationBusStopId = destinationBusStopId,
                         DestinationAimedArrivalTime = destinationAimedArrivalTime,
 
                         Latitude = latitude.Value,
@@ -102,6 +118,11 @@ namespace Backend.Extensions
                     logger.LogError(ex, "Failed to import bus locations from {Activity}", activity.Value);
                 }
             }
+
+            int skippedCount = expiredCount + missingServiceCount + missingJourneyCount + missingCoordinateCount;
+            logger.LogInformation(
+                "Bus locations - {Valid} valid, {Skipped} skipped ({Expired} expired, {MissingService} no service, {MissingJourney} no journey, {MissingLocation} no coordinates)",
+                busLocations.Count, skippedCount, expiredCount, missingServiceCount, missingJourneyCount, missingCoordinateCount);
 
             return busLocations;
         }
@@ -137,7 +158,7 @@ namespace Backend.Extensions
             // Line Section, Operating Profile Section and Journey Section
             var lineById = new Dictionary<string, string>();
             var serviceById = new Dictionary<string, (DateOnly StartDate, DateOnly EndDate, XElement? OperatingProfile, string? RegisteredOperatorRef)>();
-            var journeyById = new Dictionary<string, (IReadOnlyList<string> SectionId, string direction, string origin, string destination, XElement? OperatingProfile)>();
+            var journeyById = new Dictionary<string, (IReadOnlyList<string> SectionId, string direction, XElement? OperatingProfile)>();
 
             IEnumerable<XElement> services = root.Element(xmlNamespace + "Services")?.Elements(xmlNamespace + "Service") ?? throw new InvalidDataException("<Services> element not found.");
 
@@ -169,9 +190,6 @@ namespace Backend.Extensions
                 // Get the journey
                 XElement standardService = service.Element(xmlNamespace + "StandardService") ?? throw new InvalidDataException("<StandardService> element not found.");
 
-                string origin = standardService.Value(xmlNamespace, "Origin") ?? throw new InvalidDataException("<Origin> element not found.");
-                string destination = standardService.Value(xmlNamespace, "Destination") ?? throw new InvalidDataException("<Destination> element not found.");
-
                 foreach (XElement journeyPattern in standardService.Elements(xmlNamespace + "JourneyPattern"))
                 {
                     string journeyId = journeyPattern.AttributeValue("id") ?? throw new InvalidDataException("JourneyPattern 'id' attribute not found.");
@@ -182,7 +200,7 @@ namespace Backend.Extensions
                         .Select(r => r.Value.Trim())
                         .ToList();
 
-                    journeyById[journeyId] = (sectionIds, direction, origin, destination, journeyPattern.Element(xmlNamespace + "OperatingProfile"));
+                    journeyById[journeyId] = (sectionIds, direction, journeyPattern.Element(xmlNamespace + "OperatingProfile"));
                 }
             }
 
@@ -255,7 +273,7 @@ namespace Backend.Extensions
                     throw new InvalidDataException($"Operator Id not found {operatorId}");
 
                 string journeyId = vehicleJourney.Value(xmlNamespace, "JourneyPatternRef") ?? throw new InvalidDataException("<JourneyPatternRef> element not found.");
-                if (!journeyById.TryGetValue(journeyId, out (IReadOnlyList<string> SectionIds, string direction, string origin, string destination, XElement? OperatingProfile) journey))
+                if (!journeyById.TryGetValue(journeyId, out (IReadOnlyList<string> SectionIds, string direction, XElement? OperatingProfile) journey))
                     throw new InvalidDataException($"Journey Id not found {journeyId}");
 
                 string lineId = vehicleJourney.Value(xmlNamespace, "LineRef") ?? throw new InvalidDataException("<LineRef> element not found.");
@@ -357,8 +375,8 @@ namespace Backend.Extensions
                             BusTimetableId = timetableId,
                             Sequence = busCallingPoints.Count + 1,
                             BusStopId = stop.StopId,
-                            LineName = lineName,
-                            OperatorId = busOperator.OperatorId,
+                            //LineName = lineName,
+                            //OperatorId = busOperator.OperatorId,
                             ScheduledTime = scheduledTime,
                             ScheduledDayOffset = scheduledDayOffset
                         });
@@ -382,8 +400,8 @@ namespace Backend.Extensions
                     OperatorId = busOperator.OperatorId,
                     OperatorName = busOperator.Name,
                     LineName = lineName,
-                    OriginName = journey.origin,
-                    DestinationName = journey.destination,
+                    OriginBusStopId = firstCallingPoint.BusStopId,
+                    DestinationBusStopId = lastCallingPoint.BusStopId,
                     Direction = journey.direction,
                     ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,
                     StartDate = service.StartDate,

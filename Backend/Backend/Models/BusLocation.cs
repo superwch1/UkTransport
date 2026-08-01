@@ -8,18 +8,15 @@
 
         // Operator and service metadata
         public required string OperatorRef { get; init; }
-        public required string PublishedLineName { get; init; }
-        public required string DirectionRef { get; init; }
+        public required string LineName { get; init; }
+        public required string Direction { get; init; }
 
 
         // Origin and destination
-        public required string OriginName { get; init; }
-        public required string OriginRef { get; init; }
+        public required string OriginBusStopId { get; init; }
         public required TimeOnly OriginAimedDepartureTime { get; init; }
 
-
-        public required string DestinationName { get; init; }
-        public required string DestinationRef { get; init; }
+        public required string DestinationBusStopId { get; init; }
         public required TimeOnly? DestinationAimedArrivalTime { get; init; }
 
 

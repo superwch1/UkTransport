@@ -8,24 +8,32 @@ namespace Backend.Models
     [Index(nameof(LineName))]
     [Index(nameof(OperatorId))]
     [Index(nameof(TripScheduleKey))]
+    [Index(nameof(OriginBusStopId))]
+    [Index(nameof(DestinationBusStopId))]
     public record BusTimetable
     {
         [Key]
         public required string Id { get; init; }
 
-        // The file this journey was read out of. Deleting that row deletes the journey with it.
+
         [ForeignKey(nameof(BusDataset))]
         public required string DatasetId { get; init; }
         public virtual BusDataset? BusDataset { get; init; }
+
 
         public required string OperatorId { get; init; }
         public required string OperatorName { get; init; }
 
         public required string LineName { get; init; }     
 
-        public required string OriginName { get; init; }
-        public required string DestinationName { get; init; }
-        public required string Direction { get; init; } 
+        public required string OriginBusStopId { get; init; }
+        public required string DestinationBusStopId { get; init; }
+        public required string Direction { get; init; }
+
+
+        // no need line name since there can be changed
+        // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
+        public required string TripScheduleKey { get; init; }
 
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
@@ -35,10 +43,6 @@ namespace Backend.Models
 
         public required DateOnly StartDate { get; init; }
         public required DateOnly EndDate { get; init; }
-
-        // no need line name since there can be changed
-        // {originDepartureTime}-{originBusStopId}-{destinationBusStopId}
-        public required string TripScheduleKey { get; init; }
 
 
         // Days this journey runs. (don't change to flag since it is faster per column read instead of reading bit flags)
