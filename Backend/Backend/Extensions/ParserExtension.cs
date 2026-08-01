@@ -215,9 +215,6 @@ namespace Backend.Extensions
                 string sectionId = journeyPatternSection.AttributeValue("id") ?? throw new InvalidDataException("JourneyPatternSection 'id' attribute not found.");
 
                 var stops = new List<SectionStop>();
-
-                // Minutes are measured from the departure at the first stop of the section.
-                TimeSpan offsetFromDeparture = TimeSpan.Zero;
                 int sequence = 1;
 
                 List<XElement> timingLinks = journeyPatternSection.Elements(xmlNamespace + "JourneyPatternTimingLink").ToList();
@@ -227,21 +224,35 @@ namespace Backend.Extensions
                 // Every link's To is the next link's From, so take the From of each link...
                 foreach (XElement timingLink in timingLinks)
                 {
+                    string timingLinkId = timingLink.AttributeValue("id") ?? string.Empty;
+
                     XElement from = timingLink.Element(xmlNamespace + "From") ?? throw new InvalidDataException("<From> element not found.");
                     string fromStopId = from.Value(xmlNamespace, "StopPointRef") ?? throw new InvalidDataException("<StopPointRef> element not found.");
 
-                    stops.Add(new SectionStop(fromStopId, sequence, offsetFromDeparture.TotalMinutes, IsPassedStop(from, xmlNamespace)));
+                    // The wait is at this stop before moving on, the run is the leg to the next one.
+                    stops.Add(new SectionStop(
+                        timingLinkId,
+                        fromStopId,
+                        sequence,
+                        IsPassedStop(from, xmlNamespace),
+                        from.Value(xmlNamespace, "WaitTime").ParseDuration(),
+                        timingLink.Value(xmlNamespace, "RunTime").ParseDuration()));
 
-                    // A wait at the current stop before moving to the next stop.
-                    offsetFromDeparture += from.Value(xmlNamespace, "WaitTime").ParseDuration();
-                    offsetFromDeparture += timingLink.Value(xmlNamespace, "RunTime").ParseDuration();
                     sequence++;
                 }
 
-                XElement lastTo = timingLinks[timingLinks.Count - 1].Element(xmlNamespace + "To") ?? throw new InvalidDataException("<To> element not found.");
+                XElement lastTimingLink = timingLinks[timingLinks.Count - 1];
+                XElement lastTo = lastTimingLink.Element(xmlNamespace + "To") ?? throw new InvalidDataException("<To> element not found.");
                 string lastStopId = lastTo.Value(xmlNamespace, "StopPointRef") ?? throw new InvalidDataException("<StopPointRef> element not found.");
 
-                stops.Add(new SectionStop(lastStopId, sequence, offsetFromDeparture.TotalMinutes, IsPassedStop(lastTo, xmlNamespace)));
+                // Nothing runs on from the last stop, so it carries no times of its own.
+                stops.Add(new SectionStop(
+                    lastTimingLink.AttributeValue("id") ?? string.Empty,
+                    lastStopId,
+                    sequence,
+                    IsPassedStop(lastTo, xmlNamespace),
+                    TimeSpan.Zero,
+                    TimeSpan.Zero));
 
                 stopsBySectionId[sectionId] = stops;
             }
@@ -350,9 +361,28 @@ namespace Backend.Extensions
                     }),
                 ];
 
+                var journeyWaitTimeByTimingLinkId = new Dictionary<string, TimeSpan>();
+                var journeyRunTimeByTimingLinkId = new Dictionary<string, TimeSpan>();
+
+                foreach (XElement journeyTimingLink in vehicleJourney.Elements(xmlNamespace + "VehicleJourneyTimingLink"))
+                {
+                    string? timingLinkId = journeyTimingLink.Value(xmlNamespace, "JourneyPatternTimingLinkRef");
+                    if (timingLinkId is null)
+                        continue;
+
+                    XElement? journeyFrom = journeyTimingLink.Element(xmlNamespace + "From");
+                    string? waitTime = journeyFrom.Value(xmlNamespace, "WaitTime");
+                    if (waitTime is not null)
+                        journeyWaitTimeByTimingLinkId[timingLinkId] = waitTime.ParseDuration();
+
+                    string? runTime = journeyTimingLink.Value(xmlNamespace, "RunTime");
+                    if (runTime is not null)
+                        journeyRunTimeByTimingLinkId[timingLinkId] = runTime.ParseDuration();
+                }
+
                 // The pattern's sections stack on top of each other, each picking up where the previous one ended.
                 bool isFirstSection = true;
-                double minutesOffset = 0;
+                TimeSpan offsetFromDeparture = TimeSpan.Zero;
 
                 // the nested for loop in section ids is written because a <JourneyPattern> can have multiple <JourneyPatternSectionRefs>
                 foreach (string sectionId in journey.SectionIds)
@@ -362,28 +392,37 @@ namespace Backend.Extensions
 
                     foreach (SectionStop stop in stops)
                     {
-                        // A section's first stop is the previous section's last stop.
+                        // A section's first stop is the previous section's last stop, and its times were already added
+                        // by the section before, so it is skipped without advancing the clock again.
                         if (!isFirstSection && stop.Sequence == 1)
                             continue;
 
-                        TimeOnly scheduledTime = departureTime.AddMinutes(stop.MinutesFromDeparture + minutesOffset, out int scheduledDayOffset);
-                        if (stop.IsPassed)
-                            continue;
+                        TimeOnly scheduledTime = departureTime.AddMinutes(offsetFromDeparture.TotalMinutes, out int scheduledDayOffset);
 
-                        busCallingPoints.Add(new BusCallingPoint()
+                        if (!stop.IsPassed)
                         {
-                            BusTimetableId = timetableId,
-                            Sequence = busCallingPoints.Count + 1,
-                            BusStopId = stop.StopId,
-                            //LineName = lineName,
-                            //OperatorId = busOperator.OperatorId,
-                            ScheduledTime = scheduledTime,
-                            ScheduledDayOffset = scheduledDayOffset
-                        });
+                            busCallingPoints.Add(new BusCallingPoint()
+                            {
+                                BusTimetableId = timetableId,
+                                Sequence = busCallingPoints.Count + 1,
+                                BusStopId = stop.StopId,
+                                //LineName = lineName,
+                                //OperatorId = busOperator.OperatorId,
+                                ScheduledTime = scheduledTime,
+                                ScheduledDayOffset = scheduledDayOffset
+                            });
+                        }
+
+                        // Advanced even for a passed stop, since the bus still takes that long to drive it.
+                        offsetFromDeparture += journeyWaitTimeByTimingLinkId.TryGetValue(stop.TimingLinkId, out TimeSpan journeyWaitTime)
+                            ? journeyWaitTime
+                            : stop.WaitTime;
+
+                        offsetFromDeparture += journeyRunTimeByTimingLinkId.TryGetValue(stop.TimingLinkId, out TimeSpan journeyRunTime)
+                            ? journeyRunTime
+                            : stop.RunTime;
                     }
 
-                    // The next section starts its own clock at the stop this one ended on.
-                    minutesOffset += stops[stops.Count - 1].MinutesFromDeparture;
                     isFirstSection = false;
                 }
 
@@ -426,7 +465,9 @@ namespace Backend.Extensions
         }
 
 
-        private sealed record SectionStop(string StopId, int Sequence, double MinutesFromDeparture, bool IsPassed);
+        // The wait and run times are the pattern's own, kept per link rather than added up, because a vehicle journey
+        // can override either and the same pattern is then timed differently for each journey using it.
+        private sealed record SectionStop(string TimingLinkId, string StopId, int Sequence, bool IsPassed, TimeSpan WaitTime, TimeSpan RunTime);
 
 
         // <Activity> is optional and defaults to pickUpAndSetDown, so only an explicit "pass" drops the stop.
