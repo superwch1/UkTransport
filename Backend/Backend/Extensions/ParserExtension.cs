@@ -1,6 +1,5 @@
 ﻿using Backend.Enumerations;
 using Backend.Models;
-using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
@@ -325,7 +324,11 @@ namespace Backend.Extensions
                 IReadOnlyList<(DateOnly StartDate, DateOnly EndDate)> nonOperatingDates = ResolveDateRanges(specialDaysOfNonOperation, xmlNamespace, dateRangesByElement);
 
                 string departure = vehicleJourney.Value(xmlNamespace, "DepartureTime") ?? throw new InvalidDataException("<DepartureTime> element not found.");
-                TimeOnly departureTime = TimeOnly.Parse(departure, CultureInfo.InvariantCulture);
+
+                // A journey leaving after midnight is stated as 24:00 or later against the operating day it belongs to,
+                // so the hour is folded back to a wall clock and the day it carried is kept as the journey's own offset.
+                TimeOnly departureTime = departure.ParseTimeOnlyWithDayOffset(out int departureDayOffset)
+                    ?? throw new InvalidDataException($"<DepartureTime> is not a time: {departure}");
 
                 string timetableId = Guid.NewGuid().ToString();
                 List<BusCallingPoint> busCallingPoints = [];
@@ -399,7 +402,10 @@ namespace Backend.Extensions
                         // times still count though, since the leg on from it belongs to this section, not the last one.
                         bool isRepeatedSectionStop = !isFirstSection && stop.Sequence == 1;
 
-                        TimeOnly scheduledTime = departureTime.AddMinutes(offsetFromDeparture.TotalMinutes, out int scheduledDayOffset);
+                        // The journey may already have started a day on from its operating day, so the days this stop
+                        // wraps are counted on top of the ones the departure itself carried.
+                        TimeOnly scheduledTime = departureTime.AddMinutes(offsetFromDeparture.TotalMinutes, out int wrappedDays);
+                        int scheduledDayOffset = departureDayOffset + wrappedDays;
 
                         if (!stop.IsPassed && !isRepeatedSectionStop)
                         {
@@ -446,7 +452,8 @@ namespace Backend.Extensions
                     ArrivalTime = lastCallingPoint.ScheduledTime,
                     DestinationBusStopId = lastCallingPoint.BusStopId,
                     Direction = journey.direction,
-                    ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,
+                    DepartureDayOffset = firstCallingPoint.ScheduledDayOffset,
+                    ArrivalDayOffset = lastCallingPoint.ScheduledDayOffset,
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     JourneyKey = BusTimeTableExtension.BuildJourneyKey(lineName, departureTime, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),

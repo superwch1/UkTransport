@@ -109,6 +109,36 @@ namespace Backend.Extensions
             }
         }
 
+        /// <summary>
+        /// Parses a time of day that may run past midnight while still belonging to the day it is stated against,
+        /// which TransXChange writes as an hour of 24 or more ("24:30", "25:10:00"). The returned time is the wall
+        /// clock it lands on and <paramref name="dayOffset"/> is how many days past that day it falls, so a plain
+        /// "07:15" comes back unchanged with an offset of zero.
+        /// </summary>
+        public static TimeOnly? ParseTimeOnlyWithDayOffset(this string? value, out int dayOffset)
+        {
+            dayOffset = 0;
+
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            value = value.Trim();
+
+            // Only the hour can overflow, so it is folded back into range on its own and the rest of the string is
+            // left for the normal parse to reject or accept as it would any other time.
+            int separatorIndex = value.IndexOf(':');
+            if (separatorIndex > 0
+                && int.TryParse(value.AsSpan(0, separatorIndex), NumberStyles.None, CultureInfo.InvariantCulture, out int hours)
+                && hours >= 24)
+            {
+                dayOffset = hours / 24;
+                value = $"{hours % 24:00}{value[separatorIndex..]}";
+            }
+
+            return value.ParseTimeOnly();
+        }
+
+
         public static DateOnly? ParseDateOnly(this string? value)
         {
             return DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly result)

@@ -197,9 +197,10 @@ namespace Backend.Services
 
             // skip the first bus stop since the bus is there but not departure yet and not checking is time greater than schedule is because 1:00 is after 23:00 but TimeOnly thinks different
             // not checking last bus stop because if the bus staying at last stop, it is considered as delay though journey is finished
+            int firstSequence = callingPoints[0].Sequence;
             int lastSequence = callingPoints[callingPoints.Count - 1].Sequence;
             IReadOnlyList<BusCallingPoint> remainingCallingPoints = callingPoints
-                .Where(x => x.Sequence != 0 && x.Sequence != lastSequence)
+                .Where(x => x.Sequence != firstSequence && x.Sequence != lastSequence)
                 .ToList();
 
             // if the server start after the bus departure, it is possible that keep stuck at early stop and cannot update to new stop

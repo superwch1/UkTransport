@@ -79,8 +79,7 @@ namespace Backend.Extensions
                         if (stop == null)
                             continue;
 
-                        DateOnly scheduledDate = date.AddDays(busTimetable.ScheduledDayOffset);
-
+                        DateOnly scheduledDate = date.AddDays(point.ScheduledDayOffset);
                         callingPoints.Add(new BusCallingPointItemResponse()
                         {
                             Sequence = point.Sequence,

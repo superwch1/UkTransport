@@ -32,10 +32,12 @@ namespace Backend.Repositories
 
         public async Task<ImmutableArray<BusRoute>> GetBusRoutes()
         {
+            // The catalogue is every route operating today, so it is judged on the operating date alone. Filtering on
+            // arrival instead would both keep yesterday-only routes alive on the strength of an 00:50 arrival and lose
+            // routes whose only journeys today leave late and arrive tomorrow.
             var routes = await _context.BusTimetables
                 .AsNoTracking()
-                .Where(x => x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
-                .ApplyDayFilter(_timeService.UkNowDateTime, false)
+                .ApplyDepartureDateFilter(_timeService.UkNowDateOnly)
                 .GroupBy(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.Direction })
                 .Select(x => new
                 {
@@ -44,9 +46,10 @@ namespace Backend.Repositories
                     x.Key.LineName,
                     x.First().OperatorName,
                     x.First().Direction,
-                    Duration = x.First().ArrivalTime < x.First().DepartureTime
-                        ? (x.First().ArrivalTime - x.First().DepartureTime) + TimeSpan.FromHours(24)
-                        : x.First().ArrivalTime - x.First().DepartureTime
+                    x.First().DepartureTime,
+                    x.First().ArrivalTime,
+                    x.First().DepartureDayOffset,
+                    x.First().ArrivalDayOffset
                 })
                 .ToListAsync();
 
@@ -61,6 +64,12 @@ namespace Backend.Repositories
                    ? destinationBusStop.Name
                    : route.DestinationBusStopId;
 
+                // Both ends carry their own day offset, so the span is read off them rather than guessed from an
+                // arrival clock that reads earlier than the departure. Worked in TimeSpan so the subtraction stays
+                // signed instead of wrapping the way TimeOnly subtraction does.
+                TimeSpan duration = (route.ArrivalTime.ToTimeSpan() - route.DepartureTime.ToTimeSpan())
+                    + TimeSpan.FromDays(route.ArrivalDayOffset - route.DepartureDayOffset);
+
                 busRoutes.Add(new BusRoute
                 {
                     RouteKey = BusTimeTableExtension.BuildRouteKey(route.LineName, route.OriginBusStopId, route.DestinationBusStopId),
@@ -71,7 +80,7 @@ namespace Backend.Repositories
                     DestinationBusStopId = route.DestinationBusStopId,
                     DestinationName = destinationBusStopName,
                     Direction = route.Direction,
-                    Duration = route.Duration
+                    Duration = duration
                 });
             }
 
@@ -85,8 +94,7 @@ namespace Backend.Repositories
             // seems splitting query is much faster (from 25s to 0.5s)
             List<BusTimetable> timetables = await _context.BusTimetables
                 .AsNoTracking()
-                .Where(x => journeyKey.Contains(x.JourneyKey) &&
-                            x.StartDate <= _timeService.UkNowDateOnly && x.EndDate >= _timeService.UkNowDateOnly)
+                .Where(x => journeyKey.Contains(x.JourneyKey))
                 .ApplyDayFilter(_timeService.UkNowDateTime, false)
                 .ToListAsync();
 
@@ -125,52 +133,67 @@ namespace Backend.Repositories
             if (busRoute is null)
                 return [];
 
-            TimeOnly nowTime = _timeService.UkNowTimeOnly;
-            DateOnly todayDate = _timeService.UkNowDateOnly;
+            // One read of the clock, so a request either side of midnight cannot pair one day's date with another day's time.
+            DateTime ukNow = _timeService.UkNowDateTime;
+            TimeOnly nowTime = TimeOnly.FromDateTime(ukNow);
+            DateOnly todayDate = DateOnly.FromDateTime(ukNow);
             DateOnly yesterdayDate = todayDate.AddDays(-1);
-            TimeOnly noon = new TimeOnly(12, 0);
+            DateOnly tomorrowDate = todayDate.AddDays(1);
 
             // backward time: departs >= now - 1h - duration (a bus travel duration time to destination include 1 hour max delay)
             // forward time: departs <= now + 3h (next bus is with next 3 hours, assuming next bus need to wait for 2 hours)
-            double backHours = 1.0 + busRoute.Duration.TotalHours; 
+            double backHours = 1.0 + busRoute.Duration.TotalHours;
             TimeOnly backwardTime = nowTime.AddHours(-backHours, out int backwardWrappedDays);
-            TimeOnly forwardTime = nowTime.AddHours(3, out int forwardEndWrappedDays);
+            TimeOnly forwardTime = nowTime.AddHours(3, out int forwardWrappedDays);
 
-            bool journeyStartsYesterday = backwardWrappedDays != 0;   // backward time fell into yesterday
-            bool journeyEndsTomorrow = forwardEndWrappedDays != 0;    // now is 20:00 or later
+            bool windowStartsYesterday = backwardWrappedDays != 0;   // back edge ran past midnight into yesterday
+            bool windowEndsTomorrow = forwardWrappedDays != 0;       // now is 21:00 or later
 
-            // no need to check for yesterday timetable after passing noon
-            List<BusTimetable> yesterdayTimetables = nowTime > noon
-                ? []
-                : await _context.BusTimetables
-                    .AsNoTracking()
-                    .Where(x => x.RouteKey == routeKey)
-                    .ApplyDepartureDateFilter(yesterdayDate)
-                    .Where(x =>
-                        // Departs yesterday, so only in range while the (Duration-widened) back edge reaches into it.
-                        (x.ScheduledDayOffset == 0 && journeyStartsYesterday && x.DepartureTime > backwardTime) ||
-                        // Departs today, 24:00+ form, bounded by whichever end of the window falls today.
-                        (x.ScheduledDayOffset == 1 && (journeyStartsYesterday || x.DepartureTime > backwardTime) && (journeyEndsTomorrow || x.DepartureTime < forwardTime)))
-                    .ToListAsync();
+            // A row's operating date is what ApplyDepartureDateFilter matches on, and the bus leaves DepartureDayOffset
+            // days after it, so one operating date can hold departures landing on two calendar days:
+            //   yesterday + offset 0 -> leaves yesterday    today + offset 0 -> leaves today
+            //   yesterday + offset 1 -> leaves today        today + offset 1 -> leaves tomorrow
+            //   tomorrow  + offset 0 -> leaves tomorrow
+            // Departures landing yesterday need the back edge to reach them, ones landing tomorrow need the front edge,
+            // and ones landing today are held between whichever edges fall today.
+            List<BusTimetable> yesterdayTimetables = await _context.BusTimetables
+                .AsNoTracking()
+                .Where(x => x.RouteKey == routeKey)
+                .ApplyDepartureDateFilter(yesterdayDate)
+                .Where(x =>
+                    (x.DepartureDayOffset == 0 && windowStartsYesterday && x.DepartureTime >= backwardTime) ||
+                    (x.DepartureDayOffset == 1 && (windowStartsYesterday || x.DepartureTime >= backwardTime) && (windowEndsTomorrow || x.DepartureTime <= forwardTime)))
+                .ToListAsync();
 
             List<BusTimetable> todayTimetables = await _context.BusTimetables
                 .AsNoTracking()
                 .Where(x => x.RouteKey == routeKey)
                 .ApplyDepartureDateFilter(todayDate)
                 .Where(x =>
-                    // Departs today.
-                    (x.ScheduledDayOffset == 0 && (journeyStartsYesterday || x.DepartureTime > backwardTime) && (journeyEndsTomorrow || x.DepartureTime < forwardTime)) ||
-                    // Departs tomorrow, so only reachable once the front edge runs past midnight.
-                    (x.ScheduledDayOffset == 1 && journeyEndsTomorrow && x.DepartureTime < forwardTime))
+                    (x.DepartureDayOffset == 0 && (windowStartsYesterday || x.DepartureTime >= backwardTime) && (windowEndsTomorrow || x.DepartureTime <= forwardTime)) ||
+                    (x.DepartureDayOffset == 1 && windowEndsTomorrow && x.DepartureTime <= forwardTime))
                 .ToListAsync();
+
+            // A night bus stated as 00:30 belongs to the day it departs, so it sits on tomorrow's operating date and is
+            // only reachable once the front edge runs past midnight.
+            List<BusTimetable> tomorrowTimetables = !windowEndsTomorrow
+                ? []
+                : await _context.BusTimetables
+                    .AsNoTracking()
+                    .Where(x => x.RouteKey == routeKey)
+                    .ApplyDepartureDateFilter(tomorrowDate)
+                    .Where(x => x.DepartureDayOffset == 0 && x.DepartureTime <= forwardTime)
+                    .ToListAsync();
 
             yesterdayTimetables = DeduplicateByJourneyKey(yesterdayTimetables).ToList();
             todayTimetables = DeduplicateByJourneyKey(todayTimetables).ToList();
+            tomorrowTimetables = DeduplicateByJourneyKey(tomorrowTimetables).ToList();
 
 
             List<string> busTimetableIds = yesterdayTimetables
                 .Select(x => x.Id)
                 .Concat(todayTimetables.Select(x => x.Id))
+                .Concat(tomorrowTimetables.Select(x => x.Id))
                 .Distinct()
                 .ToList();
 
@@ -186,7 +209,8 @@ namespace Backend.Repositories
             return
             [
                 (yesterdayDate, yesterdayTimetables.Select(x => AttachCallingPoints(x, callingPointsByTimetableId)).ToList()),
-                (todayDate, todayTimetables.Select(x => AttachCallingPoints(x, callingPointsByTimetableId)).ToList())
+                (todayDate, todayTimetables.Select(x => AttachCallingPoints(x, callingPointsByTimetableId)).ToList()),
+                (tomorrowDate, tomorrowTimetables.Select(x => AttachCallingPoints(x, callingPointsByTimetableId)).ToList())
             ];
         }
 
@@ -205,7 +229,8 @@ namespace Backend.Repositories
             return busTimetables
                 .GroupBy(x => x.JourneyKey)
                 .Select(x => x.OrderByDescending(busTimetable => busTimetable.StartDate).First())
-                .OrderBy(x => x.DepartureTime);
+                .OrderBy(x => x.DepartureDayOffset)
+                .ThenBy(x => x.DepartureTime);
         }
 
 
@@ -252,7 +277,7 @@ namespace Backend.Repositories
                 .Select(x => new PublicHoliday { Name = x })
                 .ToList();
 
-            // since it use bulk insert, it does not also insert the records inside collection in bus timetable
+            // since it use bulk insert, it does not also insert the records inside collection
             await _context.BulkInsertAsync(busTimetables.ToList());
             await _context.BulkInsertAsync(callingPoints);
             await _context.BulkInsertAsync(specialDays);
@@ -301,12 +326,6 @@ namespace Backend.Repositories
         }
 
 
-        /// <summary>
-        /// Journeys scheduled to depart on <paramref name="date"/>, judged against that one date alone:
-        /// its weekday, its week of the month, and any special days covering it. Each day a timetable is
-        /// wanted for is queried separately, so a journey that runs every day comes back once per date
-        /// rather than once in total, which is what keeps last night's 23:50 apart from tonight's.
-        /// </summary>
         public static IQueryable<BusTimetable> ApplyDepartureDateFilter(this IQueryable<BusTimetable> query, DateOnly date)
         {
             DayOfWeek dayOfWeek = date.DayOfWeek;
@@ -336,42 +355,28 @@ namespace Backend.Repositories
 
         public static IQueryable<BusTimetable> ApplyDayFilter(this IQueryable<BusTimetable> query, DateTime now, bool isHoliday)
         {
-            // Build one candidate query per scenario, each pairing a specific
-            // ArrivalDayOffset with the weekday it must have run on:
-            //   offset 0 = journey running today
-            //   offset 1 = overnight journey that departed yesterday, arriving now
-            //   offset 2 = journey that departed two days ago
             DayOfWeek today = now.AddDays(0).DayOfWeek;
             DayOfWeek yesterday = now.AddDays(-1).DayOfWeek;
-            DayOfWeek dayBeforeYesterday = now.AddDays(-2).DayOfWeek;
 
-            // Special days are stated as the date the journey departs, so each offset is checked against the date
-            // that offset started on, exactly as the weekdays below are.
             DateOnly todayDate = DateOnly.FromDateTime(now);
-            DateOnly yesterdayDate = todayDate.AddDays(-1);
-            DateOnly dayBeforeYesterdayDate = todayDate.AddDays(-2);
-
-            // Which weeks of the month those dates fall in, worked out here so the database only has to compare
-            // the stored flags against a constant.
             WeekOfMonth todayWeek = GetWeekOfMonth(todayDate);
+
+            DateOnly yesterdayDate = todayDate.AddDays(-1);
             WeekOfMonth yesterdayWeek = GetWeekOfMonth(yesterdayDate);
-            WeekOfMonth dayBeforeYesterdayWeek = GetWeekOfMonth(dayBeforeYesterdayDate);
 
             // Dates of non-operation outrank everything else: where they conflict with any other rule, including a
             // date of operation, the journey is taken as not running.
             query = query.Where(t => !t.BusSpecialDays!.Any(s => !s.IsOperating &&
-                ((t.ScheduledDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
-                 (t.ScheduledDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate) ||
-                 (t.ScheduledDayOffset == 2 && s.StartDate <= dayBeforeYesterdayDate && s.EndDate >= dayBeforeYesterdayDate))));
+                ((t.DepartureDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
+                 (t.ArrivalDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate))));
 
             // Dates of operation are additive rather than a filter, and hold whatever weekday they land on, so they
             // are ORed with the regular days instead of narrowing them.
             return query.Where(t =>
                 t.BusSpecialDays!.Any(s => s.IsOperating &&
-                    ((t.ScheduledDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
-                     (t.ScheduledDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate) ||
-                     (t.ScheduledDayOffset == 2 && s.StartDate <= dayBeforeYesterdayDate && s.EndDate >= dayBeforeYesterdayDate))) ||
-                (t.ScheduledDayOffset == 0 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & todayWeek) != 0) && (
+                    ((t.DepartureDayOffset == 0 && s.StartDate <= todayDate && s.EndDate >= todayDate) ||
+                     (t.ArrivalDayOffset == 1 && s.StartDate <= yesterdayDate && s.EndDate >= yesterdayDate))) ||
+                (t.DepartureDayOffset == 0 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & todayWeek) != 0) && (
                     (today == DayOfWeek.Monday && t.Monday) ||
                     (today == DayOfWeek.Tuesday && t.Tuesday) ||
                     (today == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -380,7 +385,7 @@ namespace Backend.Repositories
                     (today == DayOfWeek.Saturday && t.Saturday) ||
                     (today == DayOfWeek.Sunday && t.Sunday)
                 )) ||
-                (t.ScheduledDayOffset == 1 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & yesterdayWeek) != 0) && (
+                (t.ArrivalDayOffset == 1 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & yesterdayWeek) != 0) && (
                     (yesterday == DayOfWeek.Monday && t.Monday) ||
                     (yesterday == DayOfWeek.Tuesday && t.Tuesday) ||
                     (yesterday == DayOfWeek.Wednesday && t.Wednesday) ||
@@ -388,15 +393,6 @@ namespace Backend.Repositories
                     (yesterday == DayOfWeek.Friday && t.Friday) ||
                     (yesterday == DayOfWeek.Saturday && t.Saturday) ||
                     (yesterday == DayOfWeek.Sunday && t.Sunday)
-                )) ||
-                (t.ScheduledDayOffset == 2 && (t.WeeksOfMonth == WeekOfMonth.None || (t.WeeksOfMonth & dayBeforeYesterdayWeek) != 0) && (
-                    (dayBeforeYesterday == DayOfWeek.Monday && t.Monday) ||
-                    (dayBeforeYesterday == DayOfWeek.Tuesday && t.Tuesday) ||
-                    (dayBeforeYesterday == DayOfWeek.Wednesday && t.Wednesday) ||
-                    (dayBeforeYesterday == DayOfWeek.Thursday && t.Thursday) ||
-                    (dayBeforeYesterday == DayOfWeek.Friday && t.Friday) ||
-                    (dayBeforeYesterday == DayOfWeek.Saturday && t.Saturday) ||
-                    (dayBeforeYesterday == DayOfWeek.Sunday && t.Sunday)
                 ))
             );
         }

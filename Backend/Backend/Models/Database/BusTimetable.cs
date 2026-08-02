@@ -44,7 +44,8 @@ namespace Backend.Models
 
         // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
         // then query take consideration to yesterday with day offset value 1
-        public required int ScheduledDayOffset { get; init; }
+        public required int DepartureDayOffset { get; init; }
+        public required int ArrivalDayOffset { get; init; }
 
 
         public required DateOnly StartDate { get; init; }

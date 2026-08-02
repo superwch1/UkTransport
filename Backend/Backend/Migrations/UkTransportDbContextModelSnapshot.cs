@@ -130,12 +130,18 @@ namespace Backend.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<int>("ArrivalDayOffset")
+                        .HasColumnType("integer");
+
                     b.Property<TimeOnly>("ArrivalTime")
                         .HasColumnType("time without time zone");
 
                     b.Property<string>("DatasetId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("DepartureDayOffset")
+                        .HasColumnType("integer");
 
                     b.Property<TimeOnly>("DepartureTime")
                         .HasColumnType("time without time zone");
@@ -183,9 +189,6 @@ namespace Backend.Migrations
 
                     b.Property<bool>("Saturday")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("ScheduledDayOffset")
-                        .HasColumnType("integer");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
