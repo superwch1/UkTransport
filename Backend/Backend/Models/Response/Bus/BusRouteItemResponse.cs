@@ -2,6 +2,8 @@
 {
     public record BusRouteItemResponse: IResponse
     {
+        public required string RouteKey { get; init; }
+
         public required string LineName { get; init; }
         public required string OperatorName { get; init; }
 

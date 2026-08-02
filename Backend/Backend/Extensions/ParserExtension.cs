@@ -443,6 +443,7 @@ namespace Backend.Extensions
                     LineName = lineName.ToUpperInvariant(),
                     DepartureTime = firstCallingPoint.ScheduledTime,
                     OriginBusStopId = firstCallingPoint.BusStopId,
+                    ArrivalTime = lastCallingPoint.ScheduledTime,
                     DestinationBusStopId = lastCallingPoint.BusStopId,
                     Direction = journey.direction,
                     ScheduledDayOffset = lastCallingPoint.ScheduledDayOffset,

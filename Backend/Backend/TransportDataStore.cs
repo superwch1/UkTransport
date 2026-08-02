@@ -7,8 +7,8 @@ namespace Backend
 {
     public class TransportDataStore
     {
-        private FrozenDictionary<string, BusJourney> _busJourneyByKey = FrozenDictionary.Create<string, BusJourney>();
-        public FrozenDictionary<string, BusJourney> BusJourneyByKey => _busJourneyByKey;
+        private FrozenDictionary<string, LiveBusJourney> _liveBusJourneyByKey = FrozenDictionary.Create<string, LiveBusJourney>();
+        public FrozenDictionary<string, LiveBusJourney> LiveBusJourneyByKey => _liveBusJourneyByKey;
 
 
         private FrozenDictionary<string, Stop> _stopsById = FrozenDictionary.Create<string, Stop>();
@@ -37,14 +37,14 @@ namespace Backend
             await _busLocationByKeyChannel.Writer.WriteAsync(busLocationByKey);
         }
 
-        public void RefreshStops(Dictionary<string, Stop> stops)
+        public void RefreshStops(FrozenDictionary<string, Stop> stops)
         {
             Interlocked.Exchange(ref _stopsById, stops.Values.ToFrozenDictionary(x => x.Id, x => x));
         }
 
-        public void RefreshBusJourneys(FrozenDictionary<string, BusJourney> journeys)
+        public void RefreshBusJourneys(FrozenDictionary<string, LiveBusJourney> journeys)
         {
-            Interlocked.Exchange(ref _busJourneyByKey, journeys);
+            Interlocked.Exchange(ref _liveBusJourneyByKey, journeys);
         }
 
         public void RefreshBusRoutes(ImmutableArray<BusRoute> routes)

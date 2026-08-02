@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    [Migration("20260801220608_Initial1")]
+    [Migration("20260802173742_Initial1")]
     partial class Initial1
     {
         /// <inheritdoc />
@@ -133,6 +133,9 @@ namespace Backend.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<TimeOnly>("ArrivalTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("DatasetId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -206,6 +209,8 @@ namespace Backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArrivalTime");
 
                     b.HasIndex("DatasetId");
 

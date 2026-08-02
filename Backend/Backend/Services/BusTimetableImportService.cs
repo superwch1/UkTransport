@@ -89,12 +89,13 @@ namespace Backend.Services
         {
             try
             {
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 using IServiceScope scope = _serviceScopeFactory.CreateScope();
                 BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                 ImmutableArray<BusRoute> busRoutes = await busRepository.GetBusRoutes();
                 _transportDataStore.RefreshBusRoutes(busRoutes);
-                _logger.LogInformation("Bus routes - {Routes} origin destination pairs", busRoutes.Length);
+                _logger.LogInformation("Bus location refresh completed in {Elapsed}s. {Routes} routes", stopwatch.Elapsed.TotalSeconds, busRoutes.Length);
             }
             catch (Exception ex)
             {
@@ -178,14 +179,14 @@ namespace Backend.Services
                 stream.Position = 0;
 
                 await stream.ExtractXmlStreamsAsync(
-                    (Func<Stream, CancellationToken, Task>)(async (xmlStream, cancellationToken) =>
+                    async (xmlStream, cancellationToken) =>
                     {
                         using IServiceScope scope = this._serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
                         IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, datasetId, _timeService.UkNowDateTime, _logger, cancellationToken);
                         await busRepository.BulkInsertBusTimetables(busTimetables);
-                    }),
+                    },
                     cancellationToken,
                     entryNameContains
                 );

@@ -15,7 +15,7 @@ namespace Backend.Repositories
         }
 
 
-        public Stop? GetStop(string busStopId)
+        public Stop? GetStopById(string busStopId)
         {
             if (_transportDataStore.StopById.TryGetValue(busStopId, out Stop? stop) && stop is not null)
                 return stop;

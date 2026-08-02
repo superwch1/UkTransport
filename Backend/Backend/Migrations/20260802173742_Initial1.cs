@@ -48,6 +48,7 @@ namespace Backend.Migrations
                     LineName = table.Column<string>(type: "text", nullable: false),
                     DepartureTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     OriginBusStopId = table.Column<string>(type: "text", nullable: false),
+                    ArrivalTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     DestinationBusStopId = table.Column<string>(type: "text", nullable: false),
                     Direction = table.Column<string>(type: "text", nullable: false),
                     ScheduledDayOffset = table.Column<int>(type: "integer", nullable: false),
@@ -169,6 +170,11 @@ namespace Backend.Migrations
                 name: "IX_BusSpecialDays_BusTimetableId",
                 table: "BusSpecialDays",
                 column: "BusTimetableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusTimetables_ArrivalTime",
+                table: "BusTimetables",
+                column: "ArrivalTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BusTimetables_DatasetId",

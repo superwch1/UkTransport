@@ -10,6 +10,7 @@ namespace Backend.Models
     [Index(nameof(JourneyKey))]
     [Index(nameof(RouteKey))]
     [Index(nameof(DepartureTime))]
+    [Index(nameof(ArrivalTime))]
     [Index(nameof(OriginBusStopId))]
     [Index(nameof(DestinationBusStopId))]
     public record BusTimetable
@@ -34,6 +35,9 @@ namespace Backend.Models
 
         public required TimeOnly DepartureTime { get; init; }
         public required string OriginBusStopId { get; init; }
+
+
+        public required TimeOnly ArrivalTime { get; init; }
         public required string DestinationBusStopId { get; init; }
         public required string Direction { get; init; }
 

@@ -4,6 +4,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -107,7 +108,7 @@ namespace Backend.Services
                         };
                     }
 
-                    _transportDataStore.RefreshStops(busStops);
+                    _transportDataStore.RefreshStops(busStops.ToFrozenDictionary());
                     _logger.LogInformation("Stop import completed in {Elapsed}s ({Count} stops)", stopwatch.Elapsed.TotalSeconds, busStops.Count);
                 }
                 catch (Exception ex)

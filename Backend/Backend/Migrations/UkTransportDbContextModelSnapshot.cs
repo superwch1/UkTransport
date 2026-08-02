@@ -130,6 +130,9 @@ namespace Backend.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<TimeOnly>("ArrivalTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("DatasetId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -203,6 +206,8 @@ namespace Backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArrivalTime");
 
                     b.HasIndex("DatasetId");
 

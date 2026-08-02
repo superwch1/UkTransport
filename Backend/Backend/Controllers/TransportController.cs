@@ -29,57 +29,29 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("[controller]/bus/journeys/{journeyKey}")]
-        public async Task<IActionResult> BusJourney(string journeyKey)
-        {
-            BusJourney? busJourney = _busRepository.GetBusJourneyByKey(journeyKey);
-            if (busJourney == null)
-                return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
-
-            return Success(StatusCodes.Status200OK, response: busJourney.ToBusJourneyResponse(_stopRepository.GetStop));
-        }
-
-        [HttpGet("[controller]/bus/lines/{lineName}/routes")]
+        [HttpGet("[controller]/bus/line/{lineName}/routes")]
         public async Task<IActionResult> BusRoute(string lineName)
         {
-            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutes(lineName).Take(100).ToList();
-            if (busRoutes.Count == 0)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusRoute>().ToBusRoutesResponse(), message: "Failed to find the bus");
-
-            return Success(StatusCodes.Status200OK, response: busRoutes.ToBusRoutesResponse());
-        }
-
-        [HttpGet("[controller]/routes/{routeKey}/journeys")]
-        public async Task<IActionResult> GetBusJourneysByRoute(string lineName)
-        {
-            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutes(lineName).Take(100).ToList();
-            if (busRoutes.Count == 0)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusRoute>().ToBusRoutesResponse(), message: "Failed to find the bus");
-
+            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutesByLineName(lineName)
+                .Take(100)
+                .ToList();
             return Success(StatusCodes.Status200OK, response: busRoutes.ToBusRoutesResponse());
         }
 
 
-        /*
-        [HttpGet("[controller]/bus/{journeyKey}/location/")]
-        public IActionResult BusLocation(string journeyKey)
+        [HttpGet("[controller]/bus/route/{routeKey}/timetables")]
+        public async Task<IActionResult> BusRouteTimetables(string routeKey)
         {
-            var busJourney = _busRepository.GetBusJourneyByKey(journeyKey);
-            if (busJourney == null)
-                return Success(StatusCodes.Status200OK, message: "Failed to find the bus");
-
-            return Success(StatusCodes.Status200OK, response: busJourney.ToBusLocationItemResponse());
+            IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)> busTimetablesByDate = await _busRepository.GetBusTimetablesByRouteKey(routeKey);
+            return Success(StatusCodes.Status200OK, response: busTimetablesByDate.ToBusTimetablesResponse(_stopRepository.GetStopById));
         }
 
 
-        [HttpGet("[controller]/bus/locations")]
-        public IActionResult BusLocations([FromQuery] decimal north, [FromQuery] decimal south, [FromQuery] decimal east, [FromQuery] decimal west)
+        [HttpGet("[controller]/bus/route/{routeKey}/journeys")]
+        public async Task<IActionResult> BusRouteJourneys(string routeKey)
         {
-            var busJourneys = _busRepository.GetBusJourneys(north, south, east, west);
-            if (busJourneys.Count > 300)
-                return Success(StatusCodes.Status200OK, response: Array.Empty<BusJourney>().ToBusLocationsResponse(), message: "Zoom in to show bus real time location");
-
-            return Success(StatusCodes.Status200OK, response: busJourneys.ToBusLocationsResponse());
-        }*/
+            IReadOnlyList<LiveBusJourney> busJourneys = _busRepository.GetLiveBusJourneysByRouteKey(routeKey);
+            return Success(StatusCodes.Status200OK, response: busJourneys.ToLiveBusJourneysResponse());
+        }
     }
 }

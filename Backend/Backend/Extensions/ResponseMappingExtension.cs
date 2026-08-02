@@ -1,5 +1,4 @@
 ﻿using Backend.Models;
-using System.Collections.Immutable;
 
 namespace Backend.Extensions
 {
@@ -30,6 +29,7 @@ namespace Backend.Extensions
             {
                 items.Add(new BusRouteItemResponse()
                 {
+                    RouteKey = busRoute.RouteKey,
                     LineName = busRoute.LineName,
                     OperatorName = busRoute.OperatorName,
                     OriginBusStopId = busRoute.OriginBusStopId,
@@ -43,43 +43,65 @@ namespace Backend.Extensions
         }
 
 
-        public static BusJourneyResponse ToBusJourneyResponse(this BusJourney busJourney, Func<string, Stop?> getStopById)
+        public static LiveBusJourneysResponse ToLiveBusJourneysResponse(this IReadOnlyList<LiveBusJourney> busJourneys)
         {
-            List<BusCallingPointItemResponse> items = new List<BusCallingPointItemResponse>();
-            foreach (BusCallingPoint busCallingPoint in busJourney.BusCallingPoints)
+            List<LiveBusJourneyItemResponse> items = new List<LiveBusJourneyItemResponse>();
+            foreach (LiveBusJourney busJourney in busJourneys)
             {
-                Stop? busStop = getStopById(busCallingPoint.BusStopId);
-                if (busStop is null)
-                    continue;
-
-                items.Add(new BusCallingPointItemResponse()
+                items.Add(new LiveBusJourneyItemResponse()
                 {
-                    Sequence = busCallingPoint.Sequence,
-                    BusStopId = busCallingPoint.BusStopId,
-                    Latitude = busStop.Latitude,
-                    Longitude = busStop.Longitude,
-                    ScheduledTime = busCallingPoint.ScheduledTime,
-                    Name = busStop.Name
+                    JourneyKey = busJourney.JourneyKey,
+                    Latitude = busJourney.Latitude,
+                    Longitude = busJourney.Longitude,
+                    Bearing = busJourney.Bearing,
+                    ScheduleOffsetMinutes = busJourney.ScheduleOffsetMinutes,
+                    RecordedAtTime = busJourney.RecordedAtTime
                 });
             }
-            return new BusJourneyResponse() { 
-                JourneyKey = busJourney.JourneyKey,
-                OperatorName = busJourney.OperatorName,
-                LineName = busJourney.LineName,
-                Direction = busJourney.Direction,
-                OriginName = busJourney.OriginName,
-                OriginBusStopId = busJourney.OriginBusStopId,
-                OriginDepartureTime = busJourney.OriginDepartureTime,
-                DestinationName = busJourney.DestinationName,
-                DestinationBusStopId = busJourney.DestinationBusStopId,
-                DestinationArrivalTime = busJourney.DestinationArrivalTime,
-                Latitude = busJourney.Latitude,
-                Longitude = busJourney.Longitude,
-                Bearing = busJourney.Bearing,
-                ScheduleOffsetMinutes = busJourney.ScheduleOffsetMinutes,
-                RecordedAtTime = busJourney.RecordedAtTime,
-                BusCallingPoints = items 
-            };
+            return new LiveBusJourneysResponse() { LiveBusJourneys = items };
+        }
+
+
+        public static BusTimetablesResponse ToBusTimetablesResponse(this IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)> busTimetablesByDate, Func<string, Stop?> getStopById)
+        {
+            List<BusTimetableItemResponse> items = new List<BusTimetableItemResponse>();
+            foreach (var (date, busTimetables) in busTimetablesByDate)
+            {
+                foreach (BusTimetable busTimetable in busTimetables)
+                {
+                    if (busTimetable.BusCallingPoints is null)
+                        continue;
+
+                    List<BusCallingPointItemResponse> callingPoints = [];
+                    foreach(var point in busTimetable.BusCallingPoints)
+                    {
+                        Stop? stop = getStopById(point.BusStopId);
+                        if (stop == null)
+                            continue;
+
+                        DateOnly scheduledDate = date.AddDays(busTimetable.ScheduledDayOffset);
+
+                        callingPoints.Add(new BusCallingPointItemResponse()
+                        {
+                            Sequence = point.Sequence,
+                            BusStopId = point.BusStopId,
+                            ScheduledTime = scheduledDate.ToDateTime(point.ScheduledTime),
+                            Latitude = stop.Latitude,
+                            Longitude = stop.Longitude,
+                            Name = stop.Name
+                        });
+                    }
+
+                    items.Add(new BusTimetableItemResponse()
+                    {
+                        JourneyKey = busTimetable.JourneyKey,
+                        RouteKey = busTimetable.RouteKey,
+                        Direction = busTimetable.Direction,
+                        CallingPoints = callingPoints
+                    });
+                }
+            }
+            return new BusTimetablesResponse() { BusTimetables = items };
         }
     }
 }

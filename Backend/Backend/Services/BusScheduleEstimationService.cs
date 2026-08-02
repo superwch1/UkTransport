@@ -17,7 +17,7 @@ namespace Backend.Services
 
         // Minutes to shift a reported departure by when nothing matched it exactly: -1, 1, -2, 2 and so on out to the configured maximum
         private readonly int[] _departureOffsetMinutes;
-        private readonly Dictionary<string, BusJourney> _journeyByKey = [];
+        private readonly Dictionary<string, LiveBusJourney> _journeyByKey = [];
 
         public BusScheduleEstimationService(IConfiguration configuration, TransportDataStore transportDataStore, TimeService timeService, IServiceScopeFactory serviceScopeFactory, ILogger<BusScheduleEstimationService> logger)
         {
@@ -61,7 +61,7 @@ namespace Backend.Services
                     int cachedMatchCount = 0;
                     foreach (BusLocation busLocation in busLocationByKey.Values)
                     {
-                        if (!_journeyByKey.TryGetValue(busLocation.JourneyKey, out BusJourney? journey))
+                        if (!_journeyByKey.TryGetValue(busLocation.JourneyKey, out LiveBusJourney? journey))
                             continue;
 
                         cachedMatchCount++;
@@ -142,7 +142,7 @@ namespace Backend.Services
 
                     // drop the data when the bus is no longer being tracked recently
                     var expiredKeys = new List<string>();
-                    foreach ((string key, BusJourney journey) in _journeyByKey)
+                    foreach ((string key, LiveBusJourney journey) in _journeyByKey)
                     {
                         if (_timeService.UkNowDateTime - journey.RecordedAtTime > _meta.DataRetentionPeriod)
                         {
@@ -159,8 +159,8 @@ namespace Backend.Services
 
 
                     _logger.LogInformation(
-                        "Bus schedule estimation - {Valid} valid ({Cached} cached, {Exact} exact, {Offset} offset), {Unmatched} unmatched",
-                        busLocationByKey.Count, cachedMatchCount, exactMatchCount, offsetMatchCount, notFoundKey.Count);
+                        "Bus schedule estimation - {Matched} matched ({Cached} cached, {Exact} exact, {Offset} offset), {Unmatched} unmatched",
+                        busLocationByKey.Count - notFoundKey.Count, cachedMatchCount, exactMatchCount, offsetMatchCount, notFoundKey.Count);
 
                     _logger.LogInformation("Bus schedule estimation completed in {Elapsed}s", stopwatch.Elapsed.TotalSeconds);
                 }
@@ -175,30 +175,10 @@ namespace Backend.Services
         {
             (int? lastSeenSequence, int scheduleOffsetMinutes) = EstimateBusSchedule(busLocation, timetable.BusCallingPoints, null, 0);
 
-            using IServiceScope scope = _serviceScopeFactory.CreateScope();
-            StopRepository stopRepository = scope.ServiceProvider.GetRequiredService<StopRepository>();
-
-            Stop? originBusStop = stopRepository.GetStop(busLocation.OriginBusStopId);
-            Stop? destinationBusStop = stopRepository.GetStop(busLocation.DestinationBusStopId);
-
-            BusCallingPoint firstCallingPoint = timetable.BusCallingPoints![0];
-            BusCallingPoint finalCallingPoint = timetable.BusCallingPoints[timetable.BusCallingPoints.Count - 1];
-
-            _journeyByKey[tripScheduleKey] = new BusJourney
+            _journeyByKey[tripScheduleKey] = new LiveBusJourney
             {
-                DatasetId = timetable.DatasetId,
-                OperatorId = timetable.OperatorId,
-                OperatorName = timetable.OperatorName,
-                LineName = timetable.LineName,
-                OriginName = originBusStop is not null ? originBusStop.Name : busLocation.OriginBusStopId,
-                DestinationName = destinationBusStop is not null ? destinationBusStop.Name : busLocation.DestinationBusStopId,
-                Direction = timetable.Direction,
-                ScheduledDayOffset = timetable.ScheduledDayOffset,
                 JourneyKey = busLocation.JourneyKey,
-                OriginBusStopId = busLocation.OriginBusStopId,
-                OriginDepartureTime = firstCallingPoint.ScheduledTime,
-                DestinationBusStopId = busLocation.DestinationBusStopId,
-                DestinationArrivalTime = finalCallingPoint.ScheduledTime,
+                RouteKey = timetable.RouteKey,
                 BusCallingPoints = timetable.BusCallingPoints ?? [],
                 LastArrivedStopSequence = lastSeenSequence,
                 ScheduleOffsetMinutes = scheduleOffsetMinutes,
