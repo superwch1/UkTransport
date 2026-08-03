@@ -33,19 +33,13 @@ namespace Backend.Models
         public required string LineName { get; init; }
 
 
-        public required TimeOnly DepartureTime { get; init; }
+        public required TimeSpan DepartureTime { get; init; }
         public required string OriginBusStopId { get; init; }
 
 
-        public required TimeOnly ArrivalTime { get; init; }
+        public required TimeSpan ArrivalTime { get; init; }
         public required string DestinationBusStopId { get; init; }
         public required string Direction { get; init; }
-
-
-        // sometimes the bus departure from 22:00 and arrive at 01:10 (that will be a day offset)
-        // then query take consideration to yesterday with day offset value 1
-        public required int DepartureDayOffset { get; init; }
-        public required int ArrivalDayOffset { get; init; }
 
 
         public required DateOnly StartDate { get; init; }

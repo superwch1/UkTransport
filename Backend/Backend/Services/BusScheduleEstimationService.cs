@@ -219,8 +219,12 @@ namespace Backend.Services
                 // ~50 m radius
                 if (Math.Abs(busStop.Latitude - busLocation.Latitude) < 0.00045m && Math.Abs(busStop.Longitude - busLocation.Longitude) < 0.00065m)
                 {
+                    // ScheduledTime is measured from the operating day's midnight and can run past 24 hours, so it is
+                    // brought back to a wall clock before being compared with one.
+                    TimeSpan scheduledOnTheClock = TimeSpan.FromTicks(callingPoint.ScheduledTime.Ticks % TimeSpan.TicksPerDay);
+
                     // taken the short way round the clock, so a bus due 23:58 and seen at 00:02 is four minutes late rather than 1436 early.
-                    int minutes = (int)(callingPoint.ScheduledTime.ToTimeSpan() - recordedTime.ToTimeSpan()).TotalMinutes;
+                    int minutes = (int)(scheduledOnTheClock - recordedTime.ToTimeSpan()).TotalMinutes;
 
                     if (minutes > 720)
                         minutes -= 1440;

@@ -19,7 +19,8 @@ namespace Backend.Models
         public required int Sequence { get; init; }     
         public required string BusStopId { get; init; }
 
-        public TimeOnly ScheduledTime { get; init; }
-        public required int ScheduledDayOffset { get; init; } // Day offset relative to the journey's first operating day (0-based).
+        // Measured from midnight starting the journey's operating day, so a stop reached after midnight simply runs
+        // past 24 hours: a bus calling at 01:10 the next morning is 25:10. Nothing wraps and no day offset is needed.
+        public required TimeSpan ScheduledTime { get; init; }
     }
 }

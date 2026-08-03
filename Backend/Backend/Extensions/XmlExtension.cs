@@ -110,32 +110,34 @@ namespace Backend.Extensions
         }
 
         /// <summary>
-        /// Parses a time of day that may run past midnight while still belonging to the day it is stated against,
-        /// which TransXChange writes as an hour of 24 or more ("24:30", "25:10:00"). The returned time is the wall
-        /// clock it lands on and <paramref name="dayOffset"/> is how many days past that day it falls, so a plain
-        /// "07:15" comes back unchanged with an offset of zero.
+        /// Parses a scheduled time as elapsed time from midnight starting the operating day, so an hour of 24 or more
+        /// ("24:30", "25:10:00") is kept as it stands rather than folded back to a wall clock. TimeSpan.Parse cannot be
+        /// used because it rejects an hour above 23 in that position.
         /// </summary>
-        public static TimeOnly? ParseTimeOnlyWithDayOffset(this string? value, out int dayOffset)
+        public static TimeSpan? ParseScheduleTime(this string? value)
         {
-            dayOffset = 0;
-
             if (string.IsNullOrWhiteSpace(value))
                 return null;
 
-            value = value.Trim();
+            string[] parts = value.Trim().Split(':');
+            if (parts.Length is < 2 or > 3)
+                return null;
 
-            // Only the hour can overflow, so it is folded back into range on its own and the rest of the string is
-            // left for the normal parse to reject or accept as it would any other time.
-            int separatorIndex = value.IndexOf(':');
-            if (separatorIndex > 0
-                && int.TryParse(value.AsSpan(0, separatorIndex), NumberStyles.None, CultureInfo.InvariantCulture, out int hours)
-                && hours >= 24)
+            if (!int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out int hours)
+                || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int minutes)
+                || minutes > 59)
             {
-                dayOffset = hours / 24;
-                value = $"{hours % 24:00}{value[separatorIndex..]}";
+                return null;
             }
 
-            return value.ParseTimeOnly();
+            int seconds = 0;
+            if (parts.Length == 3
+                && (!int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out seconds) || seconds > 59))
+            {
+                return null;
+            }
+
+            return new TimeSpan(hours, minutes, seconds);
         }
 
 
@@ -145,6 +147,14 @@ namespace Backend.Extensions
                 ? result
                 : null;
         }
+
+        public static int? ParseInt(this string? value)
+        {
+            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result)
+                ? result
+                : null;
+        }
+
 
         public static decimal? ParseDecimal(this string? value)
         {
