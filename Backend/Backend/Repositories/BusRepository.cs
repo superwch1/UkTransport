@@ -37,17 +37,18 @@ namespace Backend.Repositories
 
             var routes = await busTimetables
                 .ApplyScheduledDateFilter(todayDate, null, null)
-                .Union(busTimetables.ApplyScheduledDateFilter(todayDate.AddDays(-1), null, null))
+                .Union(busTimetables
+                    .ApplyScheduledDateFilter(todayDate.AddDays(-1), null, null))
                 .GroupBy(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.Direction })
-                .Select(x => new
+                .Select(g => new
                 {
-                    x.Key.OriginBusStopId,
-                    x.Key.DestinationBusStopId,
-                    x.Key.LineName,
-                    x.First().OperatorName,
-                    x.First().Direction,
-                    x.First().DepartureTime,
-                    x.First().ArrivalTime
+                    g.Key.OriginBusStopId,
+                    g.Key.DestinationBusStopId,
+                    g.Key.LineName,
+                    g.Key.Direction,
+                    Representative = g.OrderByDescending(x => x.StartDate)
+                        .Select(x => new { x.OperatorName, x.DepartureTime, x.ArrivalTime })
+                        .First()
                 })
                 .ToListAsync();
 
@@ -62,20 +63,17 @@ namespace Backend.Repositories
                    ? destinationBusStop.Name
                    : route.DestinationBusStopId;
 
-                // Both ends are measured from the same midnight, so an overnight journey needs no correction.
-                TimeSpan duration = route.ArrivalTime - route.DepartureTime;
-
                 busRoutes.Add(new BusRoute
                 {
                     RouteKey = BusTimeTableExtension.BuildRouteKey(route.LineName, route.OriginBusStopId, route.DestinationBusStopId),
                     LineName = route.LineName,
-                    OperatorName = route.OperatorName,
+                    OperatorName = route.Representative.OperatorName,
                     OriginBusStopId = route.OriginBusStopId,
                     OriginName = originBusStopName,
                     DestinationBusStopId = route.DestinationBusStopId,
                     DestinationName = destinationBusStopName,
                     Direction = route.Direction,
-                    Duration = duration
+                    Duration = route.Representative.ArrivalTime - route.Representative.DepartureTime
                 });
             }
 
@@ -83,25 +81,26 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByKey(IEnumerable<string> journeyKey)
+        public async Task<IReadOnlyDictionary<string, BusTimetable>> GetBusTimetableByJourneyKey(IEnumerable<string> journeyKey)
         {
             DateOnly todayDate = _timeService.UkNowDateOnly;
+            DateOnly yesterdayDate = todayDate.AddDays(-1);
 
             // A bus reporting its position now set off either today or yesterday, so both operating days are candidates.
             IQueryable<BusTimetable> candidates = _context.BusTimetables
                 .AsNoTracking()
                 .Where(x => journeyKey.Contains(x.JourneyKey));
-
-            // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
-            // seems splitting query is much faster (from 25s to 0.5s)
+        
+            // seems splitting query and doing grouping after materialize is much faster (from 25s to 0.5s)
             List<BusTimetable> timetables = await candidates
                 .ApplyScheduledDateFilter(todayDate, null, null)
-                .Union(candidates.ApplyScheduledDateFilter(todayDate.AddDays(-1), null, null))
+                .Union(candidates.ApplyScheduledDateFilter(yesterdayDate, null, null))
                 .ToListAsync();
 
             if (timetables.Count == 0)
                 return new Dictionary<string, BusTimetable>();
 
+            // If several journeys still match, prefer the most recently-started schedule so repeated taps deterministically resolve to the current timetable version.
             timetables = timetables
                 .GroupBy(x => x.JourneyKey)
                 .Select(g => g.OrderByDescending(x => x.StartDate).First())
@@ -181,11 +180,13 @@ namespace Backend.Repositories
             yesterdayTimetables = yesterdayTimetables
                 .Select(x => AttachCallingPoints(x, callingPointsByTimetableId))
                 .Where(x => x.BusCallingPoints is not null && x.BusCallingPoints.Count > 0)
+                .OrderBy(x => x.DepartureTime)
                 .ToList();
 
             todayTimetables = todayTimetables
                .Select(x => AttachCallingPoints(x, callingPointsByTimetableId))
                .Where(x => x.BusCallingPoints is not null && x.BusCallingPoints.Count > 0)
+               .OrderBy(x => x.DepartureTime)
                .ToList();
 
             return

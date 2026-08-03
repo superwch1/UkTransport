@@ -6,12 +6,10 @@ namespace Backend.Repositories
     public class StopRepository
     {
         private readonly TransportDataStore _transportDataStore;
-        private readonly TimeService _timeService;
 
-        public StopRepository(TransportDataStore transportDataStore, TimeService timeService)
+        public StopRepository(TransportDataStore transportDataStore)
         {
             _transportDataStore = transportDataStore;
-            _timeService = timeService;
         }
 
 

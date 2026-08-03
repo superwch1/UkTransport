@@ -90,7 +90,7 @@ namespace Backend.Services
                         using IServiceScope scope = _serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByKey(batch.Select(x => x.JourneyKey).ToList());
+                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByJourneyKey(batch.Select(x => x.JourneyKey).ToList());
 
                         foreach ((string journeyKey, BusTimetable timetable) in busTimetableByKey)
                         {
@@ -119,7 +119,7 @@ namespace Backend.Services
                                 .Select(offset => BusTimeTableExtension.BuildJourneyKey(x.LineName, x.OriginAimedDepartureTime.AddMinutes(offset), x.OriginBusStopId, x.DestinationBusStopId))
                                 .ToList());
 
-                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByKey(candidateKeysByKey.Values.SelectMany(x => x).Distinct().ToList());
+                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByJourneyKey(candidateKeysByKey.Values.SelectMany(x => x).Distinct().ToList());
                         if (busTimetableByKey.Count == 0)
                             continue;
 

@@ -32,9 +32,7 @@ namespace Backend.Controllers
         [HttpGet("[controller]/bus/line/{lineName}/routes")]
         public async Task<IActionResult> BusRoute(string lineName)
         {
-            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutesByLineName(lineName)
-                .Take(100)
-                .ToList();
+            IReadOnlyList<BusRoute> busRoutes = _busRepository.GetBusRoutesByLineName(lineName);
             return Success(StatusCodes.Status200OK, response: busRoutes.ToBusRoutesResponse());
         }
 

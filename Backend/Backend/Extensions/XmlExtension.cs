@@ -59,6 +59,7 @@ namespace Backend.Extensions
             }
         }
 
+
         public static string? Value(this XElement? parent, XNamespace xNamespace, string elementName)
         {
             string? value = parent?.Element(xNamespace + elementName)?.Value;
@@ -66,6 +67,7 @@ namespace Backend.Extensions
                 ? null
                 : value.Trim();
         }
+
 
         public static string? AttributeValue(this XElement? element, string attributeName)
         {
@@ -109,11 +111,7 @@ namespace Backend.Extensions
             }
         }
 
-        /// <summary>
-        /// Parses a scheduled time as elapsed time from midnight starting the operating day, so an hour of 24 or more
-        /// ("24:30", "25:10:00") is kept as it stands rather than folded back to a wall clock. TimeSpan.Parse cannot be
-        /// used because it rejects an hour above 23 in that position.
-        /// </summary>
+
         public static TimeSpan? ParseScheduleTime(this string? value)
         {
             if (string.IsNullOrWhiteSpace(value))

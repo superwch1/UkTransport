@@ -69,7 +69,7 @@ namespace Backend.Services
                 await RefreshBusRoutes();
 
                 await ImportBodsTimetables(cancellationToken);
-                //await ImportTflTimetables(cancellationToken);
+                await ImportTflTimetables(cancellationToken);
 
                 await RefreshBusRoutes();
 
@@ -112,7 +112,7 @@ namespace Backend.Services
                 string apiKey = _apiKeyBySource[source] ?? throw new InvalidDataException($"ApiKey:{source}");
                 string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:Timetable:Sources:{source}:CatalogueUrl");
 
-                IReadOnlyList<string> sourceDatasetIds = ["12739", "12769", "14241", "14928", "16596", "17472"]; // await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken);
+                IReadOnlyList<string> sourceDatasetIds = await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken); // Bee network ["12739", "12769", "14241", "14928", "16596", "17472"]; 
                 foreach (string sourceDatasetId in sourceDatasetIds)
                 {
                     string url = $"{string.Format(sourceOptions.Url, sourceDatasetId)}?api_key={apiKey}";
