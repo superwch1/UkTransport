@@ -18,6 +18,7 @@ namespace Backend.Services
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TimeService _timeService;
         private readonly TransportDataStore _transportDataStore;
+        private readonly RegionService _regionService;
 
         private readonly ILogger<BusTimetableImportService> _logger;
 
@@ -25,12 +26,13 @@ namespace Backend.Services
         private readonly IReadOnlyDictionary<string, string> _apiKeyBySource;
         private readonly IReadOnlyDictionary<string, TimetableSourceOptions> _sourceOptionsBySource;
 
-        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory, TimeService timeService, TransportDataStore transportDataStore, ILogger<BusTimetableImportService> logger)
+        public BusTimetableImportService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory, TimeService timeService, TransportDataStore transportDataStore, RegionService regionService, ILogger<BusTimetableImportService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _serviceScopeFactory = serviceScopeFactory;
             _timeService = timeService;
             _transportDataStore = transportDataStore;
+            _regionService = regionService;
             _logger = logger;
 
             _apiKeyBySource = configuration
@@ -69,7 +71,7 @@ namespace Backend.Services
                 await RefreshBusRoutes();
 
                 await ImportBodsTimetables(cancellationToken);
-                await ImportTflTimetables(cancellationToken);
+                // await ImportTflTimetables(cancellationToken);
 
                 await RefreshBusRoutes();
 
@@ -112,7 +114,7 @@ namespace Backend.Services
                 string apiKey = _apiKeyBySource[source] ?? throw new InvalidDataException($"ApiKey:{source}");
                 string catalogueUrl = sourceOptions.CatalogueUrl ?? throw new InvalidDataException($"Bus:Timetable:Sources:{source}:CatalogueUrl");
 
-                IReadOnlyList<string> sourceDatasetIds = await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken); // Bee network ["12739", "12769", "14241", "14928", "16596", "17472"]; 
+                IReadOnlyList<string> sourceDatasetIds = ["12739", "12769", "14241", "14928", "16596", "17472"]; // await GetBodsDatasetIds(catalogueUrl, apiKey, cancellationToken); // Bee network ["12739", "12769", "14241", "14928", "16596", "17472"]; 
                 foreach (string sourceDatasetId in sourceDatasetIds)
                 {
                     string url = $"{string.Format(sourceOptions.Url, sourceDatasetId)}?api_key={apiKey}";
@@ -192,8 +194,9 @@ namespace Backend.Services
                     {
                         using IServiceScope scope = this._serviceScopeFactory.CreateScope();
                         BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+                        StopRepository stopRepository = scope.ServiceProvider.GetRequiredService<StopRepository>();
 
-                        IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, datasetId, _timeService.UkNowDateTime, _logger, cancellationToken);
+                        IReadOnlyList<BusTimetable> busTimetables = await xmlStream.ParseBusTimetable(_transXChangeNamespace, datasetId, _timeService.UkNowDateTime, stopRepository.GetStopById, _regionService.GetRegion, _logger, cancellationToken);
                         await busRepository.BulkInsertBusTimetables(busTimetables);
                     },
                     cancellationToken,

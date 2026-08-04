@@ -4,22 +4,22 @@ namespace Backend.Extensions
 {
     public static class ResponseMappingExtension
     {
-        public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<Stop> busStops)
-        {
-            List<BusStopItemResponse> items = new List<BusStopItemResponse>();
-            foreach (Stop busStop in busStops)
-            {
-                items.Add(new BusStopItemResponse()
-                {
-                    Id = busStop.Id,
-                    CommonName = busStop.Name,
-                    Bearing = busStop.Bearing,
-                    Latitude = busStop.Latitude,
-                    Longitude = busStop.Longitude,
-                });
-            }
-            return new BusStopsResponse() { BusStops = items };
-        }
+        //public static BusStopsResponse ToBusStopsResponse(this IReadOnlyList<Stop> busStops)
+        //{
+        //    List<BusStopItemResponse> items = new List<BusStopItemResponse>();
+        //    foreach (Stop busStop in busStops)
+        //    {
+        //        items.Add(new BusStopItemResponse()
+        //        {
+        //            Id = busStop.Id,
+        //            CommonName = busStop.Name,
+        //            Bearing = busStop.Bearing,
+        //            Latitude = busStop.Latitude,
+        //            Longitude = busStop.Longitude,
+        //        });
+        //    }
+        //    return new BusStopsResponse() { BusStops = items };
+        //}
 
 
         public static BusRoutesResponse ToBusRoutesResponse(this IReadOnlyList<BusRoute> busRoutes)
@@ -29,6 +29,7 @@ namespace Backend.Extensions
             {
                 items.Add(new BusRouteItemResponse()
                 {
+                    RouteKey = busRoute.RouteKey,
                     LineName = busRoute.LineName,
                     OperatorName = busRoute.OperatorName,
                     OriginBusStopId = busRoute.OriginBusStopId,
@@ -61,60 +62,25 @@ namespace Backend.Extensions
         }
 
 
-        public static BusTimetablesResponse ToBusTimetablesResponse(this IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)> busTimetablesByDate, DateTime now, Func<string, Stop?> getStopById)
+        public static BusTimetablesResponse ToBusTimetablesResponse(this Dictionary<string, List<BusTimetableItemResponse>> busTimetablesByStopPatternKey, DateTime now)
         {
-            List<BusTimetableItemResponse> items = new List<BusTimetableItemResponse>();
-            foreach (var (date, busTimetables) in busTimetablesByDate)
+            IEnumerable<List<BusTimetableItemResponse>> orderedStopPatterns = busTimetablesByStopPatternKey
+                .Values
+                .OrderByDescending(x => x.Count);
+
+            int upcomingDepartureCount = 4;
+            List<IReadOnlyList<BusTimetableItemResponse>> items = [];
+
+            foreach (List<BusTimetableItemResponse> busTimetables in orderedStopPatterns)
             {
-                foreach (BusTimetable busTimetable in busTimetables)
-                {
-                    if (busTimetable.BusCallingPoints is null)
-                        continue;
+                int firstAfterNow = busTimetables.FindIndex(x => x.ScheduledDepartureTime > now);
+                if (firstAfterNow < 0)
+                    firstAfterNow = busTimetables.Count;
 
-                    List<BusCallingPointItemResponse> callingPoints = [];
-                    foreach(var point in busTimetable.BusCallingPoints)
-                    {
-                        Stop? stop = getStopById(point.BusStopId);
-                        if (stop == null)
-                            continue;
-
-                        callingPoints.Add(new BusCallingPointItemResponse()
-                        {
-                            Sequence = point.Sequence,
-                            BusStopId = point.BusStopId,
-                            ScheduledTime = date.ToDateTime(TimeOnly.MinValue) + point.ScheduledTime,
-                            Latitude = stop.Latitude,
-                            Longitude = stop.Longitude,
-                            Name = stop.Name
-                        });
-                    }
-
-                    if (callingPoints.Count == 0)
-                        continue;
-
-                    items.Add(new BusTimetableItemResponse()
-                    {
-                        JourneyKey = busTimetable.JourneyKey,
-                        RouteKey = busTimetable.RouteKey,
-                        Direction = busTimetable.Direction,
-                        CallingPoints = callingPoints
-                    });
-                }
+                items.Add(busTimetables.GetRange(0, Math.Min(firstAfterNow + upcomingDepartureCount, busTimetables.Count)));
             }
 
-            items = items.OrderBy(x => x.CallingPoints[0].ScheduledTime).ToList();
-            List<BusTimetableItemResponse> selectedItems = items
-                .Where(x => x.CallingPoints[0].ScheduledTime <= now)
-                .ToList();
-
-            List<BusTimetableItemResponse> itemsAfterNow = items
-                .Where(x => x.CallingPoints[0].ScheduledTime > now)
-                .Take(4)
-                .ToList();
-
-            selectedItems.AddRange(itemsAfterNow);
-
-            return new BusTimetablesResponse() { BusTimetables = selectedItems };
+            return new BusTimetablesResponse() { BusTimetables = items };
         }
     }
 }

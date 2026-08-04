@@ -41,6 +41,7 @@ try
     builder.Services.AddSingleton<TransportDataStore>();
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<TimeService>();
+    builder.Services.AddSingleton<RegionService>();
 
     string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
     NpgsqlDataSourceBuilder dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);

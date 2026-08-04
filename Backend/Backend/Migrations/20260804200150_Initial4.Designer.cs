@@ -3,6 +3,7 @@ using System;
 using Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(UkTransportDbContext))]
-    partial class UkTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260804200150_Initial4")]
+    partial class Initial4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,12 +42,10 @@ namespace Backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("Latitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("numeric(9,6)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Longitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("numeric(9,6)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -145,9 +146,6 @@ namespace Backend.Migrations
                     b.Property<TimeSpan>("ArrivalTime")
                         .HasColumnType("interval");
 
-                    b.Property<int>("CountryCount")
-                        .HasColumnType("integer");
-
                     b.Property<string>("DatasetId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -167,12 +165,6 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("EastMidlands")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("EastOfEngland")
-                        .HasColumnType("boolean");
-
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
 
@@ -187,19 +179,7 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("London")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("Monday")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("NorthEast")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("NorthWest")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("NorthernIreland")
                         .HasColumnType("boolean");
 
                     b.Property<string>("OperatorId")
@@ -225,21 +205,8 @@ namespace Backend.Migrations
                     b.Property<bool>("Saturday")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("Scotland")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SouthEast")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SouthWest")
-                        .HasColumnType("boolean");
-
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
-
-                    b.Property<string>("StopPatternKey")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<bool>("Sunday")
                         .HasColumnType("boolean");
@@ -250,20 +217,11 @@ namespace Backend.Migrations
                     b.Property<bool>("Tuesday")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("Wales")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("Wednesday")
                         .HasColumnType("boolean");
 
                     b.Property<int>("WeeksOfMonth")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("WestMidlands")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("YorkshireAndTheHumber")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -276,8 +234,6 @@ namespace Backend.Migrations
                     b.HasIndex("JourneyKey");
 
                     b.HasIndex("RouteKey");
-
-                    b.HasIndex("StopPatternKey");
 
                     b.ToTable("BusTimetables");
                 });

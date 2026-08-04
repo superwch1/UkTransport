@@ -4,6 +4,7 @@ using Backend.Services;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
+using System.Drawing;
 
 namespace Backend.Repositories
 {
@@ -45,7 +46,7 @@ namespace Backend.Repositories
                     g.Key.RouteKey,
                     g.Key.Direction,
                     Representative = g.OrderByDescending(x => x.StartDate)
-                        .Select(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.OperatorName, x.DepartureTime, x.ArrivalTime })
+                        .Select(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.OperatorName, x.DepartureTime, x.ArrivalTime, x.OriginName, x.DestinationName })
                         .First()
                 })
                 .ToListAsync();
@@ -53,23 +54,15 @@ namespace Backend.Repositories
             List<BusRoute> busRoutes = new List<BusRoute>();
             foreach (var route in routes)
             {
-                string originBusStopName = _transportDataStore.StopById.TryGetValue(route.Representative.OriginBusStopId, out Stop? originBusStop) && originBusStop is not null
-                    ? originBusStop.Name
-                    : route.Representative.OriginBusStopId;
-
-                string destinationBusStopName = _transportDataStore.StopById.TryGetValue(route.Representative.DestinationBusStopId, out Stop? destinationBusStop) && destinationBusStop is not null
-                   ? destinationBusStop.Name
-                   : route.Representative.DestinationBusStopId;
-
                 busRoutes.Add(new BusRoute
                 {
                     RouteKey = route.RouteKey,
                     LineName = route.Representative.LineName,
                     OperatorName = route.Representative.OperatorName,
                     OriginBusStopId = route.Representative.OriginBusStopId,
-                    OriginName = originBusStopName,
+                    OriginName = route.Representative.OriginName,
                     DestinationBusStopId = route.Representative.DestinationBusStopId,
-                    DestinationName = destinationBusStopName,
+                    DestinationName = route.Representative.DestinationName,
                     Direction = route.Direction,
                     Duration = route.Representative.ArrivalTime - route.Representative.DepartureTime
                 });
@@ -122,7 +115,7 @@ namespace Backend.Repositories
         }
 
 
-        public async Task<IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)>> GetBusTimetablesByRouteKey(string routeKey)
+        public async Task<Dictionary<string, List<BusTimetableItemResponse>>> GetBusTimetablesByRouteKey(string routeKey)
         {
             BusRoute? busRoute = _transportDataStore.BusRoutes
                 .Where(x => x.RouteKey == routeKey)
@@ -175,32 +168,57 @@ namespace Backend.Repositories
                 .GroupBy(x => x.BusTimetableId)
                 .ToDictionaryAsync(x => x.Key, x => x.OrderBy(callingPoint => callingPoint.Sequence).ToList());
 
-            yesterdayTimetables = yesterdayTimetables
-                .Select(x => AttachCallingPoints(x, callingPointsByTimetableId))
-                .Where(x => x.BusCallingPoints is not null && x.BusCallingPoints.Count > 0)
-                .OrderBy(x => x.DepartureTime)
-                .ToList();
 
-            todayTimetables = todayTimetables
-               .Select(x => AttachCallingPoints(x, callingPointsByTimetableId))
-               .Where(x => x.BusCallingPoints is not null && x.BusCallingPoints.Count > 0)
-               .OrderBy(x => x.DepartureTime)
-               .ToList();
+            // reason of using dictionary is because same origin and destination can have different bus stop inside journey
+            Dictionary<string, List<BusTimetableItemResponse>> busTimetablesByStopPatternKey = [];
+            GroupByStopPattern(busTimetablesByStopPatternKey, yesterdayTimetables, yesterdayDate, callingPointsByTimetableId);
+            GroupByStopPattern(busTimetablesByStopPatternKey, todayTimetables, todayDate, callingPointsByTimetableId);
 
-            return
-            [
-                (yesterdayDate, yesterdayTimetables),
-                (todayDate, todayTimetables)
-            ];
+            foreach (List<BusTimetableItemResponse> stopPatternTimetables in busTimetablesByStopPatternKey.Values)
+            {
+                stopPatternTimetables.Sort((first, second) => first.ScheduledDepartureTime.CompareTo(second.ScheduledDepartureTime));
+            }
+
+            return busTimetablesByStopPatternKey;
         }
 
 
-        private static BusTimetable AttachCallingPoints(BusTimetable busTimetable,
-            IReadOnlyDictionary<string, List<BusCallingPoint>> callingPointsByTimetableId)
+        private static void GroupByStopPattern(Dictionary<string, List<BusTimetableItemResponse>> busTimetablesByStopPatternKey,
+            IReadOnlyList<BusTimetable> busTimetables, DateOnly date, IReadOnlyDictionary<string, List<BusCallingPoint>> callingPointsByTimetableId)
         {
-            return callingPointsByTimetableId.TryGetValue(busTimetable.Id, out List<BusCallingPoint>? busCallingPoints)
-                ? busTimetable with { BusCallingPoints = busCallingPoints }
-                : busTimetable;
+            foreach (BusTimetable busTimetable in busTimetables)
+            {
+                if (!callingPointsByTimetableId.TryGetValue(busTimetable.Id, out List<BusCallingPoint>? busCallingPoints))
+                    continue;
+
+                List<BusCallingPointItemResponse> busCallingPointItems = new(busCallingPoints.Count);
+                foreach (BusCallingPoint busCallingPoint in busCallingPoints)
+                {
+                    busCallingPointItems.Add(new BusCallingPointItemResponse()
+                    {
+                        Latitude = busCallingPoint.Latitude,
+                        Longitude = busCallingPoint.Longitude,
+                        Sequence = busCallingPoint.Sequence,
+                        Name = busCallingPoint.Name,
+                        ScheduledTime = date.ToDateTime(TimeOnly.MinValue) + busCallingPoint.ScheduledTime,
+                    });
+                }
+
+                BusTimetableItemResponse busTimetableItem = new BusTimetableItemResponse()
+                {
+                    JourneyKey = busTimetable.JourneyKey,
+                    ScheduledDepartureTime = busCallingPointItems[0].ScheduledTime,
+                    CallingPoints = busCallingPointItems
+                };
+
+                if (!busTimetablesByStopPatternKey.TryGetValue(busTimetable.StopPatternKey, out List<BusTimetableItemResponse>? stopPatternTimetables))
+                {
+                    stopPatternTimetables = [];
+                    busTimetablesByStopPatternKey[busTimetable.StopPatternKey] = stopPatternTimetables;
+                }
+
+                stopPatternTimetables.Add(busTimetableItem);
+            }
         }
 
 

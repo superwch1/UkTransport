@@ -125,11 +125,25 @@ namespace Backend.Extensions
 
 
 
-        public static async Task<IReadOnlyList<BusTimetable>> ParseBusTimetable(this Stream stream, XNamespace xmlNamespace, string datasetId, DateTime now, ILogger logger, CancellationToken cancellationToken)
+        public static async Task<IReadOnlyList<BusTimetable>> ParseBusTimetable(this Stream stream, XNamespace xmlNamespace, string datasetId, DateTime now, Func<string, Stop?> getStopById, Func<decimal, decimal, Itl1Region> getRegion, ILogger logger, CancellationToken cancellationToken)
         {
             List<BusTimetable> busTimetables = [];
             XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
             XElement root = document.Root ?? throw new InvalidDataException("Empty TransXChange document.");
+
+            // Stop Points section
+            Dictionary<string, string> stopNameByBusStopId = new Dictionary<string, string>();
+
+            XElement? stopPoints = root.Element(xmlNamespace + "StopPoints");
+            foreach (XElement annotatedStopPointRef in stopPoints?.Elements(xmlNamespace + "AnnotatedStopPointRef") ?? [])
+            {
+                string? busStopId = annotatedStopPointRef.Value(xmlNamespace, "StopPointRef");
+                if (busStopId is null)
+                    throw new InvalidDataException("<StopPointRef> element not found.");
+
+                stopNameByBusStopId[busStopId] = annotatedStopPointRef.Value(xmlNamespace, "CommonName") ?? throw new InvalidDataException("<CommonName> element not found.");
+            }
+
 
             // Operators section
             var operatordById = new Dictionary<string, (string OperatorId, string Name)>();
@@ -335,6 +349,7 @@ namespace Backend.Extensions
 
                 string timetableId = Guid.NewGuid().ToString();
                 List<BusCallingPoint> busCallingPoints = [];
+                HashSet<Itl1Region> regions = [];
 
                 List<BusSpecialDay> busSpecialDays =
                 [
@@ -377,9 +392,9 @@ namespace Backend.Extensions
                 {
                     string? timingLinkId = journeyTimingLink.Value(xmlNamespace, "JourneyPatternTimingLinkRef");
                     if (timingLinkId is null)
-                        continue;
+                        throw new InvalidDataException("<JourneyPatternTimingLinkRef> element not found.");
 
-                    XElement? journeyFrom = journeyTimingLink.Element(xmlNamespace + "From");
+                    XElement ? journeyFrom = journeyTimingLink.Element(xmlNamespace + "From");
                     string? waitTime = journeyFrom.Value(xmlNamespace, "WaitTime");
                     if (waitTime is not null)
                         journeyWaitTimeByTimingLinkId[timingLinkId] = waitTime.ParseDuration();
@@ -409,11 +424,26 @@ namespace Backend.Extensions
 
                         if (!stop.IsPassed && !isRepeatedSectionStop)
                         {
+                            if (!stopNameByBusStopId.TryGetValue(stop.StopId, out string? stopName))
+                                throw new InvalidDataException($"Stop Id not found {stop.StopId}");
+
+                            Stop busStop = getStopById(stop.StopId) ?? throw new InvalidDataException($"Bus stop not found {stop.StopId}");
+
+                            decimal latitude = Math.Round(busStop.Latitude, 6);
+                            decimal longitude = Math.Round(busStop.Longitude, 6);
+
+                            // A journey normally stays in one region, but a cross-border one calls in more than one,
+                            // so every stop is placed rather than just the two ends.
+                            regions.Add(getRegion(latitude, longitude));
+
                             busCallingPoints.Add(new BusCallingPoint()
                             {
                                 BusTimetableId = timetableId,
                                 Sequence = busCallingPoints.Count + 1,
                                 BusStopId = stop.StopId,
+                                Name = stopName,
+                                Latitude = latitude,
+                                Longitude = longitude,
                                 ScheduledTime = scheduledTime
                             });
                         }
@@ -446,13 +476,16 @@ namespace Backend.Extensions
                     LineName = lineName.ToUpperInvariant(),
                     DepartureTime = firstCallingPoint.ScheduledTime,
                     OriginBusStopId = firstCallingPoint.BusStopId,
+                    OriginName = firstCallingPoint.Name,
                     ArrivalTime = lastCallingPoint.ScheduledTime,
                     DestinationBusStopId = lastCallingPoint.BusStopId,
                     Direction = journey.direction,
+                    DestinationName = lastCallingPoint.Name,
                     StartDate = service.StartDate,
                     EndDate = service.EndDate,
                     JourneyKey = BusTimeTableExtension.BuildJourneyKey(lineName, TimeOnly.MinValue.Add(departureTime), firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
                     RouteKey = BusTimeTableExtension.BuildRouteKey(lineName, firstCallingPoint.BusStopId, lastCallingPoint.BusStopId),
+                    StopPatternKey = BusTimeTableExtension.BuildStopPatternKey(busCallingPoints.Select(x => x.BusStopId).ToList()),
                     WeeksOfMonth = weeksOfMonth,
                     Monday = days.Contains(DayOfWeek.Monday),
                     Tuesday = days.Contains(DayOfWeek.Tuesday),
@@ -461,6 +494,19 @@ namespace Backend.Extensions
                     Friday = days.Contains(DayOfWeek.Friday),
                     Saturday = days.Contains(DayOfWeek.Saturday),
                     Sunday = days.Contains(DayOfWeek.Sunday),
+                    NorthEast = regions.Contains(Itl1Region.NorthEast),
+                    NorthWest = regions.Contains(Itl1Region.NorthWest),
+                    YorkshireAndTheHumber = regions.Contains(Itl1Region.YorkshireAndTheHumber),
+                    EastMidlands = regions.Contains(Itl1Region.EastMidlands),
+                    WestMidlands = regions.Contains(Itl1Region.WestMidlands),
+                    EastOfEngland = regions.Contains(Itl1Region.EastOfEngland),
+                    London = regions.Contains(Itl1Region.London),
+                    SouthEast = regions.Contains(Itl1Region.SouthEast),
+                    SouthWest = regions.Contains(Itl1Region.SouthWest),
+                    Wales = regions.Contains(Itl1Region.Wales),
+                    Scotland = regions.Contains(Itl1Region.Scotland),
+                    NorthernIreland = regions.Contains(Itl1Region.NorthernIreland),
+                    CountryCount = CountUkCountries(regions),
                     BusCallingPoints = busCallingPoints,
                     BusSpecialDays = busSpecialDays,
                     BusHolidays = busHolidays,
@@ -474,6 +520,39 @@ namespace Backend.Extensions
         // The wait and run times are the pattern's own, kept per link rather than added up, because a vehicle journey
         // can override either and the same pattern is then timed differently for each journey using it.
         private sealed record SectionStop(string TimingLinkId, string StopId, int Sequence, bool IsPassed, TimeSpan WaitTime, TimeSpan RunTime);
+
+
+        private static int CountUkCountries(HashSet<Itl1Region> regions)
+        {
+            bool countedEngland = false;
+            int countryCount = 0;
+
+            foreach (Itl1Region region in regions)
+            {
+                switch (region)
+                {
+                    case Itl1Region.None:
+                        break;
+
+                    case Itl1Region.Wales:
+                    case Itl1Region.Scotland:
+                    case Itl1Region.NorthernIreland:
+                        countryCount++;
+                        break;
+
+                    default:
+                        if (!countedEngland)
+                        {
+                            countedEngland = true;
+                            countryCount++;
+                        }
+
+                        break;
+                }
+            }
+
+            return countryCount;
+        }
 
 
         // <Activity> is optional and defaults to pickUpAndSetDown, so only an explicit "pass" drops the stop.

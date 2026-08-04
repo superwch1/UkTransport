@@ -2,6 +2,6 @@
 {
     public record BusTimetablesResponse : IResponse
     {
-        public required IReadOnlyList<BusTimetableItemResponse> BusTimetables { get; init; }
+        public required IReadOnlyList<IReadOnlyList<BusTimetableItemResponse>> BusTimetables { get; init; }
     }
 }

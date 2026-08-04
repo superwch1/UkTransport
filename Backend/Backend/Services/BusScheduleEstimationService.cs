@@ -119,9 +119,6 @@ namespace Backend.Services
                                 .ToList());
 
                         IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByJourneyKey(candidateKeysByKey.Values.SelectMany(x => x).Distinct().ToList());
-                        if (busTimetableByKey.Count == 0)
-                            continue;
-
                         foreach ((string journeyKey, List<string> candidateKeys) in candidateKeysByKey)
                         {
                             // The offsets are ordered nearest first, so the closest departure wins.
