@@ -95,7 +95,7 @@ namespace Backend.Services
 
                 ImmutableArray<BusRoute> busRoutes = await busRepository.GetBusRoutes();
                 _transportDataStore.RefreshBusRoutes(busRoutes);
-                _logger.LogInformation("Bus location refresh completed in {Elapsed}s. {Routes} routes", stopwatch.Elapsed.TotalSeconds, busRoutes.Length);
+                _logger.LogInformation("Bus route refresh completed in {Elapsed}s. {Routes} routes", stopwatch.Elapsed.TotalSeconds, busRoutes.Length);
             }
             catch (Exception ex)
             {
@@ -152,7 +152,11 @@ namespace Backend.Services
                 BusRepository busRepository = freshnessScope.ServiceProvider.GetRequiredService<BusRepository>();
                 BusDataset? importedDataset = await busRepository.GetBusDataset(datasetId);
 
-                if (importedDataset is not null && _timeService.UtcNowDateTimeOffset - importedDataset.ImportedAt < _meta.DatasetRefreshInterval)
+                // A dataset whose previous import never finished is downloaded again regardless of how recent it is,
+                // since the rows it left behind are only part of the timetable.
+                if (importedDataset is not null
+                    && importedDataset.IsImportCompleted
+                    && _timeService.UtcNowDateTimeOffset - importedDataset.ImportedAt < _meta.DatasetRefreshInterval)
                 {
                     _logger.LogInformation("DatasetId ({DatasetId}) - skipped, imported at {ImportedAt}", datasetId, importedDataset.ImportedAt);
                     return;
@@ -168,7 +172,12 @@ namespace Backend.Services
                 using (IServiceScope datasetScope = _serviceScopeFactory.CreateScope())
                 {
                     BusRepository busRepository = datasetScope.ServiceProvider.GetRequiredService<BusRepository>();
-                    await busRepository.ResetBusDataset(new BusDataset { Id = datasetId, ImportedAt = _timeService.UtcNowDateTimeOffset });
+                    await busRepository.ResetBusDataset(new BusDataset
+                    {
+                        Id = datasetId,
+                        ImportedAt = _timeService.UtcNowDateTimeOffset,
+                        IsImportCompleted = false
+                    });
                 }
 
                 using MemoryStream stream = new MemoryStream();
@@ -190,6 +199,13 @@ namespace Backend.Services
                     cancellationToken,
                     entryNameContains
                 );
+
+                using (IServiceScope completionScope = _serviceScopeFactory.CreateScope())
+                {
+                    BusRepository busRepository = completionScope.ServiceProvider.GetRequiredService<BusRepository>();
+                    await busRepository.CompleteBusDataset(datasetId);
+                }
+
                 _logger.LogInformation("DatasetId ({DatasetId}) - Bus timetables import takes {Elapsed}s", datasetId, stopwatch.Elapsed.TotalSeconds);
             }
             catch (Exception ex)

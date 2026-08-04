@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
+import 'package:frontend/features/bus/pages/bus_route_search_page.dart';
 import 'package:frontend/features/bus/view_models/bus_map_view_model.dart';
 import 'package:frontend/features/bus/widgets/bus_panel.dart';
 import 'package:frontend/main.dart';
@@ -50,6 +51,20 @@ class _BusMapPageState extends ConsumerState<BusMapPage> {
           rotateGesturesEnabled: false,
           tiltGesturesEnabled: false,
           trackCameraPosition: true,
+        ),
+
+        Positioned(
+          top: 12,
+          right: 12,
+          child: SafeArea(
+            child: FloatingActionButton.small(
+              heroTag: 'bus-route-search',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (context) => const BusRouteSearchPage()),
+              ),
+              child: const Icon(Icons.search),
+            ),
+          ),
         ),
 
         Positioned(

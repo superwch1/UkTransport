@@ -1,6 +1,7 @@
 import 'package:frontend/core/network/api_service.dart';
 import 'package:frontend/core/network/enum/http_method.dart';
 import 'package:frontend/core/network/response/api_response.dart';
+import 'package:frontend/core/network/response/bus_calling_points_response.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
 import 'package:frontend/core/network/response/bus_locations_response.dart';
 import 'package:frontend/core/network/response/bus_routes_response.dart';
@@ -32,9 +33,15 @@ class TransportApiService extends ApiService {
       fromJson: BusStopsResponse.fromJson);
   }
 
-  Future<ApiResponse<BusRoutesResponse>> getBusRoute(String tripScheduleKey) async { 
+  Future<ApiResponse<BusCallingPointsResponse>> getBusRoute(String tripScheduleKey) async {
     return await super.sendRequest(
-      HttpMethod.get, "transport/bus/$tripScheduleKey/route", 
+      HttpMethod.get, "transport/bus/$tripScheduleKey/route",
+      fromJson: BusCallingPointsResponse.fromJson);
+  }
+
+  Future<ApiResponse<BusRoutesResponse>> getBusRoutesByLineName(String lineName) async {
+    return await super.sendRequest(
+      HttpMethod.get, "transport/bus/line/${Uri.encodeComponent(lineName)}/routes",
       fromJson: BusRoutesResponse.fromJson);
   }
 }

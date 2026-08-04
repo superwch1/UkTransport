@@ -1,26 +1,39 @@
 class BusRouteItemResponse {
 
-  final int sequence;
-  final String busStopId;
-  final DateTime scheduledTime;
-  final double latitude;
-  final double longitude;
+  final String routeKey;
+
+  final String lineName;
+  final String operatorName;
+
+  final String originBusStopId;
+  final String originName;
+
+  final String destinationBusStopId;
+  final String destinationName;
+
+  final String direction;
 
   BusRouteItemResponse._({
-    required this.sequence,
-    required this.busStopId,
-    required this.scheduledTime,
-    required this.latitude,
-    required this.longitude,
+    required this.routeKey,
+    required this.lineName,
+    required this.operatorName,
+    required this.originBusStopId,
+    required this.originName,
+    required this.destinationBusStopId,
+    required this.destinationName,
+    required this.direction,
   });
 
   factory BusRouteItemResponse.fromJson(Map<String, dynamic> json) {
     return BusRouteItemResponse._(
-      sequence: json['sequence'] as int,
-      busStopId: json['busStopId'] as String,
-      scheduledTime: DateTime.parse('1970-01-01T${json['scheduledTime']}'),
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      routeKey: json['routeKey'] as String,
+      lineName: json['lineName'] as String,
+      operatorName: json['operatorName'] as String,
+      originBusStopId: json['originBusStopId'] as String,
+      originName: json['originName'] as String,
+      destinationBusStopId: json['destinationBusStopId'] as String,
+      destinationName: json['destinationName'] as String,
+      direction: json['direction'] as String,
     );
   }
 }

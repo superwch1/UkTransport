@@ -39,15 +39,13 @@ namespace Backend.Repositories
                 .ApplyScheduledDateFilter(todayDate, null, null)
                 .Union(busTimetables
                     .ApplyScheduledDateFilter(todayDate.AddDays(-1), null, null))
-                .GroupBy(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.Direction })
+                .GroupBy(x => new { x.RouteKey, x.Direction })
                 .Select(g => new
                 {
-                    g.Key.OriginBusStopId,
-                    g.Key.DestinationBusStopId,
-                    g.Key.LineName,
+                    g.Key.RouteKey,
                     g.Key.Direction,
                     Representative = g.OrderByDescending(x => x.StartDate)
-                        .Select(x => new { x.OperatorName, x.DepartureTime, x.ArrivalTime })
+                        .Select(x => new { x.OriginBusStopId, x.DestinationBusStopId, x.LineName, x.OperatorName, x.DepartureTime, x.ArrivalTime })
                         .First()
                 })
                 .ToListAsync();
@@ -55,22 +53,22 @@ namespace Backend.Repositories
             List<BusRoute> busRoutes = new List<BusRoute>();
             foreach (var route in routes)
             {
-                string originBusStopName = _transportDataStore.StopById.TryGetValue(route.OriginBusStopId, out Stop? originBusStop) && originBusStop is not null
+                string originBusStopName = _transportDataStore.StopById.TryGetValue(route.Representative.OriginBusStopId, out Stop? originBusStop) && originBusStop is not null
                     ? originBusStop.Name
-                    : route.OriginBusStopId;
+                    : route.Representative.OriginBusStopId;
 
-                string destinationBusStopName = _transportDataStore.StopById.TryGetValue(route.DestinationBusStopId, out Stop? destinationBusStop) && destinationBusStop is not null
+                string destinationBusStopName = _transportDataStore.StopById.TryGetValue(route.Representative.DestinationBusStopId, out Stop? destinationBusStop) && destinationBusStop is not null
                    ? destinationBusStop.Name
-                   : route.DestinationBusStopId;
+                   : route.Representative.DestinationBusStopId;
 
                 busRoutes.Add(new BusRoute
                 {
-                    RouteKey = BusTimeTableExtension.BuildRouteKey(route.LineName, route.OriginBusStopId, route.DestinationBusStopId),
-                    LineName = route.LineName,
+                    RouteKey = route.RouteKey,
+                    LineName = route.Representative.LineName,
                     OperatorName = route.Representative.OperatorName,
-                    OriginBusStopId = route.OriginBusStopId,
+                    OriginBusStopId = route.Representative.OriginBusStopId,
                     OriginName = originBusStopName,
-                    DestinationBusStopId = route.DestinationBusStopId,
+                    DestinationBusStopId = route.Representative.DestinationBusStopId,
                     DestinationName = destinationBusStopName,
                     Direction = route.Direction,
                     Duration = route.Representative.ArrivalTime - route.Representative.DepartureTime
@@ -139,13 +137,13 @@ namespace Backend.Repositories
             DateOnly todayDate = DateOnly.FromDateTime(ukNow);
             DateOnly yesterdayDate = todayDate.AddDays(-1);
 
-            // backward edge: departs >= now - 1h - duration, so a bus still on the road stays on the board or DELAYYY
-            // forward edge: departs <= now + 3h, assuming the next bus is not more than a couple of hours off 
-            TimeSpan delayBuffer = new TimeSpan(1, 0, 0);
-            TimeSpan maxWaitForNextDeparture = new TimeSpan(3, 0, 0);
+            // backward edge: departs >= now - 0.5h - duration, so a bus still on the road stays on the board or DELAYYY
+            // forward edge: departs <= now + 4h, assuming the next bus is not more than a couple of hours off 
+            TimeSpan delayBuffer = new TimeSpan(0, 30, 0);
+            TimeSpan maxWaitForNextDeparture = new TimeSpan(4, 0, 0);
 
-            TimeSpan yesterdayEarliestDeparture = new TimeSpan(24, 0, 0) + ukTimeNow.ToTimeSpan() - delayBuffer - busRoute.Duration; // 24 hours (1 day offset) - 1 hour delay - duration
-            TimeSpan yesterdayLatestDeparture = new TimeSpan(24, 0, 0) + ukTimeNow.ToTimeSpan() + maxWaitForNextDeparture; // 24 hours (1 day offset) + current time + 3 hour buffer
+            TimeSpan yesterdayEarliestDeparture = new TimeSpan(24, 0, 0) + ukTimeNow.ToTimeSpan() - delayBuffer - busRoute.Duration; // 24 hours (1 day offset) - 0.5 hour delay - duration
+            TimeSpan yesterdayLatestDeparture = new TimeSpan(24, 0, 0) + ukTimeNow.ToTimeSpan() + maxWaitForNextDeparture; // 24 hours (1 day offset) + current time + 4 hour buffer
             List<BusTimetable> yesterdayTimetables = await _context.BusTimetables
                 .AsNoTracking()
                 .Where(x => x.RouteKey == routeKey)
@@ -263,6 +261,13 @@ namespace Backend.Repositories
 
             _context.BusDatasets.Add(busDataset);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task CompleteBusDataset(string datasetId)
+        {
+            await _context.BusDatasets
+                .Where(x => x.Id == datasetId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsImportCompleted, true));
         }
     }
 

@@ -10,5 +10,7 @@ namespace Backend.Models
         public required string Id { get; init; }
 
         public required DateTimeOffset ImportedAt { get; init; }
+
+        public required bool IsImportCompleted { get; init; }
     }
 }

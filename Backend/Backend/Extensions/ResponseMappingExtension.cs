@@ -29,7 +29,6 @@ namespace Backend.Extensions
             {
                 items.Add(new BusRouteItemResponse()
                 {
-                    RouteKey = busRoute.RouteKey,
                     LineName = busRoute.LineName,
                     OperatorName = busRoute.OperatorName,
                     OriginBusStopId = busRoute.OriginBusStopId,
@@ -62,7 +61,7 @@ namespace Backend.Extensions
         }
 
 
-        public static BusTimetablesResponse ToBusTimetablesResponse(this IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)> busTimetablesByDate, Func<string, Stop?> getStopById)
+        public static BusTimetablesResponse ToBusTimetablesResponse(this IReadOnlyList<(DateOnly Date, IReadOnlyList<BusTimetable> BusTimetables)> busTimetablesByDate, DateTime now, Func<string, Stop?> getStopById)
         {
             List<BusTimetableItemResponse> items = new List<BusTimetableItemResponse>();
             foreach (var (date, busTimetables) in busTimetablesByDate)
@@ -90,6 +89,9 @@ namespace Backend.Extensions
                         });
                     }
 
+                    if (callingPoints.Count == 0)
+                        continue;
+
                     items.Add(new BusTimetableItemResponse()
                     {
                         JourneyKey = busTimetable.JourneyKey,
@@ -99,7 +101,20 @@ namespace Backend.Extensions
                     });
                 }
             }
-            return new BusTimetablesResponse() { BusTimetables = items };
+
+            items = items.OrderBy(x => x.CallingPoints[0].ScheduledTime).ToList();
+            List<BusTimetableItemResponse> selectedItems = items
+                .Where(x => x.CallingPoints[0].ScheduledTime <= now)
+                .ToList();
+
+            List<BusTimetableItemResponse> itemsAfterNow = items
+                .Where(x => x.CallingPoints[0].ScheduledTime > now)
+                .Take(4)
+                .ToList();
+
+            selectedItems.AddRange(itemsAfterNow);
+
+            return new BusTimetablesResponse() { BusTimetables = selectedItems };
         }
     }
 }

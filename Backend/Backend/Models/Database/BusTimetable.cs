@@ -5,14 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
-    [Index(nameof(LineName))]
-    [Index(nameof(OperatorId))]
     [Index(nameof(JourneyKey))]
     [Index(nameof(RouteKey))]
     [Index(nameof(DepartureTime))]
     [Index(nameof(ArrivalTime))]
-    [Index(nameof(OriginBusStopId))]
-    [Index(nameof(DestinationBusStopId))]
     public record BusTimetable
     {
         [Key]

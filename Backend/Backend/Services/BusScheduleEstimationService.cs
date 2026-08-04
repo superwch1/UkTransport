@@ -2,6 +2,7 @@
 using Backend.Repositories;
 using System.Collections.Frozen;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Backend.Services
 {
@@ -85,12 +86,11 @@ namespace Backend.Services
                     // Second: search for the journey in database using departure-origin-destination key
                     IReadOnlyList<BusLocation> uncachedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
                     int exactMatchCount = 0;
-                    foreach (BusLocation[] batch in uncachedBusLocations.Chunk(_meta.DatabaseLookupBatchSize))
-                    {
-                        using IServiceScope scope = _serviceScopeFactory.CreateScope();
-                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByJourneyKey(batch.Select(x => x.JourneyKey).ToList());
+                    using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+                    {
+                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+                        IReadOnlyDictionary<string, BusTimetable> busTimetableByKey = await busRepository.GetBusTimetableByJourneyKey(uncachedBusLocations.Select(x => x.JourneyKey).ToList());
 
                         foreach ((string journeyKey, BusTimetable timetable) in busTimetableByKey)
                         {
@@ -107,12 +107,11 @@ namespace Backend.Services
                     // Third: shift minutes for each departure-origin-destination key then perform search in database
                     IReadOnlyList<BusLocation> unmatchedBusLocations = notFoundKey.Select(x => busLocationByKey[x]).ToList();
                     int offsetMatchCount = 0;
-                    foreach (BusLocation[] batch in unmatchedBusLocations.Chunk(_meta.DatabaseLookupBatchSize))
-                    {
-                        using IServiceScope scope = _serviceScopeFactory.CreateScope();
-                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
 
-                        IReadOnlyDictionary<string, List<string>> candidateKeysByKey = batch.ToDictionary(
+                    using (IServiceScope scope = _serviceScopeFactory.CreateScope())
+                    {
+                        BusRepository busRepository = scope.ServiceProvider.GetRequiredService<BusRepository>();
+                        IReadOnlyDictionary<string, List<string>> candidateKeysByKey = unmatchedBusLocations.ToDictionary(
                             x => x.JourneyKey,
                             x => _departureOffsetMinutes
                                 // it is build from -1, 1, -2, 2, -3, 3 ...
@@ -245,9 +244,6 @@ namespace Backend.Services
         {
             // Furthest a reported departure is shifted, in minutes, when nothing matched it exactly.
             public required int MaxDepartureOffsetMinutes { get; init; }
-
-            // How many bus locations are looked up in the database at a time.
-            public required int DatabaseLookupBatchSize { get; init; }
 
             // How long a journey is kept after it was last seen in the location feed.
             public required TimeSpan DataRetentionPeriod { get; init; }

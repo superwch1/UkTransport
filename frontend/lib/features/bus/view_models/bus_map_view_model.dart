@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/enum/status_code.dart';
+import 'package:frontend/core/network/response/bus_calling_point_item_response.dart';
 import 'package:frontend/core/network/response/bus_location_item_response.dart';
-import 'package:frontend/core/network/response/bus_route_item_response.dart';
 import 'package:frontend/core/network/response/bus_stop_item_response.dart';
 import 'package:frontend/core/network/transport_api_service.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -18,7 +18,7 @@ class BusMapViewModel {
 
   List<BusLocationItemResponse> _busLocations = [];
   List<BusStopItemResponse> _busStops = [];
-  List<BusRouteItemResponse> _busRoutes = [];
+  List<BusCallingPointItemResponse> _busRoutes = [];
 
   bool _layerReady = false;
 
@@ -111,8 +111,8 @@ class BusMapViewModel {
 
       final response = await transportApiService.getBusRoute(busLocation.journeyKey);
       if (response.statusCode == StatusCode.ok && response.data != null) {
-        _busRoutes = response.data!.busRoutes;
-      } 
+        _busRoutes = response.data!.busCallingPoints;
+      }
       
     }
     else if (source == _busStopSourceId){
